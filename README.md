@@ -1,2 +1,2 @@
-# So-ial_Network
+# Social_Network
 My project for studying MAUI 
