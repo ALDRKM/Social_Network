@@ -6,6 +6,7 @@ namespace Social_Network.Models
 {
     internal class User
     {
+        // Properties
         public int Id { get; set; }
         public string Login { get; set; }
         public string Email { get; set; }
@@ -15,5 +16,10 @@ namespace Social_Network.Models
         public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsOnline { get; set; }
+
+        // Navigation properties
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
+        public ICollection<Subscription> Followers { get; set; } = new List<Subscription>();
+        public ICollection<Subscription> Following { get; set; } = new List<Subscription>();
     }
 }
