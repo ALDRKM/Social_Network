@@ -18,8 +18,12 @@ namespace Social_Network.Models
         public bool IsOnline { get; set; }
 
         // Navigation properties
+        public UserSettings? Settings { get; set; }
         public ICollection<Post> Posts { get; set; } = new List<Post>();
         public ICollection<Subscription> Followers { get; set; } = new List<Subscription>();
         public ICollection<Subscription> Following { get; set; } = new List<Subscription>();
+        public ICollection<Like> Likes { get; set; } = new List<Like>();
+        public ICollection<SavedPost> SavedPosts { get; set; } = new List<SavedPost>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

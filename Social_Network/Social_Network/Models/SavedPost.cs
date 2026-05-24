@@ -6,5 +6,13 @@ namespace Social_Network.Models
 {
     internal class SavedPost
     {
+        // Property
+        public int Id { get; set; }
+        public DateTime SavedAt { get; set; } = DateTime.Now;
+        // Foreign key and navigation property for User and Post
+        public int UserId { get; set; }
+        public User? User { get; set; }
+        public int PostId { get; set; }
+        public Post? Post { get; set; }
     }
 }
