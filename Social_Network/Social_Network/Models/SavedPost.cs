@@ -8,7 +8,7 @@ namespace Social_Network.Models
     {
         // Property
         public int Id { get; set; }
-        public DateTime SavedAt { get; set; } = DateTime.Now;
+        public DateTime SavedAt { get; set; } = DateTime.UtcNow;
         // Foreign key and navigation property for User and Post
         public int UserId { get; set; }
         public User? User { get; set; }

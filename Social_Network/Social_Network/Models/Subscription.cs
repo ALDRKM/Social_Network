@@ -6,8 +6,10 @@ namespace Social_Network.Models
 {
     internal class Subscription
     {
+        // Properties
         public int Id { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // Foreign keys and navigation properties for User (Follower and Following)
         public int FollewerId { get; set; }
         public User? Follower { get; set; }
         public int FollowingId { get; set; }
