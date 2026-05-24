@@ -19,5 +19,6 @@ namespace Social_Network.Models
         // Navigation properties 
         public ICollection<Like> Likes { get; set; } = new List<Like>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<SavedPost> SavedPosts { get; set; } = new List<SavedPost>();
     }
 }

@@ -12,6 +12,6 @@ namespace Social_Network.Models
         public bool NotificatonsEnabled { get; set; } = true;
         // Foreing key and navigaton property for User
         public int UserId { get; set; }
-        public User? User { get; set; } = null;
+        public User? User { get; set; } 
     }
 }

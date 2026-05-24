@@ -12,8 +12,8 @@ namespace Social_Network.Models
         public DateTime CreatedAt { get; set; }
         // Foreign keys and navigation properties for Post and User
         public int PostId { get; set; }
-        public Post? Post { get; set; } = null;
+        public Post Post { get; set; } 
         public int UserId { get; set; }
-        public User? User { get; set; } = null;
+        public User User { get; set; } 
     }
 }
