@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Social_Network.Core.Models
 {
-    internal class UserSettings
+    public class UserSettings
     {
         // Property
         public int Id { get; set; }
