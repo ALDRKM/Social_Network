@@ -4,13 +4,14 @@ using System.Text;
 
 namespace Social_Network.Core.Models
 {
-    internal class User
+    public class User
     {
         // Properties
         public int Id { get; set; }
         public string Login { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
+        public DateTime? BirthDate { get; set; }
         public string? Gender { get; set; }
         public string? Bio { get; set; }
         public string? AvatarUrl { get; set; }

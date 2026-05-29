@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Social_Network.Core.Models
 {
-    internal class SavedPost
+    public class SavedPost
     {
         // Property
         public int Id { get; set; }

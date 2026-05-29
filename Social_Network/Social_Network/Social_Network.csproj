@@ -77,7 +77,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Social_Network.API\Social_Network.API.csproj" />
 	  <ProjectReference Include="..\Social_Network.Core\Social_Network.Core.csproj" />
 	</ItemGroup>
 

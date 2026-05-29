@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Social_Network.Core.Models
 {
-    internal class Chat
+    public class Chat
     {
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
