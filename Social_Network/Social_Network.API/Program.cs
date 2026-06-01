@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Social_Network.API.Data;
+using Social_Network.API.Services;
 
 namespace Social_Network.API
 {
@@ -19,6 +20,11 @@ namespace Social_Network.API
             builder.Services.AddCors(option => option.AddPolicy("AllowAll", policy =>
                 policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
             ));
+
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
             var app = builder.Build();
 
