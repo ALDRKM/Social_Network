@@ -6,6 +6,6 @@ namespace Social_Network.API.Services
     {
         Task<User?> GetUserByIdAsync(int id);
         Task<User?> UpdateUserProfileAsync(int id, string login, string? bio, string? avatarURL);
-        Task DeleteAccountAsync(int id);
+        Task<bool> DeleteAccountAsync(int id);
     }
 }
