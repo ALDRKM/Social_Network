@@ -25,13 +25,13 @@ namespace Social_Network.API.Controllers
         }
 
         public record LoginRequest(string Email, string Password);
-        public record LoginResponse(int Id , string Login, string Email, string? AvatarURL);
+        public record LoginResponse(int Id , string Login, string Email, string? AvatarUrl);
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
         {
             var user = await _auth.LoginAsync(req.Email, req.Password);
-            if (user == null) return BadRequest("Неверный email или пароль");
+            if (user == null) return Unauthorized("Неверный email или пароль");
 
             return Ok(new LoginResponse(user.Id, user.Login, user.Email, user.AvatarUrl));
 
