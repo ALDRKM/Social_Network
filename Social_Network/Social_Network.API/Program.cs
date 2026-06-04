@@ -13,6 +13,8 @@ namespace Social_Network.API
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=Socialnetwork.db"));
 
@@ -27,6 +29,12 @@ namespace Social_Network.API
             builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
             var app = builder.Build();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
 
             // Configure the HTTP request pipeline.
