@@ -4,6 +4,6 @@
     {
         Task FollowAsync(int followerId, int followingId);
         Task UnFollowAsync(int followerId, int followingId);
-        Task<bool> IsFollow(int followerId, int followingId);
+        Task<bool> IsFollowingAsync(int followerId, int followingId);
     }
 }
