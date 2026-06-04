@@ -1,6 +1,10 @@
 ﻿namespace Social_Network.API.Services
 {
-    public class ILikeService
+    public interface ILikeService
     {
+        Task CreateLikeAsync(int userId, int postId);
+        Task DeleteLikeAsync(int userId, int postId);
+        Task<int> GetCountLikeAsync(int postId);
+        Task<bool> IsLikeAsync(int userId, int postId);
     }
 }
