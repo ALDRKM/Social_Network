@@ -38,7 +38,7 @@ namespace Social_Network.API.Services
             }
         }
 
-        public async Task<bool> IsFollow(int followerId, int followingId) => await _db.Subscriptions.AnyAsync(sub => sub.FollowerId == followerId && sub.FollowingId == followingId);
+        public async Task<bool> IsFollowingAsync(int followerId, int followingId) => await _db.Subscriptions.AnyAsync(sub => sub.FollowerId == followerId && sub.FollowingId == followingId);
 
 
     }
