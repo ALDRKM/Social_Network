@@ -17,7 +17,7 @@ namespace Social_Network.API.Services
         public async Task<Chat> CreateOrGetChatUserAsync(int user1Id, int user2Id)
         {
             var already = await _db.Chats.FirstOrDefaultAsync(c => (c.User1Id == user1Id && c.User2Id == user2Id) ||
-            c.User2Id == user1Id && c.User1Id == user2Id);
+            (c.User2Id == user1Id && c.User1Id == user2Id));
             if(already == null)
             {
                 var chat = new Chat()
