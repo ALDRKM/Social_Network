@@ -5,7 +5,7 @@ namespace Social_Network.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CommentController: ControllerBase
+    public class CommentController : ControllerBase
     {
         private ICommentsService _comment;
         public CommentController(ICommentsService comment) => _comment = comment;
@@ -27,7 +27,7 @@ namespace Social_Network.API.Controllers
         }
 
         [HttpDelete("{userId}/{commentId}")]
-        public async Task<IActionResult> DeleteComment([FromRoute]int userId, [FromRoute] int commentId)
+        public async Task<IActionResult> DeleteComment([FromRoute] int userId, [FromRoute] int commentId)
         {
             bool delcom = await _comment.DeleteCommentAsync(userId, commentId);
             if (!delcom) return NotFound();
