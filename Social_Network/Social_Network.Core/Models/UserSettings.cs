@@ -9,7 +9,7 @@ namespace Social_Network.Core.Models
         // Property
         public int Id { get; set; }
         public bool IsPrivateAccount { get; set; } = false;
-        public bool NotificatonsEnabled { get; set; } = true;
+        public bool NotificationsEnabled { get; set; } = true;
         // Foreing key and navigaton property for User
         public int UserId { get; set; }
         public User? User { get; set; } 
