@@ -27,6 +27,10 @@ namespace Social_Network.API
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+            builder.Services.AddScoped<IChatService,ChatService>();
+            builder.Services.AddScoped<IMessageService,MessageService>();
+            builder.Services.AddScoped<ILikeService,LikeService>();
+            builder.Services.AddScoped<ICommentsService,CommentsService>();
 
             var app = builder.Build();
 
