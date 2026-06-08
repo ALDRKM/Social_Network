@@ -8,5 +8,6 @@ namespace Social_Network.API.Services
         Task<List<Chat>> GetUserChatsAsync(int userId);
         Task<Chat> CreateOrGetChatUserAsync(int user1Id, int user2Id);
         Task<bool> DeleteChatAsync(int chatId);
+        Task<bool> UserHasAccessToChatAsync(int userId, int chatId);
     }
 }
