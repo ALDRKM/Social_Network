@@ -41,5 +41,7 @@ namespace Social_Network.API.Services
             await _db.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> UserHasAccessToChatAsync(int userId, int chatId) => await _db.Chats.AnyAsync(c => c.Id == chatId && (c.User1Id == userId || c.User2Id == userId));
     }
 }
