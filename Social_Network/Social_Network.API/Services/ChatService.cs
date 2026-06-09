@@ -1,4 +1,5 @@
 ﻿using Social_Network.Core.Models;
+using Social_Network.Core.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Social_Network.API.Data;
 
@@ -9,10 +10,38 @@ namespace Social_Network.API.Services
         private readonly AppDbContext _db;
         public ChatService(AppDbContext db) => _db = db;
 
-        public async Task<List<Chat>> GetUserChatsAsync(int userId) => await _db.Chats
+        public async Task<List<ChatDto>> GetUserChatsAsync(int userId)
+        {
+            var chats = await _db.Chats
             .Include(chat => chat.User2)
             .Include(chat => chat.User1)
+            .Include(chat => chat.Messages)
             .Where(chat => chat.User1Id == userId || chat.User2Id == userId).ToListAsync();
+
+            return chats.Select(chat =>
+            {
+                var other = chat.User1Id == userId ? chat.User2! : chat.User1!;
+                var last = chat.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault();
+
+                return new ChatDto()
+                {
+                    Id = chat.Id,
+                    CreatedAt = chat.CreatedAt,
+                    OtherUserId = other.Id,
+                    OtherUserLogin = other.Login,
+                    OtherUserAvatarUrl = other.AvatarUrl,
+                    LastMessage = last == null ? null : new MessageDto()
+                    {
+                        Id = last.Id,
+                        ChatId = chat.Id,
+                        SenderId = last.SenderId,
+                        Text = last.Text,
+                        SentAt = last.SentAt,
+                        IsRead = last.IsRead
+                    }
+                };
+            }).ToList();
+        }
 
         public async Task<Chat> CreateOrGetChatUserAsync(int user1Id, int user2Id)
         {
@@ -42,6 +71,7 @@ namespace Social_Network.API.Services
             return true;
         }
 
-        public async Task<bool> UserHasAccessToChatAsync(int userId, int chatId) => await _db.Chats.AnyAsync(c => c.Id == chatId && (c.User1Id == userId || c.User2Id == userId));
+        public async Task<bool> UserHasAccessToChatAsync(int userId, int chatId) => 
+            await _db.Chats.AnyAsync(c => c.Id == chatId && (c.User1Id == userId || c.User2Id == userId));
     }
 }

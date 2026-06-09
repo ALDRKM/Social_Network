@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Social_Network.API.Data;
 using Social_Network.API.Services;
+using Social_Network.API.Hubs;
 
 namespace Social_Network.API
 {
@@ -52,6 +53,7 @@ namespace Social_Network.API
 
 
             app.MapControllers();
+            app.MapHub<ChatHub>("/hubs/chat");
 
             app.Run();
         }
