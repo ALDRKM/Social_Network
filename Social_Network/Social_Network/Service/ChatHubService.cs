@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Social_Network.Service
 {
-    internal class IUserServise
+    internal class ChatHubService
     {
     }
 }
