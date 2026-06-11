@@ -4,7 +4,10 @@ using System.Text;
 
 namespace Social_Network.Constants
 {
-    internal class AppSettings
+    public static class AppSettings
     {
+        public const string UserIdKey = "userId";
+        public const string UserLoginKey = "userLogin";
+        public const string AvatarUrlKey = "avatarUrl";
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Social_Network.API.Data;
 using Social_Network.Core.Models;
+using Social_Network.Core.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Social_Network.API.Services
@@ -9,10 +10,18 @@ namespace Social_Network.API.Services
         private readonly AppDbContext _db;
         public MessageService(AppDbContext db) => _db = db;
 
-        public async Task<List<Message>> GetByChatIdAsync(int chatId) =>
-            await _db.Messages.Include(m => m.Sender).Where(m => m.ChatId == chatId).OrderBy(m => m.SentAt).ToListAsync();
+        public async Task<List<MessageDto>> GetByChatIdAsync(int chatId) =>
+            await _db.Messages.Include(m => m.Sender).Where(m => m.ChatId == chatId).OrderBy(m => m.SentAt).Select(m => new MessageDto
+            {
+                Id = m.Id,
+                ChatId = m.ChatId,
+                SenderId = m.SenderId,
+                Text = m.Text,
+                SentAt = m.SentAt,
+                IsRead = m.IsRead
+            }).ToListAsync();
 
-        public async Task<Message> SendAsync(int chatId, int senderId, string text)
+        public async Task<MessageDto> SendAsync(int chatId, int senderId, string text)
         {
             var message = new Message()
             {
@@ -22,7 +31,15 @@ namespace Social_Network.API.Services
             };
             _db.Messages.Add(message);
             await _db.SaveChangesAsync();
-            return message;
+            return new MessageDto
+            {
+                Id = message.Id,
+                ChatId = message.ChatId,
+                SenderId = message.SenderId,
+                Text = message.Text,
+                SentAt = message.SentAt,
+                IsRead = message.IsRead
+            };
         }
 
         public async Task MarkIsReadAsync(int messageId)
