@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Social_Network.Core.Models.DTOs;
 
 namespace Social_Network.Service
 {
-    internal class IChatService
+    public interface IChatService
     {
+        Task<List<ChatDto>> GetUserChatsAsync(int userId);
+        Task<ChatDto?> CreateOrGetChatAsync(int user1Id, int user2Id);
     }
 }
