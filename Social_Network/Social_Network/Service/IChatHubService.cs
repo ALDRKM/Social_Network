@@ -1,10 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Social_Network.Core.Models.DTOs;
 
 namespace Social_Network.Service
 {
-    internal class IChatHubService
+    public interface IChatHubService
     {
+        Task StartAsync();
+        Task StopAsync();
+        Task JoinChatAsync(int chatId, int userId);
+        Task LeaveChatAsync(int chatId, int userId);
+        
+        event Action<MessageDto>? MessageReceived;
+        event Action<int>? MessageDeleted;
+        event Action<int, int>? MessageRead;
     }
 }
