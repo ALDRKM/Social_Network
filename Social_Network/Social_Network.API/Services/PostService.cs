@@ -58,5 +58,14 @@ namespace Social_Network.API.Services
                 await _db.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Post>> SearchPostsAsync(string query)
+        {
+            return await _db.Posts.Include(p => p.User)
+                .Where(p => p.Content.ToLower().Contains(query.ToLower()))
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(30)
+                .ToListAsync();
+        }
     }
 }
