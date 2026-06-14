@@ -44,5 +44,13 @@ namespace Social_Network.API.Controllers
             return NoContent();
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query)) return BadRequest();
+            var users = await _user.SearchUsersAsync(query);
+            return Ok(users);
+        }
+
     }
 }

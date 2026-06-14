@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Social_Network.Core.Models;
+
 
 namespace Social_Network.Service
 {
-    internal class ISearchService
+    public interface ISearchService
     {
+        Task<List<User>> SearchUsersAsync(string query);
+        Task<List<Post>> SearchPostsAsync(string query);
     }
 }

@@ -40,5 +40,14 @@ namespace Social_Network.API.Controllers
             await _post.DeletePostAsync(userId, postId);
             return NoContent();
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchPosts([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query)) return BadRequest();
+
+            var posts = await _post.SearchPostsAsync(query);
+            return Ok(posts);
+        }
     }
 }
