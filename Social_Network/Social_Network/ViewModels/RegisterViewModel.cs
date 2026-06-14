@@ -50,7 +50,7 @@ namespace Social_Network.ViewModels
                 ErrorMessage = error;
                 return;
             }
-            await Shell.Current.DisplayAlertAsync("Готово","Аккаунт был создан успешно!","ОК");
+            await Shell.Current.DisplayAlertAsync("Готово","Аккаунт был создан успешно! Войдите в аккаунт","ОК");
             await Shell.Current.GoToAsync("//LoginPage");
         }
 
