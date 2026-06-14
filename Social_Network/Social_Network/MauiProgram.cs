@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Social_Network.Service;
+using Social_Network.ViewModels;
 
 namespace Social_Network
 {
@@ -15,8 +17,23 @@ namespace Social_Network
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+
+            //http client
+            builder.Services.AddSingleton<HttpClient>();
+
+            //services
+            builder.Services.AddSingleton<IAuthService, AuthService>();
+            builder.Services.AddSingleton<IChatHubService, ChatHubService>();
+            builder.Services.AddSingleton<IMessageService, MessageService>();
+            builder.Services.AddSingleton<IChatService, ChatService>();
+
+            //viewmodels
+            builder.Services.AddTransient<LoginViewModel>();
+
+
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
