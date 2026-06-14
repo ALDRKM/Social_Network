@@ -4,7 +4,7 @@ using Social_Network.Core.Models;
 
 namespace Social_Network.Service
 {
-    public class CommentService
+    public class CommentService: ICommentService
     {
         private readonly HttpClient _http;
         public CommentService(HttpClient http) => _http = http;
