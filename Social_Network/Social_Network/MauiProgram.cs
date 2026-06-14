@@ -28,7 +28,8 @@ namespace Social_Network
             builder.Services.AddSingleton<IChatService, ChatService>();
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<ISearchService, SearchService>();
-            builder.Services.AddSingleton<>();
+            builder.Services.AddSingleton<ICommentService, CommentService>();
+            builder.Services.AddSingleton<IPostService, PostService>();
 
 
             //viewmodels
