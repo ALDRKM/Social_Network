@@ -30,6 +30,7 @@ namespace Social_Network
             builder.Services.AddSingleton<ISearchService, SearchService>();
             builder.Services.AddSingleton<ICommentService, CommentService>();
             builder.Services.AddSingleton<IPostService, PostService>();
+            builder.Services.AddSingleton<ILikeService,LikeService>();
 
 
             //viewmodels
