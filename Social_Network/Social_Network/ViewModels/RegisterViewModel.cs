@@ -1,10 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Social_Network.Constants;
+using Social_Network.Service;
+using SQLitePCL;
+
 
 namespace Social_Network.ViewModels
 {
-    internal class RegisterViewModel
+    public partial class RegisterViewModel: BaseViewModel
     {
+        private readonly IAuthService _auth;
+        public RegisterViewModel(IAuthService auth)
+        {
+            _auth = auth;
+            Title = "Регистрация";
+        }
+
+        [ObservableProperty]
+        private string login = string.Empty;
+        [ObservableProperty]
+        private string email = string.Empty;
+        [ObservableProperty]
+        private string password = string.Empty;
+        [ObservableProperty]
+        private string confimPassword = string.Empty;
+        [ObservableProperty]
+        private string? errorMessage;
+
+        [RelayCommand]
+        private async Task Register()
+        {
+            if(string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(ConfimPassword) || string.IsNullOrWhiteSpace(Password))
+            {
+                ErrorMessage = "Заполните все поля";
+                return;
+            }
+            if(Password != ConfimPassword)
+            {
+                ErrorMessage = "Пароли не совпадают";
+                return;
+            }
+
+            IsBusy = true;
+            var (success, error) = await _auth.RegisterAsync(Login,Email,Password);
+            IsBusy = false;
+
+            if (!success)
+            {
+                ErrorMessage = error;
+                return;
+            }
+            await Shell.Current.DisplayAlertAsync("Готово","Аккаунт был создан успешно!","ОК");
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
+
+        [RelayCommand]
+        private async Task GoToLogin()
+        {
+            await Shell.Current.GoToAsync("//Loginpage");
+        }
     }
 }
