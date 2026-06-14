@@ -26,6 +26,10 @@ namespace Social_Network
             builder.Services.AddSingleton<IChatHubService, ChatHubService>();
             builder.Services.AddSingleton<IMessageService, MessageService>();
             builder.Services.AddSingleton<IChatService, ChatService>();
+            builder.Services.AddSingleton<IUserService, UserService>();
+            builder.Services.AddSingleton<ISearchService, SearchService>();
+            builder.Services.AddSingleton<>();
+
 
             //viewmodels
             builder.Services.AddTransient<LoginViewModel>();
