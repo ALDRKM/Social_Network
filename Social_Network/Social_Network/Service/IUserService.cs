@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Social_Network.Core.Models;
 
 namespace Social_Network.Service
 {
-    internal class IUserService
+    public interface IUserService
     {
+        Task<User?> GetUserByIdAsync(int userId);
+        Task<User?> UpdateProfileAsync(int id, string login, string? bio, string? avatarUrl);
+        Task<bool> DeleteAccountAsync(int id);
     }
 }
