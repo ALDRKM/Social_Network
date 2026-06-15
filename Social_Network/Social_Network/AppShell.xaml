@@ -3,12 +3,16 @@
     x:Class="Social_Network.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Social_Network"
-    Title="Social_Network">
+    xmlns:views="clr-namespace:Social_Network.Views"
+    Shell.TabBarIsVisible="False"
+    Shell.NavBarIsVisible="False">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <ShellContent Route="LoginPage"    ContentTemplate="{DataTemplate views:LoginPage}" />
+    <ShellContent Route="RegisterPage" ContentTemplate="{DataTemplate views:RegisterPage}" />
+    <ShellContent Route="FeedPage"     ContentTemplate="{DataTemplate views:FeedPage}" />
+    <ShellContent Route="SearchPage"   ContentTemplate="{DataTemplate views:SearchPage}" />
+    <ShellContent Route="CreatePostPage" ContentTemplate="{DataTemplate views:CreatePostPage}" />
+    <ShellContent Route="ChatListPage" ContentTemplate="{DataTemplate views:ChatListPage}" />
+    <ShellContent Route="ProfilePage"  ContentTemplate="{DataTemplate views:ProfilePage}" />
 
 </Shell>
