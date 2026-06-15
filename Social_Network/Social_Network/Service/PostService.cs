@@ -9,6 +9,18 @@ namespace Social_Network.Service
         private readonly HttpClient _http;
         public PostService(HttpClient http) => _http = http;
 
+
+        public async Task<Post?> GetByIdAsync(int postId)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<Post?>($"{ApiConfig.BaseUrl}/post/{postId}");
+            }
+            catch
+            {
+                return null;
+            }
+        }
         public async Task<List<Post>> GetFeedAsync(int userId)
         {
             try

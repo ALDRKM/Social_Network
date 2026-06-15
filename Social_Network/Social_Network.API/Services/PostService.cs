@@ -8,6 +8,14 @@ namespace Social_Network.API.Services
     {
         private readonly AppDbContext _db;
         public PostService(AppDbContext db) => _db = db;
+
+        public async Task<Post?> GetByIdAsync(int postId)
+        {
+             return  await _db.Posts.Include(p => p.User)
+                .Include(p => p.Comments)
+                .Include(p => p.Likes)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+        }
         public async Task<List<Post>> GetFeedAsync(int userId)
         {
 

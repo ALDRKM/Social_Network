@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi;
 using Social_Network.API.Services;
 
 
@@ -10,6 +11,16 @@ namespace Social_Network.API.Controllers
     {
         private readonly IPostService _post;
         public PostController(IPostService post) => _post = post;
+
+
+
+        [HttpGet("{postId}")]
+        public async Task<IActionResult> GetByIdAsync([FromRoute]int postId)
+        {
+            var post = await _post.GetByIdAsync(postId);
+            if (post == null) return NotFound();
+            return Ok(post);
+        }
 
         [HttpGet("feed/{userId}")]
         public async Task<IActionResult> GetFeed([FromRoute]int userId)

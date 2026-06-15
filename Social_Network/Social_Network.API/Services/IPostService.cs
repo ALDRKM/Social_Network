@@ -5,6 +5,7 @@ namespace Social_Network.API.Services
 {
     public interface IPostService
     {
+        Task<Post?> GetByIdAsync(int postId);
         Task<List<Post>> GetFeedAsync(int userId);
         Task<List<Post>> GetUserPostsAsync(int userId);
         Task<Post> CreatePostAsync(int userId,string content, string? imageUrl);
