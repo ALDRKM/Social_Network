@@ -7,11 +7,19 @@ namespace Social_Network
         public App()
         {
             InitializeComponent();
+            MainPage = new AppShell();
         }
 
-        protected override Window CreateWindow(IActivationState? activationState)
+        protected override async void OnStart()
         {
-            return new Window(new AppShell());
+            base.OnStart();
+
+            int userId = Preferences.Default.Get(Constants.AppSettings.UserIdKey, 0);
+
+            if (userId > 0)
+                await Shell.Current.GoToAsync("//FeedPage");
+            else
+                await Shell.Current.GoToAsync("//LoginPage");
         }
     }
 }
