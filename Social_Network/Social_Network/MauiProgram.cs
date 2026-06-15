@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Social_Network.Service;
 using Social_Network.ViewModels;
+using Social_Network.Views;
 
 namespace Social_Network
 {
@@ -35,8 +36,30 @@ namespace Social_Network
 
             //viewmodels
             builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<RegisterViewModel>();
+            builder.Services.AddTransient<FeedViewModel>();
+            builder.Services.AddTransient<ProfileViewModel>();
+            builder.Services.AddTransient<OtherProfileViewModel>();
+            builder.Services.AddTransient<PostDetailViewModel>();
+            builder.Services.AddTransient<ChatsListViewModel>();
+            builder.Services.AddTransient<ChatViewModel>();
+            builder.Services.AddTransient<SearchViewModel>();
+            builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddTransient<MyActionsViewModel>();
 
-
+            //pages
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<RegisterPage>();
+            builder.Services.AddTransient<FeedPage>();
+            builder.Services.AddTransient<ProfilePage>();
+            builder.Services.AddTransient<OtherProfilePage>();
+            builder.Services.AddTransient<PostDetailPage>();
+            builder.Services.AddTransient<ChatListPage>();
+            builder.Services.AddTransient<ChatPage>();
+            builder.Services.AddTransient<SearchPage>();
+            builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<MyActionsPage>();
+            builder.Services.AddTransient<CreatePostPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
