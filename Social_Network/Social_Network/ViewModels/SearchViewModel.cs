@@ -111,5 +111,39 @@ namespace Social_Network.ViewModels
             SearchQuery = string.Empty;
             ErrorMessage = null;
         }
+
+
+
+        [ObservableProperty]
+        private bool isPostsTabSelected = true;
+
+        public bool IsUsersTabSelected => !IsPostsTabSelected;
+
+        public string PostsTabBackground => IsPostsTabSelected ? "#C2692A" : "#EDE5D8";
+        public string UsersTabBackground => IsUsersTabSelected ? "#C2692A" : "#EDE5D8";
+        public string PostsTabTextColor => IsPostsTabSelected ? "White" : "#7A5C3E";
+        public string UsersTabTextColor => IsUsersTabSelected ? "White" : "#7A5C3E";
+
+        [RelayCommand]
+        private void SelectPostsTab()
+        {
+            IsPostsTabSelected = true;
+            OnPropertyChanged(nameof(IsUsersTabSelected));
+            OnPropertyChanged(nameof(PostsTabBackground));
+            OnPropertyChanged(nameof(UsersTabBackground));
+            OnPropertyChanged(nameof(PostsTabTextColor));
+            OnPropertyChanged(nameof(UsersTabTextColor));
+        }
+
+        [RelayCommand]
+        private void SelectUsersTab()
+        {
+            IsPostsTabSelected = false;
+            OnPropertyChanged(nameof(IsUsersTabSelected));
+            OnPropertyChanged(nameof(PostsTabBackground));
+            OnPropertyChanged(nameof(UsersTabBackground));
+            OnPropertyChanged(nameof(PostsTabTextColor));
+            OnPropertyChanged(nameof(UsersTabTextColor));
+        }
     }
 }

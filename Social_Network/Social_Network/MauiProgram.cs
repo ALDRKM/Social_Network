@@ -46,6 +46,7 @@ namespace Social_Network
             builder.Services.AddTransient<SearchViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<MyActionsViewModel>();
+            builder.Services.AddTransient<CreatePostViewModel>();
 
             //pages
             builder.Services.AddTransient<LoginPage>();

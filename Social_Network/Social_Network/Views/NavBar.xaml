@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Social_Network.Views.Components.NavBar">
+
+    <!-- Мобильный навбар (снизу) -->
+    <Frame BackgroundColor="#3D1F0A"
+           Padding="0" CornerRadius="0" BorderColor="Transparent"
+           IsVisible="{OnIdiom Phone=True, Default=False}">
+        <Grid ColumnDefinitions="*,*,*,*,*" VerticalOptions="Center">
+            <Image Grid.Column="0" Source="icon_home.png"
+                   WidthRequest="26" HeightRequest="26"
+                   HorizontalOptions="Center" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnHomeTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Image Grid.Column="1" Source="icon_search.png"
+                   WidthRequest="26" HeightRequest="26"
+                   HorizontalOptions="Center" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnSearchTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Image Grid.Column="2" Source="icon_add.png"
+                   WidthRequest="26" HeightRequest="26"
+                   HorizontalOptions="Center" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCreatePostTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Image Grid.Column="3" Source="icon_chat.png"
+                   WidthRequest="26" HeightRequest="26"
+                   HorizontalOptions="Center" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnMessagesTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Image Grid.Column="4" Source="icon_profile.png"
+                   WidthRequest="26" HeightRequest="26"
+                   HorizontalOptions="Center" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnProfileTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+        </Grid>
+    </Frame>
+
+</ContentView>
