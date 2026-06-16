@@ -1,12 +1,136 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Social_Network.Views.RegisterPage"
-             Title="RegisterPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Social_Network.ViewModels"
+    x:Class="Social_Network.Views.RegisterPage"
+    x:DataType="vm:RegisterViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F5F0E0">
+
+    <Grid>
+
+        <!-- Фоновое дерево -->
+        <Image
+            Source="bg_tree.png"
+            Opacity="0.18"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            Aspect="AspectFit"
+            HeightRequest="500" />
+
+        <!-- Контент -->
+        <Grid RowDefinitions="*, Auto, Auto, Auto, Auto, Auto, Auto, Auto, *" Padding="32,0">
+
+            <BoxView Grid.Row="0" Color="Transparent" />
+
+            <!-- Заголовок -->
+            <Label
+                Grid.Row="1"
+                Text="Регистрация"
+                FontSize="24"
+                TextColor="#3B2A1A"
+                HorizontalOptions="Center"
+                Margin="0,0,0,20" />
+
+            <!-- Логин -->
+            <Frame Grid.Row="2"
+                   BackgroundColor="#C4A882" CornerRadius="24"
+                   Padding="16,0" HeightRequest="52"
+                   HasShadow="False" Margin="0,0,0,10">
+                <Entry Text="{Binding Login}"
+                       Placeholder="Логин"
+                       PlaceholderColor="#7A5C3E"
+                       TextColor="#3B2A1A"
+                       BackgroundColor="Transparent"
+                       VerticalOptions="Center" />
+            </Frame>
+
+            <!-- Email -->
+            <Frame Grid.Row="3"
+                   BackgroundColor="#C4A882" CornerRadius="24"
+                   Padding="16,0" HeightRequest="52"
+                   HasShadow="False" Margin="0,0,0,10">
+                <Entry Text="{Binding Email}"
+                       Placeholder="Эл. Почта"
+                       PlaceholderColor="#7A5C3E"
+                       TextColor="#3B2A1A"
+                       BackgroundColor="Transparent"
+                       VerticalOptions="Center"
+                       Keyboard="Email" />
+            </Frame>
+
+            <!-- Пароль -->
+            <Frame Grid.Row="4"
+                   BackgroundColor="#C4A882" CornerRadius="24"
+                   Padding="16,0" HeightRequest="52"
+                   HasShadow="False" Margin="0,0,0,10">
+                <Entry Text="{Binding Password}"
+                       Placeholder="Пароль"
+                       PlaceholderColor="#7A5C3E"
+                       TextColor="#3B2A1A"
+                       BackgroundColor="Transparent"
+                       VerticalOptions="Center"
+                       IsPassword="True" />
+            </Frame>
+
+            <!-- Повторите пароль -->
+            <Frame Grid.Row="5"
+                   BackgroundColor="#C4A882" CornerRadius="24"
+                   Padding="16,0" HeightRequest="52"
+                   HasShadow="False" Margin="0,0,0,10">
+                <Entry Text="{Binding ConfirmPassword}"
+                       Placeholder="Повторите пароль"
+                       PlaceholderColor="#7A5C3E"
+                       TextColor="#3B2A1A"
+                       BackgroundColor="Transparent"
+                       VerticalOptions="Center"
+                       IsPassword="True" />
+            </Frame>
+
+            <!-- Ошибка -->
+            <Label Grid.Row="6"
+                   Text="{Binding ErrorMessage}"
+                   TextColor="#8B2020"
+                   FontSize="13"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                   Margin="0,0,0,6" />
+
+            <!-- Кнопка Зарегистрироваться -->
+            <Button Grid.Row="7"
+                    Text="Зарегистрироваться"
+                    Command="{Binding RegisterCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    BackgroundColor="#4A6B2A"
+                    TextColor="White"
+                    CornerRadius="24"
+                    HeightRequest="52"
+                    FontSize="16" />
+
+            <BoxView Grid.Row="8" Color="Transparent" />
+
+        </Grid>
+
+        <!-- Ссылка назад -->
+        <Label
+            Text="Войти в аккаунт"
+            TextColor="#3B2A1A"
+            FontSize="15"
+            HorizontalOptions="Center"
+            VerticalOptions="End"
+            Margin="0,0,0,32">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding GoToLoginCommand}" />
+            </Label.GestureRecognizers>
+        </Label>
+
+        <ActivityIndicator
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            Color="#4A6B2A"
+            HorizontalOptions="Center"
+            VerticalOptions="Center" />
+
+    </Grid>
 </ContentPage>

@@ -2,11 +2,127 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Social_Network.Views.SearchPage"
-             Title="SearchPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             BackgroundColor="#F5F0E8"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto, *, 70">
+
+        <!-- Строка поиска -->
+        <Frame Grid.Row="0"
+               Margin="12,12,12,8"
+               Padding="12,0"
+               CornerRadius="20"
+               BackgroundColor="#EDE5D8"
+               BorderColor="Transparent"
+               HeightRequest="44">
+            <Grid ColumnDefinitions="*, Auto">
+                <Entry Grid.Column="0"
+                       Placeholder="Поиск"
+                       PlaceholderColor="#A08060"
+                       TextColor="#2C1A0E"
+                       BackgroundColor="Transparent"
+                       Text="{Binding SearchQuery}"
+                       ReturnCommand="{Binding SearchCommand}"
+                       VerticalOptions="Center"
+                       FontSize="15"/>
+                <Label Grid.Column="1"
+                       Text="🔍"
+                       FontSize="18"
+                       TextColor="#A08060"
+                       VerticalOptions="Center"/>
+            </Grid>
+        </Frame>
+
+        <!-- Сетка результатов -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Users}"
+                        Margin="8,0">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="3"
+                                 HorizontalItemSpacing="6"
+                                 VerticalItemSpacing="6"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="0"
+                           CornerRadius="14"
+                           IsClippedToBounds="True"
+                           BorderColor="Transparent"
+                           BackgroundColor="#D4873A"
+                           HeightRequest="110">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenProfileCommand}"
+                                CommandParameter="{Binding .}"/>
+                        </Frame.GestureRecognizers>
+
+                        <!-- Аватар на весь блок -->
+                        <Image Source="{Binding AvatarUrl}"
+                               Aspect="AspectFill"/>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Нижняя навигация -->
+        <Frame Grid.Row="2"
+               BackgroundColor="#3D1F0A"
+               Padding="0"
+               CornerRadius="0"
+               BorderColor="Transparent">
+            <Grid ColumnDefinitions="*,*,*,*,*"
+                  VerticalOptions="Center">
+
+                <!-- Главная -->
+                <Label Grid.Column="0" Text="⌂" FontSize="22"
+                       TextColor="#A07858"
+                       HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnHomeTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <!-- Поиск (активная) -->
+                <Frame Grid.Column="1"
+                       BackgroundColor="#5C3317"
+                       CornerRadius="20"
+                       Padding="10,8"
+                       Margin="8,6"
+                       BorderColor="Transparent"
+                       HorizontalOptions="Center">
+                    <Label Text="🔍" FontSize="22" TextColor="White"
+                           HorizontalOptions="Center"/>
+                </Frame>
+
+                <!-- Создать пост -->
+                <Label Grid.Column="2" Text="⊕" FontSize="26"
+                       TextColor="#A07858"
+                       HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCreatePostTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <!-- Сообщения -->
+                <Label Grid.Column="3" Text="⋯" FontSize="26"
+                       TextColor="#A07858"
+                       HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnMessagesTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <!-- Профиль -->
+                <Label Grid.Column="4" Text="👤" FontSize="22"
+                       TextColor="#A07858"
+                       HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnProfileTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+        </Frame>
+
+    </Grid>
 </ContentPage>

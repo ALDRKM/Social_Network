@@ -23,19 +23,19 @@ namespace Social_Network.ViewModels
         [ObservableProperty]
         private string password = string.Empty;
         [ObservableProperty]
-        private string confimPassword = string.Empty;
+        private string confirmPassword = string.Empty;
         [ObservableProperty]
         private string? errorMessage;
 
         [RelayCommand]
         private async Task Register()
         {
-            if(string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(ConfimPassword) || string.IsNullOrWhiteSpace(Password))
+            if(string.IsNullOrWhiteSpace(Login)||string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(ConfirmPassword) || string.IsNullOrWhiteSpace(Password))
             {
                 ErrorMessage = "Заполните все поля";
                 return;
             }
-            if(Password != ConfimPassword)
+            if(Password != ConfirmPassword)
             {
                 ErrorMessage = "Пароли не совпадают";
                 return;
@@ -57,7 +57,7 @@ namespace Social_Network.ViewModels
         [RelayCommand]
         private async Task GoToLogin()
         {
-            await Shell.Current.GoToAsync("//Loginpage");
+            await Shell.Current.GoToAsync("//LoginPage");
         }
     }
 }
