@@ -16,7 +16,7 @@ public partial class SearchPage : ContentPage
         => await Shell.Current.GoToAsync("CreatePostPage");
 
     private async void OnMessagesTapped(object sender, EventArgs e)
-        => await Shell.Current.GoToAsync("//ChatsPage");
+        => await Shell.Current.GoToAsync("//ChatListPage");
 
     private async void OnProfileTapped(object sender, EventArgs e)
         => await Shell.Current.GoToAsync("//ProfilePage");

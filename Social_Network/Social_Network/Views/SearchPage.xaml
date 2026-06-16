@@ -5,122 +5,258 @@
              BackgroundColor="#F5F0E8"
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto, *, 70">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{OnIdiom Phone=0, Default=220}"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{OnIdiom Phone=70, Default=0}"/>
+        </Grid.RowDefinitions>
 
-        <!-- Строка поиска -->
-        <Frame Grid.Row="0"
-               Margin="12,12,12,8"
-               Padding="12,0"
-               CornerRadius="20"
-               BackgroundColor="#EDE5D8"
-               BorderColor="Transparent"
-               HeightRequest="44">
-            <Grid ColumnDefinitions="*, Auto">
-                <Entry Grid.Column="0"
-                       Placeholder="Поиск"
-                       PlaceholderColor="#A08060"
-                       TextColor="#2C1A0E"
-                       BackgroundColor="Transparent"
-                       Text="{Binding SearchQuery}"
-                       ReturnCommand="{Binding SearchCommand}"
-                       VerticalOptions="Center"
-                       FontSize="15"/>
-                <Label Grid.Column="1"
-                       Text="🔍"
-                       FontSize="18"
-                       TextColor="#A08060"
-                       VerticalOptions="Center"/>
-            </Grid>
+        <!-- ===== БОКОВАЯ ПАНЕЛЬ (ПК) ===== -->
+        <Frame Grid.Column="0" Grid.Row="0"
+               BackgroundColor="#3D1F0A"
+               Padding="0" CornerRadius="0" BorderColor="Transparent"
+               IsVisible="{OnIdiom Phone=False, Default=True}">
+            <StackLayout Padding="16,32,16,16" Spacing="8">
+
+                <Label Text="SocialNet"
+                       FontSize="22" FontAttributes="Bold"
+                       TextColor="White" Margin="8,0,0,24"/>
+
+                <Frame BackgroundColor="Transparent" CornerRadius="12"
+                       Padding="12,10" BorderColor="Transparent">
+                    <StackLayout Orientation="Horizontal" Spacing="12">
+                        <Image Source="icon_home.png" WidthRequest="22" HeightRequest="22"/>
+                        <Label Text="Лента" TextColor="#A07858"
+                               FontSize="15" VerticalOptions="Center"/>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnHomeTapped"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- Поиск активный -->
+                <Frame BackgroundColor="#5C3317" CornerRadius="12"
+                       Padding="12,10" BorderColor="Transparent">
+                    <StackLayout Orientation="Horizontal" Spacing="12">
+                        <Image Source="icon_search.png" WidthRequest="22" HeightRequest="22"/>
+                        <Label Text="Поиск" TextColor="White"
+                               FontSize="15" VerticalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+
+                <Frame BackgroundColor="Transparent" CornerRadius="12"
+                       Padding="12,10" BorderColor="Transparent">
+                    <StackLayout Orientation="Horizontal" Spacing="12">
+                        <Image Source="icon_add.png" WidthRequest="22" HeightRequest="22"/>
+                        <Label Text="Создать пост" TextColor="#A07858"
+                               FontSize="15" VerticalOptions="Center"/>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCreatePostTapped"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <Frame BackgroundColor="Transparent" CornerRadius="12"
+                       Padding="12,10" BorderColor="Transparent">
+                    <StackLayout Orientation="Horizontal" Spacing="12">
+                        <Image Source="icon_chat.png" WidthRequest="22" HeightRequest="22"/>
+                        <Label Text="Сообщения" TextColor="#A07858"
+                               FontSize="15" VerticalOptions="Center"/>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnMessagesTapped"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <Frame BackgroundColor="Transparent" CornerRadius="12"
+                       Padding="12,10" BorderColor="Transparent">
+                    <StackLayout Orientation="Horizontal" Spacing="12">
+                        <Image Source="icon_profile.png" WidthRequest="22" HeightRequest="22"/>
+                        <Label Text="Профиль" TextColor="#A07858"
+                               FontSize="15" VerticalOptions="Center"/>
+                    </StackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnProfileTapped"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+            </StackLayout>
         </Frame>
 
-        <!-- Сетка результатов -->
-        <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding Users}"
-                        Margin="8,0">
-            <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical"
-                                 Span="3"
-                                 HorizontalItemSpacing="6"
-                                 VerticalItemSpacing="6"/>
-            </CollectionView.ItemsLayout>
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame Padding="0"
-                           CornerRadius="14"
-                           IsClippedToBounds="True"
-                           BorderColor="Transparent"
-                           BackgroundColor="#D4873A"
-                           HeightRequest="110">
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenProfileCommand}"
-                                CommandParameter="{Binding .}"/>
-                        </Frame.GestureRecognizers>
+        <!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+        <Grid Grid.Column="1" Grid.Row="0"
+              RowDefinitions="Auto, Auto, *">
 
-                        <!-- Аватар на весь блок -->
-                        <Image Source="{Binding AvatarUrl}"
-                               Aspect="AspectFill"/>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+            <!-- Строка поиска -->
+            <Frame Grid.Row="0"
+                   Margin="12,12,12,8"
+                   Padding="12,0"
+                   CornerRadius="20"
+                   BackgroundColor="#EDE5D8"
+                   BorderColor="#5C3317"
+                   HeightRequest="44">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Entry Grid.Column="0"
+                           Placeholder="Поиск"
+                           PlaceholderColor="#A08060"
+                           TextColor="#2C1A0E"
+                           BackgroundColor="Transparent"
+                           Text="{Binding SearchQuery}"
+                           ReturnCommand="{Binding SearchCommand}"
+                           VerticalOptions="Center"
+                           FontSize="15"/>
+                    <Image Grid.Column="1"
+                           Source="icon_search.png"
+                           WidthRequest="20" HeightRequest="20"
+                           VerticalOptions="Center"/>
+                </Grid>
+            </Frame>
 
-        <!-- Нижняя навигация -->
-        <Frame Grid.Row="2"
-               BackgroundColor="#3D1F0A"
-               Padding="0"
-               CornerRadius="0"
-               BorderColor="Transparent">
-            <Grid ColumnDefinitions="*,*,*,*,*"
-                  VerticalOptions="Center">
+            <!-- Вкладки Посты / Пользователи -->
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="*,*"
+                  Margin="12,0,12,8">
 
-                <!-- Главная -->
-                <Label Grid.Column="0" Text="⌂" FontSize="22"
-                       TextColor="#A07858"
-                       HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnHomeTapped"/>
-                    </Label.GestureRecognizers>
-                </Label>
-
-                <!-- Поиск (активная) -->
-                <Frame Grid.Column="1"
-                       BackgroundColor="#5C3317"
-                       CornerRadius="20"
-                       Padding="10,8"
-                       Margin="8,6"
+                <Frame Grid.Column="0" Padding="0" CornerRadius="12"
                        BorderColor="Transparent"
+                       BackgroundColor="{Binding PostsTabBackground}"
+                       HeightRequest="38">
+                    <Label Text="Посты" FontSize="14" FontAttributes="Bold"
+                           TextColor="{Binding PostsTabTextColor}"
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectPostsTabCommand}"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <Frame Grid.Column="1" Padding="0" CornerRadius="12"
+                       BorderColor="Transparent"
+                       BackgroundColor="{Binding UsersTabBackground}"
+                       HeightRequest="38">
+                    <Label Text="Пользователи" FontSize="14" FontAttributes="Bold"
+                           TextColor="{Binding UsersTabTextColor}"
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectUsersTabCommand}"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+            </Grid>
+
+            <!-- Посты -->
+            <CollectionView Grid.Row="2"
+                            ItemsSource="{Binding Posts}"
+                            IsVisible="{Binding IsPostsTabSelected}"
+                            Margin="8,0">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical"
+                                     Span="3"
+                                     HorizontalItemSpacing="6"
+                                     VerticalItemSpacing="6"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="0" CornerRadius="14"
+                               IsClippedToBounds="True"
+                               BorderColor="Transparent"
+                               BackgroundColor="#D4873A"
+                               HeightRequest="110">
+                            <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Пользователи -->
+            <CollectionView Grid.Row="2"
+                            ItemsSource="{Binding Users}"
+                            IsVisible="{Binding IsUsersTabSelected}"
+                            Margin="12,0">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="0,4" Padding="12" CornerRadius="14"
+                               BackgroundColor="White"
+                               BorderColor="#E8E0D0" HasShadow="False">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenProfileCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="44, *">
+                                <Frame Grid.Column="0"
+                                       WidthRequest="44" HeightRequest="44"
+                                       CornerRadius="22" Padding="0"
+                                       IsClippedToBounds="True"
+                                       BorderColor="Transparent"
+                                       BackgroundColor="#5C3317">
+                                    <Image Source="{Binding AvatarUrl}" Aspect="AspectFill"/>
+                                </Frame>
+                                <Label Grid.Column="1"
+                                       Text="{Binding Login}"
+                                       FontSize="15" FontAttributes="Bold"
+                                       TextColor="#2C1A0E"
+                                       VerticalOptions="Center"
+                                       Margin="12,0,0,0"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </Grid>
+
+        <!-- ===== НИЖНИЙ НАВБАР (телефон) ===== -->
+        <Frame Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
+               BackgroundColor="#3D1F0A"
+               Padding="0" CornerRadius="0" BorderColor="Transparent"
+               IsVisible="{OnIdiom Phone=True, Default=False}">
+            <Grid ColumnDefinitions="*,*,*,*,*" VerticalOptions="Center">
+
+                <Image Grid.Column="0" Source="icon_home.png"
+                       WidthRequest="26" HeightRequest="26"
+                       HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnHomeTapped"/>
+                    </Image.GestureRecognizers>
+                </Image>
+
+                <!-- Поиск активный -->
+                <Frame Grid.Column="1" BackgroundColor="#5C3317"
+                       CornerRadius="20" Padding="10,8"
+                       Margin="8,6" BorderColor="Transparent"
                        HorizontalOptions="Center">
-                    <Label Text="🔍" FontSize="22" TextColor="White"
+                    <Image Source="icon_search.png"
+                           WidthRequest="22" HeightRequest="22"
                            HorizontalOptions="Center"/>
                 </Frame>
 
-                <!-- Создать пост -->
-                <Label Grid.Column="2" Text="⊕" FontSize="26"
-                       TextColor="#A07858"
+                <Image Grid.Column="2" Source="icon_add.png"
+                       WidthRequest="26" HeightRequest="26"
                        HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label.GestureRecognizers>
+                    <Image.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCreatePostTapped"/>
-                    </Label.GestureRecognizers>
-                </Label>
+                    </Image.GestureRecognizers>
+                </Image>
 
-                <!-- Сообщения -->
-                <Label Grid.Column="3" Text="⋯" FontSize="26"
-                       TextColor="#A07858"
+                <Image Grid.Column="3" Source="icon_chat.png"
+                       WidthRequest="26" HeightRequest="26"
                        HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label.GestureRecognizers>
+                    <Image.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnMessagesTapped"/>
-                    </Label.GestureRecognizers>
-                </Label>
+                    </Image.GestureRecognizers>
+                </Image>
 
-                <!-- Профиль -->
-                <Label Grid.Column="4" Text="👤" FontSize="22"
-                       TextColor="#A07858"
+                <Image Grid.Column="4" Source="icon_profile.png"
+                       WidthRequest="26" HeightRequest="26"
                        HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label.GestureRecognizers>
+                    <Image.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnProfileTapped"/>
-                    </Label.GestureRecognizers>
-                </Label>
+                    </Image.GestureRecognizers>
+                </Image>
+
             </Grid>
         </Frame>
 
