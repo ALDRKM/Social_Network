@@ -25,6 +25,34 @@ namespace Social_Network.API.Services
             return user;
         }
 
+        public async Task<User?> UpdateAccountAsync(int id, string login, string email)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return null;
+
+            // Email должен быть свободен (или принадлежать самому пользователю)
+            bool taken = await _db.Users.AnyAsync(u => u.Email == email && u.Id != id);
+            if (taken) return null;
+
+            user.Login = login;
+            user.Email = email;
+            await _db.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<bool> ChangePasswordAsync(int id, string currentPassword, string newPassword)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return false;
+
+            if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
+                return false;
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> DeleteAccountAsync(int id)
         {
 

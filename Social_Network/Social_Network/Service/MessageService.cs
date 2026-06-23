@@ -25,7 +25,7 @@ namespace Social_Network.Service
         {
             try
             {
-                var response = await _http.PostAsJsonAsync($"{ApiConfig.BaseUrl}/message", new { SenderId = senderId, Text = text });
+                var response = await _http.PostAsJsonAsync($"{ApiConfig.BaseUrl}/message", new { ChatId = chatId, SenderId = senderId, Text = text });
                 if (!response.IsSuccessStatusCode) return null;
 
                 return await response.Content.ReadFromJsonAsync<MessageDto>();
@@ -45,6 +45,19 @@ namespace Social_Network.Service
             catch
             {
 
+            }
+        }
+
+        public async Task<bool> RevokeAsync(int messageId, int chatId)
+        {
+            try
+            {
+                var resp = await _http.DeleteAsync($"{ApiConfig.BaseUrl}/message/{messageId}?chatId={chatId}");
+                return resp.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

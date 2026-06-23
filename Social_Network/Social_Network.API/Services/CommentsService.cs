@@ -13,17 +13,28 @@ namespace Social_Network.API.Services
             await _db.Comments
             .Include(com => com.User).Where(com => com.PostId == postId).OrderBy(com => com.CreatedAt).ToListAsync();
 
-        public async Task<Comment> CreateCommentAsync(int userId, int postId, string content)
+        public async Task<Comment> CreateCommentAsync(int userId, int postId, string content, int? parentCommentId = null)
         {
             var comment = new Comment()
             {
                 UserId = userId,
                 PostId = postId,
-                Text = content
+                Text = content,
+                ParentCommentId = parentCommentId
             };
             _db.Comments.Add(comment);
             await _db.SaveChangesAsync();
             return comment;
+        }
+
+        public async Task<bool> EditCommentAsync(int userId, int commentId, string content)
+        {
+            var comment = await _db.Comments.FindAsync(commentId);
+            if (comment == null || comment.UserId != userId) return false;
+
+            comment.Text = content;
+            await _db.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> DeleteCommentAsync(int userId, int commentId)
@@ -31,9 +42,21 @@ namespace Social_Network.API.Services
             var comment = await _db.Comments.FindAsync(commentId);
             if (comment == null || comment.UserId != userId ) return false;
 
+            // Удаляем ответы на этот комментарий
+            var replies = await _db.Comments.Where(c => c.ParentCommentId == commentId).ToListAsync();
+            _db.Comments.RemoveRange(replies);
+
             _db.Comments.Remove(comment);
             await _db.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Comment>> GetUserCommentsAsync(int userId) =>
+            await _db.Comments
+                .Include(c => c.User)
+                .Include(c => c.Post)
+                .Where(c => c.UserId == userId)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
     }
 }

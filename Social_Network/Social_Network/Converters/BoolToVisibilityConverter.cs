@@ -6,9 +6,9 @@ namespace Social_Network.Converters
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is bool b)
-                return b;
-            return false;
+            bool b = value is bool v && v;
+            bool invert = parameter is string s && s.Equals("invert", StringComparison.OrdinalIgnoreCase);
+            return invert ? !b : b;
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

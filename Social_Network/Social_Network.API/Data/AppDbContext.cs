@@ -19,6 +19,10 @@ namespace Social_Network.API.Data
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<PostTag> PostTags { get; set; }
+        public DbSet<PostImage> PostImages { get; set; }
+        public DbSet<PostMention> PostMentions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +48,51 @@ namespace Social_Network.API.Data
                 .HasOne(u2 => u2.User2)
                 .WithMany()
                 .HasForeignKey(u2 => u2.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Теги: имя уникально
+            modelBuilder.Entity<Tag>()
+                .HasIndex(t => t.Name)
+                .IsUnique();
+
+            // Связь публикация-тег
+            modelBuilder.Entity<PostTag>()
+                .HasOne(pt => pt.Post)
+                .WithMany(p => p.PostTags)
+                .HasForeignKey(pt => pt.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PostTag>()
+                .HasOne(pt => pt.Tag)
+                .WithMany(t => t.PostTags)
+                .HasForeignKey(pt => pt.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Изображения публикации
+            modelBuilder.Entity<PostImage>()
+                .HasOne(pi => pi.Post)
+                .WithMany(p => p.Images)
+                .HasForeignKey(pi => pi.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Отметки пользователей в публикации
+            modelBuilder.Entity<PostMention>()
+                .HasOne(pm => pm.Post)
+                .WithMany(p => p.Mentions)
+                .HasForeignKey(pm => pm.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PostMention>()
+                .HasOne(pm => pm.MentionedUser)
+                .WithMany()
+                .HasForeignKey(pm => pm.MentionedUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Ответы на комментарии (самосвязь)
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.ParentComment)
+                .WithMany(c => c.Replies)
+                .HasForeignKey(c => c.ParentCommentId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

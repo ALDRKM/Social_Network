@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Logging;
 using Social_Network.Service;
 using Social_Network.ViewModels;
 using Social_Network.Views;
@@ -12,6 +13,7 @@ namespace Social_Network
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -28,10 +30,15 @@ namespace Social_Network
             builder.Services.AddSingleton<IMessageService, MessageService>();
             builder.Services.AddSingleton<IChatService, ChatService>();
             builder.Services.AddSingleton<IUserService, UserService>();
+            builder.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
             builder.Services.AddSingleton<ISearchService, SearchService>();
             builder.Services.AddSingleton<ICommentService, CommentService>();
             builder.Services.AddSingleton<IPostService, PostService>();
             builder.Services.AddSingleton<ILikeService,LikeService>();
+            builder.Services.AddSingleton<ISavedPostService, SavedPostService>();
+            builder.Services.AddSingleton<IReportService, ReportService>();
+            builder.Services.AddSingleton<IUserSettingsService, UserSettingsService>();
+            builder.Services.AddSingleton<IImageUploadService, ImageUploadService>();
 
 
             //viewmodels
@@ -61,6 +68,10 @@ namespace Social_Network
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<MyActionsPage>();
             builder.Services.AddTransient<CreatePostPage>();
+            builder.Services.AddTransient<PrivacySettingsPage>();
+            builder.Services.AddTransient<AccountSettingsPage>();
+            builder.Services.AddTransient<ProfileSettingsPage>();
+            builder.Services.AddTransient<ReportsPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

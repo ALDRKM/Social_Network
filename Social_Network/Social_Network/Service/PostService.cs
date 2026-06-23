@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using Social_Network.Constants;
 using Social_Network.Core.Models;
 
@@ -21,11 +21,12 @@ namespace Social_Network.Service
                 return null;
             }
         }
+
         public async Task<List<Post>> GetFeedAsync(int userId)
         {
             try
             {
-                return await _http.GetFromJsonAsync<List<Post>>($"{ApiConfig.BaseUrl}/post/feed/{userId}")?? new();
+                return await _http.GetFromJsonAsync<List<Post>>($"{ApiConfig.BaseUrl}/post/feed/{userId}") ?? new();
             }
             catch
             {
@@ -33,11 +34,13 @@ namespace Social_Network.Service
             }
         }
 
-        public async Task<List<Post>> GetUserPostsAsync(int userId)
+        public async Task<List<Post>> GetUserPostsAsync(int userId, PostType? type = null)
         {
             try
             {
-                return await _http.GetFromJsonAsync<List<Post>>($"{ApiConfig.BaseUrl}/post/user/{userId}")?? new();
+                var url = $"{ApiConfig.BaseUrl}/post/user/{userId}";
+                if (type.HasValue) url += $"?type={(int)type.Value}";
+                return await _http.GetFromJsonAsync<List<Post>>(url) ?? new();
             }
             catch
             {
@@ -45,11 +48,20 @@ namespace Social_Network.Service
             }
         }
 
-        public async Task<Post?> CreatePostAsync(int userId, string content, string? imageUrl)
+        public async Task<Post?> CreatePostAsync(int userId, string content, PostType type,
+            List<string>? imageUrls = null, List<string>? tags = null, List<int>? mentionUserIds = null)
         {
             try
             {
-                var response = await _http.PostAsJsonAsync($"{ApiConfig.BaseUrl}/post",new { UserId = userId, Content = content, ImageUrl = imageUrl });
+                var response = await _http.PostAsJsonAsync($"{ApiConfig.BaseUrl}/post", new
+                {
+                    UserId = userId,
+                    Content = content,
+                    Type = type,
+                    ImageUrls = imageUrls,
+                    Tags = tags,
+                    MentionUserIds = mentionUserIds
+                });
 
                 if (!response.IsSuccessStatusCode) return null;
 
@@ -69,7 +81,45 @@ namespace Social_Network.Service
             }
             catch
             {
+            }
+        }
 
+        public async Task<List<Post>> SearchPostsAsync(string query)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<List<Post>>(
+                    $"{ApiConfig.BaseUrl}/post/search?query={Uri.EscapeDataString(query)}") ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
+        public async Task<List<Post>> SearchByTagAsync(string tag)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<List<Post>>(
+                    $"{ApiConfig.BaseUrl}/post/tag/{Uri.EscapeDataString(tag.TrimStart('#'))}") ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
+        public async Task<List<string>> SearchTagNamesAsync(string query)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<List<string>>(
+                    $"{ApiConfig.BaseUrl}/post/tags/search?query={Uri.EscapeDataString(query)}") ?? new();
+            }
+            catch
+            {
+                return new();
             }
         }
     }

@@ -13,6 +13,9 @@
             <converters:DateTimeCnverter x:Key="DateTimeCnverter" />
             <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:AllTrueConverter x:Key="AllTrueConverter" />
+            <converters:ImageMessageConverter x:Key="ImageMessageConverter" />
+            <converters:MediaUrlConverter x:Key="MediaUrlConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

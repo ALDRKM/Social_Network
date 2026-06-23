@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Social_Network.Constants;
+using Social_Network.Helpers;
 using Social_Network.Service;
-using SQLitePCL;
 
 
 namespace Social_Network.ViewModels
@@ -33,6 +33,21 @@ namespace Social_Network.ViewModels
             if(string.IsNullOrWhiteSpace(Login)||string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(ConfirmPassword) || string.IsNullOrWhiteSpace(Password))
             {
                 ErrorMessage = "Заполните все поля";
+                return;
+            }
+            if (!ValidationHelper.IsValidLogin(Login))
+            {
+                ErrorMessage = "Логин: 3–30 символов (буквы, цифры, . _)";
+                return;
+            }
+            if (!ValidationHelper.IsValidEmail(Email))
+            {
+                ErrorMessage = "Введите корректный адрес эл. почты";
+                return;
+            }
+            if (!ValidationHelper.IsValidPassword(Password))
+            {
+                ErrorMessage = "Пароль должен быть не короче 6 символов и содержать хотя бы одну букву и одну цифру";
                 return;
             }
             if(Password != ConfirmPassword)

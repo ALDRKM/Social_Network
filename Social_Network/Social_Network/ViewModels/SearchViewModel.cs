@@ -1,6 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using Social_Network.Constants;
 using Social_Network.Core.Models;
 using Social_Network.Service;
 
@@ -17,81 +18,97 @@ namespace Social_Network.ViewModels
         }
 
         public ObservableCollection<User> Users { get; } = new();
-        public ObservableCollection<Post> Posts{ get; } = new();
+        public ObservableCollection<Post> Posts { get; } = new();
 
         [ObservableProperty]
         private string searchQuery = string.Empty;
-        [ObservableProperty]
-        private bool showUsers = true;
-        [ObservableProperty]
-        private bool isUsersTabActive = true;
-        [ObservableProperty]
-        private bool isPostTabActive = false;
-        [ObservableProperty]
-        private string? errorMessage;
 
-        [RelayCommand]
-        private void SelecUsersTab()
+        // true — показываем пользователей (поиск по @), иначе сетку публикаций
+        [ObservableProperty]
+        private bool isUsersMode;
+
+        // Подсказка о том, что сейчас ищется
+        [ObservableProperty]
+        private string statusText = string.Empty;
+
+        public async Task InitializeAsync()
         {
-            ShowUsers = false;
-            IsUsersTabActive = false;
-            IsPostTabActive = true;
+            await LoadRecentAsync();
         }
 
-        [RelayCommand]
-        private async Task Search()
+        private async Task LoadRecentAsync()
         {
-            if (string.IsNullOrWhiteSpace(SearchQuery))
+            IsUsersMode = false;
+            StatusText = "Последние публикации";
+            var recent = await _search.GetRecentAsync();
+            Posts.Clear();
+            foreach (var p in recent) Posts.Add(p);
+            Users.Clear();
+        }
+
+        // Живой поиск при вводе
+        partial void OnSearchQueryChanged(string value) => _ = RunSearchAsync();
+
+        [RelayCommand]
+        private Task Search() => RunSearchAsync();
+
+        private async Task RunSearchAsync()
+        {
+            var q = SearchQuery?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrEmpty(q))
             {
-                Users.Clear();
-                Posts.Clear();
+                await LoadRecentAsync();
                 return;
             }
 
-            if (IsBusy) return;
-
-            IsBusy = true;
-            ErrorMessage = null;
-
             try
             {
-                if (ShowUsers)
+                if (q.StartsWith('@'))
                 {
-                    var users = await _search.SearchUsersAsync(SearchQuery);
+                    // Поиск пользователей по логину
+                    IsUsersMode = true;
+                    var login = q.TrimStart('@');
+                    StatusText = $"Поиск пользователей: @{login}";
+                    var users = string.IsNullOrEmpty(login)
+                        ? new List<User>()
+                        : await _search.SearchUsersAsync(login);
                     Users.Clear();
-                    foreach (var u in users)
-                        Users.Add(u);
-
-                    if (Users.Count == 0)
-                        ErrorMessage = "Пользователи не найдены";
+                    foreach (var u in users) Users.Add(u);
+                    Posts.Clear();
+                }
+                else if (q.StartsWith('#'))
+                {
+                    // Поиск публикаций по тегу
+                    IsUsersMode = false;
+                    var tag = q.TrimStart('#');
+                    StatusText = $"Поиск по тегу: #{tag}";
+                    var posts = await _search.SearchByTagAsync(tag);
+                    Posts.Clear();
+                    foreach (var p in posts) Posts.Add(p);
+                    Users.Clear();
                 }
                 else
                 {
-                    var posts = await _search.SearchPostsAsync(SearchQuery);
-
+                    // Поиск публикаций по тексту
+                    IsUsersMode = false;
+                    StatusText = $"Поиск публикаций: {q}";
+                    var posts = await _search.SearchPostsAsync(q);
                     Posts.Clear();
-                    foreach (var p in posts)
-                        Posts.Add(p);
-
-                    if (Posts.Count == 0)
-                        ErrorMessage = "Посты не найдены";
+                    foreach (var p in posts) Posts.Add(p);
+                    Users.Clear();
                 }
             }
             catch
             {
-                ErrorMessage = "Ошибка соединения";
-            }
-            finally
-            {
-                IsBusy = false;
+                StatusText = "Ошибка соединения";
             }
         }
 
         [RelayCommand]
         private async Task GoToUserProfile(User user)
         {
-            int myId = Preferences.Default.Get(Constants.AppSettings.UserIdKey,0);
-
+            int myId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
             if (user.Id == myId)
                 await Shell.Current.GoToAsync("//ProfilePage");
             else
@@ -100,50 +117,6 @@ namespace Social_Network.ViewModels
 
         [RelayCommand]
         private async Task GoToPost(Post post)
-        {
-            await Shell.Current.GoToAsync($"PostDetailPage?postId={post.Id}");
-        }
-
-        partial void OnShowUsersChanged(bool value)
-        {
-            Users.Clear();
-            Posts.Clear();
-            SearchQuery = string.Empty;
-            ErrorMessage = null;
-        }
-
-
-
-        [ObservableProperty]
-        private bool isPostsTabSelected = true;
-
-        public bool IsUsersTabSelected => !IsPostsTabSelected;
-
-        public string PostsTabBackground => IsPostsTabSelected ? "#C2692A" : "#EDE5D8";
-        public string UsersTabBackground => IsUsersTabSelected ? "#C2692A" : "#EDE5D8";
-        public string PostsTabTextColor => IsPostsTabSelected ? "White" : "#7A5C3E";
-        public string UsersTabTextColor => IsUsersTabSelected ? "White" : "#7A5C3E";
-
-        [RelayCommand]
-        private void SelectPostsTab()
-        {
-            IsPostsTabSelected = true;
-            OnPropertyChanged(nameof(IsUsersTabSelected));
-            OnPropertyChanged(nameof(PostsTabBackground));
-            OnPropertyChanged(nameof(UsersTabBackground));
-            OnPropertyChanged(nameof(PostsTabTextColor));
-            OnPropertyChanged(nameof(UsersTabTextColor));
-        }
-
-        [RelayCommand]
-        private void SelectUsersTab()
-        {
-            IsPostsTabSelected = false;
-            OnPropertyChanged(nameof(IsUsersTabSelected));
-            OnPropertyChanged(nameof(PostsTabBackground));
-            OnPropertyChanged(nameof(UsersTabBackground));
-            OnPropertyChanged(nameof(PostsTabTextColor));
-            OnPropertyChanged(nameof(UsersTabTextColor));
-        }
+            => await Shell.Current.GoToAsync($"PostDetailPage?postId={post.Id}");
     }
 }

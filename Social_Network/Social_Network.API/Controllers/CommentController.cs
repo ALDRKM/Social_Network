@@ -17,13 +17,30 @@ namespace Social_Network.API.Controllers
             return Ok(comments);
         }
 
-        public record CreateCommentRequest(int UserId, int PostId, string Content);
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserComments([FromRoute] int userId)
+        {
+            var comments = await _comment.GetUserCommentsAsync(userId);
+            return Ok(comments);
+        }
+
+        public record CreateCommentRequest(int UserId, int PostId, string Content, int? ParentCommentId);
 
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] CreateCommentRequest req)
         {
-            var com = await _comment.CreateCommentAsync(req.UserId, req.PostId, req.Content);
+            var com = await _comment.CreateCommentAsync(req.UserId, req.PostId, req.Content, req.ParentCommentId);
             return Ok(com);
+        }
+
+        public record EditCommentRequest(int UserId, string Content);
+
+        [HttpPut("{commentId}")]
+        public async Task<IActionResult> EditComment([FromRoute] int commentId, [FromBody] EditCommentRequest req)
+        {
+            bool ok = await _comment.EditCommentAsync(req.UserId, commentId, req.Content);
+            if (!ok) return NotFound();
+            return NoContent();
         }
 
         [HttpDelete("{userId}/{commentId}")]

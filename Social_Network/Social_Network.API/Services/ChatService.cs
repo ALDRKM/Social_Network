@@ -30,6 +30,7 @@ namespace Social_Network.API.Services
                     OtherUserId = other.Id,
                     OtherUserLogin = other.Login,
                     OtherUserAvatarUrl = other.AvatarUrl,
+                    OtherUserIsOnline = other.IsOnline,
                     LastMessage = last == null ? null : new MessageDto()
                     {
                         Id = last.Id,

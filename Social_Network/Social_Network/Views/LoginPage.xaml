@@ -6,81 +6,67 @@
     x:Class="Social_Network.Views.LoginPage"
     x:DataType="vm:LoginViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#F5F0E0">
+    BackgroundColor="{StaticResource AppBackground}">
 
-    <!-- Корневая сетка на весь экран -->
     <Grid>
 
-        <!-- Фоновое дерево — по центру экрана, полупрозрачное -->
+        <!-- Фоновое дерево -->
         <Image
             Source="bg_tree.png"
             Opacity="0.18"
             HorizontalOptions="Center"
             VerticalOptions="Center"
             Aspect="AspectFit"
-            HeightRequest="500" />
+            HeightRequest="{OnIdiom Phone=500, Default=720}" />
 
-        <!-- Основной контент поверх фона -->
-        <Grid RowDefinitions="*, Auto, Auto, Auto, Auto, Auto, *" Padding="32,0">
+        <!-- Контент -->
+        <Grid RowDefinitions="*, Auto, Auto, Auto, Auto, Auto, *"
+              Padding="32,0"
+              WidthRequest="{OnIdiom Phone=-1, Default=360}"
+              HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
 
-            <!-- Пустое пространство сверху -->
-            <BoxView Grid.Row="0" Color="Transparent" />
+            <BoxView Grid.Row="0" Color="Transparent" BackgroundColor="Transparent" />
 
-            <!-- Заголовок -->
             <Label
                 Grid.Row="1"
                 Text="Авторизация"
-                FontSize="24"
+                Style="{StaticResource PageTitle}"
                 FontAttributes="None"
-                TextColor="#3B2A1A"
-                HorizontalOptions="Center"
+                FontSize="24"
                 Margin="0,0,0,20" />
 
-            <!-- Поле Email -->
-            <Frame
-                Grid.Row="2"
-                BackgroundColor="#C4A882"
-                CornerRadius="24"
-                Padding="16,0"
-                HeightRequest="52"
-                HasShadow="False"
-                Margin="0,0,0,10">
+            <!-- Логин или почта -->
+            <Border Grid.Row="2" Style="{StaticResource InputPill}" Margin="0,0,0,10">
                 <Entry
                     Text="{Binding Email}"
                     Placeholder="Логин или эл. почта"
-                    PlaceholderColor="#7A5C3E"
-                    TextColor="#3B2A1A"
+                    PlaceholderColor="{StaticResource AppTextSecondary}"
+                    TextColor="{StaticResource AppTextPrimary}"
                     BackgroundColor="Transparent"
                     VerticalOptions="Center"
                     Keyboard="Email" />
-            </Frame>
+            </Border>
 
-            <!-- Поле Пароль -->
-            <Frame
-                Grid.Row="3"
-                BackgroundColor="#C4A882"
-                CornerRadius="24"
-                Padding="16,0"
-                HeightRequest="52"
-                HasShadow="False"
-                Margin="0,0,0,10">
+            <!-- Пароль -->
+            <Border Grid.Row="3" Style="{StaticResource InputPill}" Margin="0,0,0,10">
                 <Entry
                     Text="{Binding Password}"
                     Placeholder="Пароль"
-                    PlaceholderColor="#7A5C3E"
-                    TextColor="#3B2A1A"
+                    PlaceholderColor="{StaticResource AppTextSecondary}"
+                    TextColor="{StaticResource AppTextPrimary}"
                     BackgroundColor="Transparent"
                     VerticalOptions="Center"
                     IsPassword="True" />
-            </Frame>
+            </Border>
 
             <!-- Ошибка -->
             <Label
                 Grid.Row="4"
                 Text="{Binding ErrorMessage}"
-                TextColor="#8B2020"
+                TextColor="{StaticResource AppError}"
                 FontSize="13"
                 HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
                 IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
                 Margin="0,0,0,6" />
 
@@ -90,22 +76,16 @@
                 Text="Войти"
                 Command="{Binding LoginCommand}"
                 IsEnabled="{Binding IsNotBusy}"
-                BackgroundColor="#4A6B2A"
-                TextColor="White"
-                CornerRadius="24"
-                HeightRequest="52"
-                FontSize="16"
-                Margin="0,0,0,0" />
+                Style="{StaticResource PrimaryButton}" />
 
-            <!-- Пустое пространство снизу -->
-            <BoxView Grid.Row="6" Color="Transparent" />
+            <BoxView Grid.Row="6" Color="Transparent" BackgroundColor="Transparent" />
 
         </Grid>
 
-        <!-- Ссылка на регистрацию — прибита к низу -->
+        <!-- Ссылка на регистрацию -->
         <Label
             Text="Зарегистрироваться"
-            TextColor="#3B2A1A"
+            TextColor="{StaticResource AppTextPrimary}"
             FontSize="15"
             HorizontalOptions="Center"
             VerticalOptions="End"
@@ -115,11 +95,10 @@
             </Label.GestureRecognizers>
         </Label>
 
-        <!-- Индикатор загрузки -->
         <ActivityIndicator
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
-            Color="#4A6B2A"
+            Color="{StaticResource AppOlive}"
             HorizontalOptions="Center"
             VerticalOptions="Center" />
 

@@ -37,6 +37,34 @@ namespace Social_Network.Service
             }
         }
 
+        public async Task<bool> UpdateAccountAsync(int id, string login, string email)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"{ApiConfig.BaseUrl}/user/{id}/account",
+                    new { Login = login, Email = email });
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> ChangePasswordAsync(int id, string currentPassword, string newPassword)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"{ApiConfig.BaseUrl}/user/{id}/password",
+                    new { CurrentPassword = currentPassword, NewPassword = newPassword });
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> DeleteAccountAsync(int id)
         {
             try
@@ -46,6 +74,19 @@ namespace Social_Network.Service
             catch
             {
                 return false;
+            }
+        }
+
+        public async Task<List<User>> SearchUsersAsync(string query)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<List<User>>(
+                    $"{ApiConfig.BaseUrl}/user/search?query={Uri.EscapeDataString(query)}") ?? new();
+            }
+            catch
+            {
+                return new();
             }
         }
     }

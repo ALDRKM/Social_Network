@@ -37,5 +37,23 @@ namespace Social_Network.Service
                 return false;
             }
         }
+
+        public async Task<int> GetFollowersCountAsync(int userId)
+        {
+            try { return await _http.GetFromJsonAsync<int>($"{ApiConfig.BaseUrl}/subscription/followers/count/{userId}"); }
+            catch { return 0; }
+        }
+
+        public async Task<int> GetFollowingCountAsync(int userId)
+        {
+            try { return await _http.GetFromJsonAsync<int>($"{ApiConfig.BaseUrl}/subscription/following/count/{userId}"); }
+            catch { return 0; }
+        }
+
+        public async Task<List<int>> GetFollowingIdsAsync(int userId)
+        {
+            try { return await _http.GetFromJsonAsync<List<int>>($"{ApiConfig.BaseUrl}/subscription/following/{userId}") ?? new(); }
+            catch { return new(); }
+        }
     }
 }

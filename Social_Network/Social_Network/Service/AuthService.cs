@@ -52,12 +52,17 @@ namespace Social_Network.Service
                 return (true, null);
 
             }
-            catch 
+            catch
             {
                 return (false, "Ошибка подключения к серверу");
             }
         }
 
+        public async Task LogoutAsync(int userId)
+        {
+            try { await _http.PostAsync($"{ApiConfig.BaseUrl}/auth/logout/{userId}", null); }
+            catch { }
+        }
 
     }
 }

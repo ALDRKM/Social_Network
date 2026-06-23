@@ -36,5 +36,15 @@ namespace Social_Network.API.Services
 
         public async Task<bool> IsLikeAsync(int userId, int postId) => await _db.Likes.AnyAsync(l => l.UserId == userId
         && l.PostId == postId);
+
+        public async Task<List<Post>> GetUserLikedPostsAsync(int userId) =>
+            await _db.Posts
+                .Where(p => p.Likes.Any(l => l.UserId == userId))
+                .Include(p => p.User)
+                .Include(p => p.Likes)
+                .Include(p => p.Comments)
+                .Include(p => p.Images)
+                .OrderByDescending(p => p.Likes.Where(l => l.UserId == userId).Max(l => l.CreatedAt))
+                .ToListAsync();
     }
 }

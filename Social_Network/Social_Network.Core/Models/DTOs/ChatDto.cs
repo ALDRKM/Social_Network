@@ -10,7 +10,8 @@ namespace Social_Network.Core.Models.DTOs
         public DateTime CreatedAt { get; set; }
         public int OtherUserId { get; set; }
         public string OtherUserLogin { get; set; } = string.Empty;
-        public string? OtherUserAvatarUrl { get; set; } 
+        public string? OtherUserAvatarUrl { get; set; }
+        public bool OtherUserIsOnline { get; set; }
         public MessageDto? LastMessage { get; set; }
     }
 }
