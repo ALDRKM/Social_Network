@@ -1,12 +1,200 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Social_Network.ViewModels"
+             xmlns:controls="clr-namespace:Social_Network.Controls"
              x:Class="Social_Network.Views.MyActionsPage"
-             Title="MyActionsPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:MyActionsViewModel"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <!-- Карточка поста (для Любимое / Сохранённые) -->
+        <DataTemplate x:Key="PostCard" x:DataType="vm:FeedPostViewModel">
+            <Grid Padding="16,12" RowDefinitions="Auto,Auto,Auto,Auto">
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <controls:AvatarView Grid.Column="0" Source="{Binding AuthorAvatar}" Size="44">
+                        <controls:AvatarView.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding BindingContext.OpenProfileCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                        </controls:AvatarView.GestureRecognizers>
+                    </controls:AvatarView>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="{Binding AuthorLogin}" TextColor="{StaticResource AppAccentText}" FontAttributes="Bold" FontSize="15">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.OpenProfileCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Button Text="Подписаться" BackgroundColor="{StaticResource AppOrange}" TextColor="White"
+                                CornerRadius="14" HeightRequest="30" Padding="14,0" FontSize="13" HorizontalOptions="Start"
+                                IsVisible="{Binding IsOwnPost, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=invert}"
+                                Command="{Binding BindingContext.ToggleFollowCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsFollowingAuthor}" Value="True">
+                                    <Setter Property="Text" Value="Отписаться" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource AppInput}" />
+                                    <Setter Property="TextColor" Value="{StaticResource AppTextPrimary}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                    </VerticalStackLayout>
+                    <Image Grid.Column="2" Source="icon_button_to_save_to_favorite.png" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                        <Image.Triggers>
+                            <DataTrigger TargetType="Image" Binding="{Binding IsSaved}" Value="True">
+                                <Setter Property="Source" Value="icon_saved_already.png" />
+                            </DataTrigger>
+                        </Image.Triggers>
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding BindingContext.ToggleSaveCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                </Grid>
+
+                <Label Grid.Row="1" Text="{Binding Content}" IsVisible="{Binding HasContent}"
+                       TextColor="{StaticResource AppTextPrimary}" FontSize="14" Margin="0,10,0,0" />
+
+                <Border Grid.Row="2" IsVisible="{Binding HasImage}" BackgroundColor="{StaticResource AppSurface}"
+                        StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                        WidthRequest="{OnIdiom Phone=320, Default=420}" HeightRequest="{OnIdiom Phone=320, Default=420}"
+                        HorizontalOptions="Center" Margin="0,10,0,0">
+                    <Image Source="{Binding ImageUrl, Converter={StaticResource MediaUrlConverter}}" Aspect="AspectFit" />
+                </Border>
+
+                <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="6" Margin="0,12,0,0">
+                    <HorizontalStackLayout Grid.Column="0" Spacing="6">
+                        <Image Source="icon_like.png" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                            <Image.Triggers>
+                                <DataTrigger TargetType="Image" Binding="{Binding IsLiked}" Value="True">
+                                    <Setter Property="Source" Value="icon_like_already.png" />
+                                </DataTrigger>
+                            </Image.Triggers>
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.ToggleLikeCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Label Text="{Binding LikeCount}" TextColor="{StaticResource AppTextPrimary}" FontSize="14" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="6" Margin="14,0,0,0">
+                        <Path WidthRequest="22" HeightRequest="22" Aspect="Uniform" Stroke="{StaticResource AppTextPrimary}"
+                              StrokeThickness="6" StrokeLineJoin="Round" Fill="Transparent" VerticalOptions="Center"
+                              Data="M16,24 L84,24 L84,66 L48,66 L30,82 L30,66 L16,66 Z" />
+                        <Label Text="{Binding CommentCount}" TextColor="{StaticResource AppTextPrimary}" FontSize="14" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Image Grid.Column="3" Source="icon_to_shair_for_feed.png" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding BindingContext.ShareCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                </Grid>
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding BindingContext.OpenPostCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{OnIdiom Phone=0, Default=220}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <controls:AppNavBar Grid.Column="0" Mode="Sidebar" Current="Profile" />
+
+        <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*,Auto"
+              WidthRequest="{OnIdiom Phone=-1, Default=640}"
+              HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
+
+            <!-- Шапка: назад + заголовок + шестерёнка -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="12,12,14,4">
+                <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="38" HeightRequest="38">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label Grid.Column="1" Text="Мои действия" Style="{StaticResource PageTitle}" FontSize="18" VerticalOptions="Center" />
+                <Path Grid.Column="2" WidthRequest="26" HeightRequest="26" Aspect="Uniform"
+                      Stroke="{StaticResource AppBrown}" StrokeThickness="4" StrokeLineJoin="Round" Fill="Transparent"
+                      VerticalOptions="Center"
+                      Data="M50,38 A12,12 0 1,0 50,62 A12,12 0 1,0 50,38 Z M50,16 L54,16 L56,28 L64,31 L74,25 L80,31 L74,41 L77,48 L88,50 L88,54 L77,56 L74,63 L80,73 L74,79 L64,73 L56,76 L54,88 L50,88 L46,88 L44,76 L36,73 L26,79 L20,73 L26,63 L23,56 L12,54 L12,50 L23,48 L26,41 L20,31 L26,25 L36,31 L44,28 L46,16 Z">
+                    <Path.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToSettingsCommand}" />
+                    </Path.GestureRecognizers>
+                </Path>
+            </Grid>
+
+            <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource AppDivider}" BackgroundColor="{StaticResource AppDivider}" />
+
+            <!-- Контент -->
+            <CollectionView Grid.Row="2" ItemsSource="{Binding LikedPosts}" IsVisible="{Binding IsLikesTab}"
+                            ItemTemplate="{StaticResource PostCard}" Margin="0,0,0,4">
+                <CollectionView.EmptyView>
+                    <Label Text="Нет отметок «нравится»" TextColor="{StaticResource AppTextSecondary}" HorizontalTextAlignment="Center" Margin="0,40,0,0" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+            <CollectionView Grid.Row="2" ItemsSource="{Binding SavedPosts}" IsVisible="{Binding IsSavedTab}"
+                            ItemTemplate="{StaticResource PostCard}" Margin="0,0,0,4">
+                <CollectionView.EmptyView>
+                    <Label Text="Нет сохранённых публикаций" TextColor="{StaticResource AppTextSecondary}" HorizontalTextAlignment="Center" Margin="0,40,0,0" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+            <CollectionView Grid.Row="2" ItemsSource="{Binding MyComments}" IsVisible="{Binding IsCommentsTab}" Margin="12,0">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CommentItemViewModel">
+                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{StaticResource AppSurface}" Margin="0,6" Padding="14,12">
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding Text}" FontSize="14" TextColor="{StaticResource AppTextPrimary}" />
+                                    <Label Text="{Binding CreatedAt, Converter={StaticResource DateTimeCnverter}}" FontSize="11" TextColor="{StaticResource AppTextSecondary}" />
+                                </VerticalStackLayout>
+                                <!-- Карандаш редактирования -->
+                                <Label Grid.Column="1" Text="✎" FontSize="18" VerticalOptions="Center" TextColor="{StaticResource AppTextSecondary}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.EditCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <!-- Кнопка Удалить -->
+                                <Button Grid.Column="2" Text="Удалить" BackgroundColor="{StaticResource AppOrange}" TextColor="White"
+                                        CornerRadius="12" HeightRequest="32" Padding="12,0" FontSize="12" VerticalOptions="Center"
+                                        Command="{Binding BindingContext.DeleteCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.OpenCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <Label Text="Вы пока не оставляли комментариев" TextColor="{StaticResource AppTextSecondary}" HorizontalTextAlignment="Center" Margin="0,40,0,0" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+            <!-- Вкладки снизу (полупрозрачный фон) -->
+            <Border Grid.Row="3" BackgroundColor="{StaticResource AppSurface}" Opacity="0.95"
+                    Stroke="{StaticResource AppDivider}" StrokeThickness="1" StrokeShape="RoundRectangle 18,18,0,0"
+                    Padding="10,8">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Border Grid.Column="0" BackgroundColor="{Binding LikesTabColor}" StrokeThickness="0" StrokeShape="RoundRectangle 14" HeightRequest="42">
+                        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="6">
+                            <Label Text="Любимое" FontAttributes="Bold" TextColor="White" FontSize="13" />
+                            <Image Source="icon_like.png" WidthRequest="16" HeightRequest="16" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SelectLikesTabCommand}" /></Border.GestureRecognizers>
+                    </Border>
+                    <Border Grid.Column="1" BackgroundColor="{Binding CommentsTabColor}" StrokeThickness="0" StrokeShape="RoundRectangle 14" HeightRequest="42">
+                        <Label Text="Комментарии" FontAttributes="Bold" TextColor="White" FontSize="13" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SelectCommentsTabCommand}" /></Border.GestureRecognizers>
+                    </Border>
+                    <Border Grid.Column="2" BackgroundColor="{Binding SavedTabColor}" StrokeThickness="0" StrokeShape="RoundRectangle 14" HeightRequest="42">
+                        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="6">
+                            <Label Text="Сохранённые" FontAttributes="Bold" TextColor="White" FontSize="12" />
+                            <Image Source="icon_saved_already.png" WidthRequest="16" HeightRequest="16" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SelectSavedTabCommand}" /></Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </ContentPage>

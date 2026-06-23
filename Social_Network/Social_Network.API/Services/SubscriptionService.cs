@@ -40,6 +40,19 @@ namespace Social_Network.API.Services
 
         public async Task<bool> IsFollowingAsync(int followerId, int followingId) => await _db.Subscriptions.AnyAsync(sub => sub.FollowerId == followerId && sub.FollowingId == followingId);
 
+        // Сколько подписчиков у пользователя
+        public async Task<int> GetFollowersCountAsync(int userId) =>
+            await _db.Subscriptions.CountAsync(sub => sub.FollowingId == userId);
 
+        // На скольких подписан пользователь
+        public async Task<int> GetFollowingCountAsync(int userId) =>
+            await _db.Subscriptions.CountAsync(sub => sub.FollowerId == userId);
+
+        // Id пользователей, на которых подписан данный пользователь
+        public async Task<List<int>> GetFollowingIdsAsync(int userId) =>
+            await _db.Subscriptions
+                .Where(sub => sub.FollowerId == userId)
+                .Select(sub => sub.FollowingId)
+                .ToListAsync();
     }
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Social_Network.Controls.AvatarView"
+             x:Name="Root"
+             HorizontalOptions="Center"
+             VerticalOptions="Center">
+
+    <Border x:Name="Ring"
+            BackgroundColor="{StaticResource AppBrown}"
+            Stroke="Transparent"
+            StrokeThickness="0"
+            HorizontalOptions="Center"
+            VerticalOptions="Center">
+        <Border.StrokeShape>
+            <Ellipse />
+        </Border.StrokeShape>
+
+        <Grid>
+            <!-- Заглушка-силуэт (когда фото нет) -->
+            <Path x:Name="Silhouette"
+                  Aspect="Uniform"
+                  Margin="6"
+                  Fill="{StaticResource AppTextOnDark}"
+                  Data="M50,54 C61,54 70,44 70,32 C70,20 61,10 50,10 C39,10 30,20 30,32 C30,44 39,54 50,54 Z M50,60 C32,60 16,71 16,90 L16,96 L84,96 L84,90 C84,71 68,60 50,60 Z" />
+
+            <!-- Реальная аватарка -->
+            <Image x:Name="Avatar"
+                   Aspect="AspectFill"
+                   IsVisible="False" />
+        </Grid>
+    </Border>
+</ContentView>

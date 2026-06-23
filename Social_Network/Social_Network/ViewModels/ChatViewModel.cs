@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Social_Network.Core.Models.DTOs;
@@ -8,11 +8,16 @@ using Social_Network.Constants;
 namespace Social_Network.ViewModels
 {
     [QueryProperty(nameof(ChatId),"chatId")]
+    [QueryProperty(nameof(OtherUserId),"otherUserId")]
+    [QueryProperty(nameof(OtherLogin),"otherLogin")]
+    [QueryProperty(nameof(OtherAvatar),"otherAvatar")]
+    [QueryProperty(nameof(OtherOnline),"otherOnline")]
     public partial class ChatViewModel: BaseViewModel
     {
         private readonly IMessageService _mes;
         private readonly IChatHubService _hub;
 
+        private readonly List<MessageDto> _all = new();
         public ObservableCollection<MessageDto> Messages { get; } = new();
 
         public ChatViewModel(IMessageService mes, IChatHubService hub)
@@ -22,65 +27,189 @@ namespace Social_Network.ViewModels
             Title = "Чат";
         }
 
+        [ObservableProperty] private int chatId;
+        [ObservableProperty] private int otherUserId;
+        [ObservableProperty] private string otherLogin = string.Empty;
+        [ObservableProperty] private string? otherAvatar;
         [ObservableProperty]
-        private int chatId;
+        [NotifyPropertyChangedFor(nameof(StatusText))]
+        [NotifyPropertyChangedFor(nameof(StatusColor))]
+        private bool otherOnline;
+        [ObservableProperty] private string messageText = string.Empty;
+
+        public string StatusText => OtherOnline ? "в сети" : "не в сети";
+        public string StatusColor => OtherOnline ? "#6FBF4B" : "#7A5C3E";
+
+        // Поиск по сообщениям в чате
         [ObservableProperty]
-        private string messageText = string.Empty;
+        [NotifyPropertyChangedFor(nameof(IsSearchVisible))]
+        private bool isSearchOpen;
+
+        public bool IsSearchVisible => IsSearchOpen;
+
+        [ObservableProperty] private string searchQuery = string.Empty;
 
         private int _myId;
 
         private void OnMessageReceived(MessageDto mes)
         {
-            MainThread.BeginInvokeOnMainThread(() => Messages.Add(mes));
+            mes.IsMine = mes.SenderId == _myId;
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (_all.Any(m => m.Id == mes.Id)) return;
+                _all.Add(mes);
+                if (MatchesFilter(mes)) Messages.Add(mes);
+            });
         }
 
         private void OnMessageDeleted(int mesId)
         {
-            var msg = Messages.FirstOrDefault(m => m.Id == mesId);
-
-            if (msg != null)
-                MainThread.BeginInvokeOnMainThread(()=>Messages.Remove(msg));
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                var msg = _all.FirstOrDefault(m => m.Id == mesId);
+                if (msg != null) _all.Remove(msg);
+                var shown = Messages.FirstOrDefault(m => m.Id == mesId);
+                if (shown != null) Messages.Remove(shown);
+            });
         }
-
 
         private async Task InitializeAsync(int id)
         {
-            IsBusy = true;
-            _myId = Preferences.Default.Get(AppSettings.UserIdKey,0);
+            try
+            {
+                IsBusy = true;
+                _myId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
 
-            var messages = await _mes.GetByChatIdAsync(id);
-            Messages.Clear();
-            foreach (var m in messages)
-                Messages.Add(m);
+                var messages = await _mes.GetByChatIdAsync(id);
+                _all.Clear();
+                foreach (var m in messages)
+                {
+                    m.IsMine = m.SenderId == _myId;
+                    _all.Add(m);
+                }
+                RebuildDisplay();
 
-            _hub.MessageReceived += OnMessageReceived;
-            _hub.MessageDeleted += OnMessageDeleted;
-            _hub.StartAsync();
-            _hub.JoinChatAsync(id,_myId);
-
-            IsBusy = false;
+                // Реалтайм через SignalR — не должен ронять страницу при сбое подключения
+                try
+                {
+                    _hub.MessageReceived -= OnMessageReceived;
+                    _hub.MessageDeleted -= OnMessageDeleted;
+                    _hub.MessageReceived += OnMessageReceived;
+                    _hub.MessageDeleted += OnMessageDeleted;
+                    await _hub.StartAsync();
+                    await _hub.JoinChatAsync(id, _myId);
+                }
+                catch { /* без реалтайма сообщения всё равно отправляются по HTTP */ }
+            }
+            catch { }
+            finally { IsBusy = false; }
         }
 
-        partial void OnChatIdChanged(int value) => MainThread.BeginInvokeOnMainThread(async () => await InitializeAsync(value));
+        partial void OnChatIdChanged(int value)
+            => MainThread.BeginInvokeOnMainThread(async () => await InitializeAsync(value));
 
+        partial void OnSearchQueryChanged(string value) => RebuildDisplay();
+
+        private bool MatchesFilter(MessageDto m)
+            => string.IsNullOrWhiteSpace(SearchQuery)
+               || m.Text.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase);
+
+        private void RebuildDisplay()
+        {
+            Messages.Clear();
+            foreach (var m in _all.Where(MatchesFilter))
+                Messages.Add(m);
+        }
 
         [RelayCommand]
         private async Task Send()
         {
-            if (string.IsNullOrWhiteSpace(MessageText)) return;
-            await _mes.SendAsync(ChatId,_myId, MessageText);
+            var text = MessageText;
+            if (string.IsNullOrWhiteSpace(text)) return;
             MessageText = string.Empty;
+            await SendTextAsync(text);
         }
+
+        // Скрепка — прикрепить фото (отправляем путь, в чате отрисуется картинкой)
+        [RelayCommand]
+        private async Task Attach()
+        {
+            try
+            {
+                var file = await FilePicker.PickAsync(new PickOptions
+                {
+                    PickerTitle = "Прикрепить фото",
+                    FileTypes = FilePickerFileType.Images
+                });
+                if (file == null) return;
+                await SendTextAsync(file.FullPath);
+            }
+            catch { }
+        }
+
+        private async Task SendTextAsync(string text)
+        {
+            try
+            {
+                var sent = await _mes.SendAsync(ChatId, _myId, text);
+                if (sent != null)
+                {
+                    sent.IsMine = true;
+                    // Показываем сразу (если реалтайм не доставит — дедуп по Id)
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        if (_all.All(m => m.Id != sent.Id))
+                        {
+                            _all.Add(sent);
+                            if (MatchesFilter(sent)) Messages.Add(sent);
+                        }
+                    });
+                }
+            }
+            catch { }
+        }
+
+        [RelayCommand]
+        private void ToggleSearch()
+        {
+            IsSearchOpen = !IsSearchOpen;
+            if (!IsSearchOpen)
+            {
+                SearchQuery = string.Empty;
+                RebuildDisplay();
+            }
+        }
+
+        // Удаление (отмена отправки) своего сообщения
+        [RelayCommand]
+        private async Task DeleteMessage(MessageDto message)
+        {
+            if (message == null || !message.IsMine) return;
+            bool confirm = await Shell.Current.DisplayAlertAsync(
+                "Удалить сообщение?", "Сообщение будет отменено.", "Удалить", "Отмена");
+            if (!confirm) return;
+
+            if (await _mes.RevokeAsync(message.Id, ChatId))
+                OnMessageDeleted(message.Id);
+        }
+
+        // По нажатию на аватар собеседника — переход в его профиль
+        [RelayCommand]
+        private async Task OpenOtherProfile()
+        {
+            if (OtherUserId <= 0) return;
+            await Shell.Current.GoToAsync($"OtherProfilePage?userId={OtherUserId}");
+        }
+
+        [RelayCommand]
+        private async Task GoBack() => await Shell.Current.GoToAsync("//ChatListPage");
 
         public async Task CleanupAsync()
         {
             _hub.MessageDeleted -= OnMessageDeleted;
             _hub.MessageReceived -= OnMessageReceived;
-            _hub.LeaveChatAsync(ChatId,_myId);
-            _hub.StopAsync();
+            await _hub.LeaveChatAsync(ChatId, _myId);
+            await _hub.StopAsync();
         }
-
-            
-
     }
 }

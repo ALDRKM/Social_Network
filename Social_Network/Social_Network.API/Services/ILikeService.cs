@@ -6,5 +6,6 @@
         Task DeleteLikeAsync(int userId, int postId);
         Task<int> GetCountLikeAsync(int postId);
         Task<bool> IsLikeAsync(int userId, int postId);
+        Task<List<Core.Models.Post>> GetUserLikedPostsAsync(int userId);
     }
 }

@@ -50,6 +50,9 @@ namespace Social_Network.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("PostId")
                         .HasColumnType("INTEGER");
 
@@ -61,6 +64,8 @@ namespace Social_Network.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("PostId");
 
@@ -140,6 +145,9 @@ namespace Social_Network.API.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
@@ -148,6 +156,71 @@ namespace Social_Network.API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Social_Network.Core.Models.PostImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostImages");
+                });
+
+            modelBuilder.Entity("Social_Network.Core.Models.PostMention", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MentionedUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MentionedUserId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostMentions");
+                });
+
+            modelBuilder.Entity("Social_Network.Core.Models.PostTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("PostTags");
                 });
 
             modelBuilder.Entity("Social_Network.Core.Models.SavedPost", b =>
@@ -196,6 +269,24 @@ namespace Social_Network.API.Migrations
                     b.HasIndex("FollowingId");
 
                     b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("Social_Network.Core.Models.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Social_Network.Core.Models.User", b =>
@@ -283,6 +374,11 @@ namespace Social_Network.API.Migrations
 
             modelBuilder.Entity("Social_Network.Core.Models.Comment", b =>
                 {
+                    b.HasOne("Social_Network.Core.Models.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Social_Network.Core.Models.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
@@ -294,6 +390,8 @@ namespace Social_Network.API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ParentComment");
 
                     b.Navigation("Post");
 
@@ -347,6 +445,55 @@ namespace Social_Network.API.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Social_Network.Core.Models.PostImage", b =>
+                {
+                    b.HasOne("Social_Network.Core.Models.Post", "Post")
+                        .WithMany("Images")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Social_Network.Core.Models.PostMention", b =>
+                {
+                    b.HasOne("Social_Network.Core.Models.User", "MentionedUser")
+                        .WithMany()
+                        .HasForeignKey("MentionedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Social_Network.Core.Models.Post", "Post")
+                        .WithMany("Mentions")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MentionedUser");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Social_Network.Core.Models.PostTag", b =>
+                {
+                    b.HasOne("Social_Network.Core.Models.Post", "Post")
+                        .WithMany("PostTags")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Social_Network.Core.Models.Tag", "Tag")
+                        .WithMany("PostTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("Social_Network.Core.Models.SavedPost", b =>
@@ -403,13 +550,29 @@ namespace Social_Network.API.Migrations
                     b.Navigation("Messages");
                 });
 
+            modelBuilder.Entity("Social_Network.Core.Models.Comment", b =>
+                {
+                    b.Navigation("Replies");
+                });
+
             modelBuilder.Entity("Social_Network.Core.Models.Post", b =>
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("Images");
+
                     b.Navigation("Likes");
 
+                    b.Navigation("Mentions");
+
+                    b.Navigation("PostTags");
+
                     b.Navigation("SavedPosts");
+                });
+
+            modelBuilder.Entity("Social_Network.Core.Models.Tag", b =>
+                {
+                    b.Navigation("PostTags");
                 });
 
             modelBuilder.Entity("Social_Network.Core.Models.User", b =>

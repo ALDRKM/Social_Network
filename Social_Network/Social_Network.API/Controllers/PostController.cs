@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using Social_Network.API.Services;
+using Social_Network.Core.Models;
 
 
 namespace Social_Network.API.Controllers
@@ -30,20 +31,47 @@ namespace Social_Network.API.Controllers
         }
 
         [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserPosts([FromRoute] int userId)
+        public async Task<IActionResult> GetUserPosts([FromRoute] int userId, [FromQuery] PostType? type)
         {
-            var ListPost = await _post.GetUserPostsAsync(userId);
+            var ListPost = await _post.GetUserPostsAsync(userId, type);
             return Ok(ListPost);
         }
 
-        public record CreatePostRequest(int UserId, string Content, string? ImageUrl);
+        public record CreatePostRequest(
+            int UserId,
+            string Content,
+            PostType Type,
+            List<string>? ImageUrls,
+            List<string>? Tags,
+            List<int>? MentionUserIds,
+            string? ImageUrl);
 
         [HttpPost]
         public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest p)
         {
-            var post = await _post.CreatePostAsync(p.UserId, p.Content, p.ImageUrl);
+            // Поддержка как нового списка изображений, так и старого одиночного ImageUrl
+            var images = p.ImageUrls ?? (p.ImageUrl != null ? new List<string> { p.ImageUrl } : null);
+            var post = await _post.CreatePostAsync(p.UserId, p.Content, p.Type, images, p.Tags, p.MentionUserIds);
             return Ok(post);
         }
+
+        [HttpGet("tag/{tag}")]
+        public async Task<IActionResult> SearchByTag([FromRoute] string tag)
+        {
+            var posts = await _post.SearchByTagAsync(tag);
+            return Ok(posts);
+        }
+
+        [HttpGet("recent")]
+        public async Task<IActionResult> GetRecent()
+        {
+            var posts = await _post.GetRecentAsync();
+            return Ok(posts);
+        }
+
+        [HttpGet("tags/search")]
+        public async Task<IActionResult> SearchTags([FromQuery] string query)
+            => Ok(await _post.SearchTagNamesAsync(query ?? string.Empty));
 
         [HttpDelete("{userId}/{postId}")]
         public async Task<IActionResult> DeletePost([FromRoute] int userId, [FromRoute] int postId)

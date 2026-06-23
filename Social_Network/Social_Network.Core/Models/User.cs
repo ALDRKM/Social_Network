@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Social_Network.Core.Models
 {
@@ -10,6 +11,7 @@ namespace Social_Network.Core.Models
         public int Id { get; set; }
         public string Login { get; set; }
         public string Email { get; set; }
+        [JsonIgnore]
         public string PasswordHash { get; set; }
         public DateTime? BirthDate { get; set; }
         public string? Gender { get; set; }
@@ -18,13 +20,13 @@ namespace Social_Network.Core.Models
         public DateTime CreatedAt { get; set; }
         public bool IsOnline { get; set; }
 
-        // Navigation properties
-        public UserSettings? Settings { get; set; }
-        public ICollection<Post> Posts { get; set; } = new List<Post>();
-        public ICollection<Subscription> Followers { get; set; } = new List<Subscription>();
-        public ICollection<Subscription> Following { get; set; } = new List<Subscription>();
-        public ICollection<Like> Likes { get; set; } = new List<Like>();
-        public ICollection<SavedPost> SavedPosts { get; set; } = new List<SavedPost>();
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        // Navigation properties (не сериализуются — нужны только на сервере)
+        [JsonIgnore] public UserSettings? Settings { get; set; }
+        [JsonIgnore] public ICollection<Post> Posts { get; set; } = new List<Post>();
+        [JsonIgnore] public ICollection<Subscription> Followers { get; set; } = new List<Subscription>();
+        [JsonIgnore] public ICollection<Subscription> Following { get; set; } = new List<Subscription>();
+        [JsonIgnore] public ICollection<Like> Likes { get; set; } = new List<Like>();
+        [JsonIgnore] public ICollection<SavedPost> SavedPosts { get; set; } = new List<SavedPost>();
+        [JsonIgnore] public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

@@ -35,6 +35,26 @@ namespace Social_Network.API.Controllers
             return Ok( new UpdateUserProfileResponse(user.Id, user.Login, user.Bio, user.AvatarUrl));
         }
 
+        public record UpdateAccountRequest(string Login, string Email);
+
+        [HttpPut("{id}/account")]
+        public async Task<IActionResult> UpdateAccount([FromRoute] int id, [FromBody] UpdateAccountRequest req)
+        {
+            var user = await _user.UpdateAccountAsync(id, req.Login, req.Email);
+            if (user == null) return BadRequest("Не удалось обновить аккаунт (возможно, email занят).");
+            return Ok(new { user.Id, user.Login, user.Email });
+        }
+
+        public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
+
+        [HttpPut("{id}/password")]
+        public async Task<IActionResult> ChangePassword([FromRoute] int id, [FromBody] ChangePasswordRequest req)
+        {
+            bool ok = await _user.ChangePasswordAsync(id, req.CurrentPassword, req.NewPassword);
+            if (!ok) return BadRequest("Неверный текущий пароль.");
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAccount([FromRoute] int id)
         {

@@ -37,5 +37,12 @@ namespace Social_Network.API.Controllers
             bool islike = await _like.IsLikeAsync(userId, postId);
             return Ok(islike);
         }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserLiked([FromRoute] int userId)
+        {
+            var posts = await _like.GetUserLikedPostsAsync(userId);
+            return Ok(posts);
+        }
     }
 }

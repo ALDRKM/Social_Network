@@ -37,5 +37,12 @@ namespace Social_Network.API.Controllers
 
         }
 
+        [HttpPost("logout/{userId}")]
+        public async Task<IActionResult> Logout([FromRoute] int userId)
+        {
+            await _auth.SetOnlineAsync(userId, false);
+            return Ok();
+        }
+
     }
 }

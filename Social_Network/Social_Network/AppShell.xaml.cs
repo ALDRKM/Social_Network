@@ -11,6 +11,11 @@
             Routing.RegisterRoute("ChatPage", typeof(Views.ChatPage));
             Routing.RegisterRoute("SettingsPage", typeof(Views.SettingsPage));
             Routing.RegisterRoute("CreatePostPage", typeof(Views.CreatePostPage));
+            Routing.RegisterRoute("MyActionsPage", typeof(Views.MyActionsPage));
+            Routing.RegisterRoute("PrivacySettingsPage", typeof(Views.PrivacySettingsPage));
+            Routing.RegisterRoute("AccountSettingsPage", typeof(Views.AccountSettingsPage));
+            Routing.RegisterRoute("ProfileSettingsPage", typeof(Views.ProfileSettingsPage));
+            Routing.RegisterRoute("ReportsPage", typeof(Views.ReportsPage));
         }
     }
 }

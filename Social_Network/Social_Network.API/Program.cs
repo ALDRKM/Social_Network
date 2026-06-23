@@ -13,7 +13,8 @@ namespace Social_Network.API
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(o =>
+                o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -31,10 +32,27 @@ namespace Social_Network.API
             builder.Services.AddScoped<IChatService,ChatService>();
             builder.Services.AddScoped<IMessageService,MessageService>();
             builder.Services.AddScoped<ILikeService,LikeService>();
+            builder.Services.AddScoped<ISavedPostService,SavedPostService>();
             builder.Services.AddScoped<ICommentsService,CommentsService>();
             builder.Services.AddScoped<IUserSettingsService, UserSettingsService>();
+            builder.Services.AddScoped<IReportService, ReportService>();
 
             var app = builder.Build();
+
+            // Применяем миграции при старте, чтобы схема БД всегда была актуальной
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.Migrate();
+            }
+
+            // Папка для загруженных изображений (доступна по сети с любого устройства)
+            var webRoot = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+            Directory.CreateDirectory(Path.Combine(webRoot, "uploads"));
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(webRoot)
+            });
 
             if (app.Environment.IsDevelopment())
             {

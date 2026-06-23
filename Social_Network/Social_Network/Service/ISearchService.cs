@@ -7,5 +7,7 @@ namespace Social_Network.Service
     {
         Task<List<User>> SearchUsersAsync(string query);
         Task<List<Post>> SearchPostsAsync(string query);
+        Task<List<Post>> SearchByTagAsync(string tag);
+        Task<List<Post>> GetRecentAsync();
     }
 }

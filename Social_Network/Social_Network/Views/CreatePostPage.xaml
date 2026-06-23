@@ -1,337 +1,228 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Social_Network.ViewModels"
+             xmlns:models="clr-namespace:Social_Network.Core.Models;assembly=Social_Network.Core"
+             xmlns:controls="clr-namespace:Social_Network.Controls"
              x:Class="Social_Network.Views.CreatePostPage"
-             BackgroundColor="#F5F0E8"
+             x:DataType="vm:CreatePostViewModel"
+             BackgroundColor="{StaticResource AppBackground}"
              Shell.NavBarIsVisible="False">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="{OnIdiom Phone=0, Default=220}"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="{OnIdiom Phone=0, Default=220}" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="{OnIdiom Phone=0, Default=0}"/>
-        </Grid.RowDefinitions>
 
-        <!-- ===== БОКОВАЯ ПАНЕЛЬ (ПК) ===== -->
-        <Frame Grid.Column="0" Grid.Row="0"
-               BackgroundColor="#3D1F0A"
-               Padding="0" CornerRadius="0" BorderColor="Transparent"
-               IsVisible="{OnIdiom Phone=False, Default=True}">
-            <StackLayout Padding="16,32,16,16" Spacing="8">
+        <controls:AppNavBar Grid.Column="0" Mode="Sidebar" Current="Create" />
 
-                <Label Text="SocialNet" FontSize="22" FontAttributes="Bold"
-                       TextColor="White" Margin="8,0,0,24"/>
-
-                <Frame BackgroundColor="Transparent" CornerRadius="12"
-                       Padding="12,10" BorderColor="Transparent">
-                    <StackLayout Orientation="Horizontal" Spacing="12">
-                        <Image Source="icon_home.png" WidthRequest="22" HeightRequest="22"/>
-                        <Label Text="Лента" TextColor="#A07858" FontSize="15" VerticalOptions="Center"/>
-                    </StackLayout>
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnHomeTapped"/>
-                    </Frame.GestureRecognizers>
-                </Frame>
-
-                <Frame BackgroundColor="Transparent" CornerRadius="12"
-                       Padding="12,10" BorderColor="Transparent">
-                    <StackLayout Orientation="Horizontal" Spacing="12">
-                        <Image Source="icon_search.png" WidthRequest="22" HeightRequest="22"/>
-                        <Label Text="Поиск" TextColor="#A07858" FontSize="15" VerticalOptions="Center"/>
-                    </StackLayout>
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnSearchTapped"/>
-                    </Frame.GestureRecognizers>
-                </Frame>
-
-                <!-- Создать пост активный -->
-                <Frame BackgroundColor="#5C3317" CornerRadius="12"
-                       Padding="12,10" BorderColor="Transparent">
-                    <StackLayout Orientation="Horizontal" Spacing="12">
-                        <Image Source="icon_add.png" WidthRequest="22" HeightRequest="22"/>
-                        <Label Text="Создать пост" TextColor="White" FontSize="15" VerticalOptions="Center"/>
-                    </StackLayout>
-                </Frame>
-
-                <Frame BackgroundColor="Transparent" CornerRadius="12"
-                       Padding="12,10" BorderColor="Transparent">
-                    <StackLayout Orientation="Horizontal" Spacing="12">
-                        <Image Source="icon_chat.png" WidthRequest="22" HeightRequest="22"/>
-                        <Label Text="Сообщения" TextColor="#A07858" FontSize="15" VerticalOptions="Center"/>
-                    </StackLayout>
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnMessagesTapped"/>
-                    </Frame.GestureRecognizers>
-                </Frame>
-
-                <Frame BackgroundColor="Transparent" CornerRadius="12"
-                       Padding="12,10" BorderColor="Transparent">
-                    <StackLayout Orientation="Horizontal" Spacing="12">
-                        <Image Source="icon_profile.png" WidthRequest="22" HeightRequest="22"/>
-                        <Label Text="Профиль" TextColor="#A07858" FontSize="15" VerticalOptions="Center"/>
-                    </StackLayout>
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnProfileTapped"/>
-                    </Frame.GestureRecognizers>
-                </Frame>
-
-            </StackLayout>
-        </Frame>
-
-        <!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
-        <Grid Grid.Column="1" Grid.Row="0"
-              RowDefinitions="Auto, Auto, *">
+        <Grid Grid.Column="1"
+              RowDefinitions="Auto,*,Auto"
+              WidthRequest="{OnIdiom Phone=-1, Default=560}"
+              HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
 
             <!-- Шапка -->
-            <Grid Grid.Row="0"
-                  ColumnDefinitions="44, *, 44"
-                  Padding="12,12,12,8">
-
-                <!-- Крестик -->
-                <Frame Grid.Column="0"
-                       WidthRequest="36" HeightRequest="36"
-                       CornerRadius="18" Padding="0"
-                       BorderColor="#5C3317" BackgroundColor="Transparent"
-                       HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="✕" FontSize="16" TextColor="#5C3317"
-                           HorizontalOptions="Center" VerticalOptions="Center"/>
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnCloseTapped"/>
-                    </Frame.GestureRecognizers>
-                </Frame>
-
-                <!-- Заголовок -->
-                <Label Grid.Column="1"
-                       Text="Новая публикация"
-                       FontSize="17" FontAttributes="Bold"
-                       TextColor="#2C1A0E"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"/>
-
-                <!-- Стрелка/галочка (меняется в зависимости от вкладки) -->
-                <Frame Grid.Column="2"
-                       WidthRequest="36" HeightRequest="36"
-                       CornerRadius="18" Padding="0"
-                       BorderColor="#5C3317" BackgroundColor="Transparent"
-                       HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="{Binding HeaderActionIcon}"
-                           FontSize="16" TextColor="#5C3317"
-                           HorizontalOptions="Center" VerticalOptions="Center"/>
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnHeaderActionTapped"/>
-                    </Frame.GestureRecognizers>
-                </Frame>
+            <Grid Grid.Row="0" ColumnDefinitions="48,*,48" Padding="14,16,14,8">
+                <Image Grid.Column="0" Source="icon_to_cansel.png" WidthRequest="38" HeightRequest="38"
+                       HorizontalOptions="Start" VerticalOptions="Center">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CancelCommand}" />
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label Grid.Column="1" Text="{Binding HeaderTitle}"
+                       Style="{StaticResource PageTitle}" FontSize="18" VerticalOptions="Center" />
+                <Image Grid.Column="2" Source="icon_to_ready_for_addpostsornotes_and_settings.png"
+                       WidthRequest="38" HeightRequest="38" HorizontalOptions="End" VerticalOptions="Center"
+                       IsVisible="{OnIdiom Phone=True, Default=False}">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PublishCommand}" />
+                    </Image.GestureRecognizers>
+                </Image>
             </Grid>
 
-            <!-- Вкладки Фото / Заметка -->
-            <Grid Grid.Row="1"
-                  ColumnDefinitions="*,*"
-                  Margin="12,0,12,8">
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="14,4,14,16" Spacing="12">
 
-                <Frame Grid.Column="0" Padding="0" CornerRadius="12"
-                       BorderColor="Transparent"
-                       BackgroundColor="{Binding PhotoTabBackground}"
-                       HeightRequest="38">
-                    <Label Text="Фото" FontSize="14" FontAttributes="Bold"
-                           TextColor="{Binding PhotoTabTextColor}"
-                           HorizontalOptions="Center" VerticalOptions="Center"/>
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding SelectPhotoTabCommand}"/>
-                    </Frame.GestureRecognizers>
-                </Frame>
+                    <!-- ===== ФОТО ===== -->
+                    <VerticalStackLayout Spacing="12" IsVisible="{Binding IsPhotoTabSelected}">
+                        <Button Text="Добавить фото" Command="{Binding PickImagesCommand}"
+                                Style="{StaticResource PrimaryButton}" HeightRequest="46" />
 
-                <Frame Grid.Column="1" Padding="0" CornerRadius="12"
-                       BorderColor="Transparent"
-                       BackgroundColor="{Binding NoteTabBackground}"
-                       HeightRequest="38">
-                    <Label Text="Заметка" FontSize="14" FontAttributes="Bold"
-                           TextColor="{Binding NoteTabTextColor}"
-                           HorizontalOptions="Center" VerticalOptions="Center"/>
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding SelectNoteTabCommand}"/>
-                    </Frame.GestureRecognizers>
-                </Frame>
+                        <ActivityIndicator IsRunning="{Binding IsUploading}" IsVisible="{Binding IsUploading}"
+                                            Color="{StaticResource AppOlive}" />
+
+                        <CollectionView ItemsSource="{Binding SelectedImages}" IsVisible="{Binding HasImages}"
+                                        HeightRequest="120">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 10"
+                                            WidthRequest="110" HeightRequest="110">
+                                        <Image Source="{Binding ., Converter={StaticResource MediaUrlConverter}}" Aspect="AspectFill" />
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding BindingContext.RemoveImageCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Border BackgroundColor="{StaticResource AppInput}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="12,8">
+                            <Editor Placeholder="Добавить описание ..." Text="{Binding Description}"
+                                    PlaceholderColor="{StaticResource AppTextSecondary}"
+                                    TextColor="{StaticResource AppTextPrimary}"
+                                    BackgroundColor="Transparent" AutoSize="TextChanges" MinimumHeightRequest="80" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- ===== ЗАМЕТКА ===== -->
+                    <Border IsVisible="{Binding IsNoteTabSelected}"
+                            BackgroundColor="{StaticResource AppInput}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16" Padding="12" MinimumHeightRequest="180">
+                        <Editor Placeholder="Текст заметки ..." Text="{Binding NoteText}"
+                                PlaceholderColor="{StaticResource AppTextSecondary}"
+                                TextColor="{StaticResource AppTextPrimary}"
+                                BackgroundColor="Transparent" AutoSize="TextChanges" MinimumHeightRequest="160" />
+                    </Border>
+
+                    <!-- Кнопки: Добавить хэштег / Отметить -->
+                    <Button Text="Добавить хэштег" Command="{Binding ToggleHashtagPanelCommand}"
+                            BackgroundColor="{StaticResource AppOlive}" TextColor="White" CornerRadius="12" HeightRequest="46" />
+
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowHashtagPanel}">
+                        <Border BackgroundColor="{StaticResource AppInput}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,2">
+                            <Entry Placeholder="Введите тег и выберите из списка" Text="{Binding TagQuery}"
+                                   PlaceholderColor="{StaticResource AppTextSecondary}"
+                                   TextColor="{StaticResource AppTextPrimary}" BackgroundColor="Transparent"
+                                   ReturnCommand="{Binding AddTagCommand}" />
+                        </Border>
+                        <Border IsVisible="{Binding HasTagSuggestions}" BackgroundColor="{StaticResource AppSurface}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="4">
+                            <CollectionView ItemsSource="{Binding TagSuggestions}" HeightRequest="130">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Label Text="{Binding ., StringFormat='#{0}'}" Padding="10,8"
+                                               TextColor="{StaticResource AppAccentText}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding BindingContext.AddTagCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Border>
+                        <CollectionView ItemsSource="{Binding SelectedTags}" HeightRequest="40">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BackgroundColor="{StaticResource AppOrange}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4">
+                                        <HorizontalStackLayout Spacing="6">
+                                            <Label Text="{Binding ., StringFormat='#{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
+                                            <Label Text="✕" TextColor="White" FontSize="13" VerticalOptions="Center">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding BindingContext.RemoveTagCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <Button Text="Отметить" Command="{Binding ToggleMentionPanelCommand}"
+                            BackgroundColor="{StaticResource AppOlive}" TextColor="White" CornerRadius="12" HeightRequest="46" />
+
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowMentionPanel}">
+                        <Border BackgroundColor="{StaticResource AppInput}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,2">
+                            <Entry Placeholder="Введите @логин и выберите из списка" Text="{Binding MentionQuery}"
+                                   PlaceholderColor="{StaticResource AppTextSecondary}"
+                                   TextColor="{StaticResource AppTextPrimary}" BackgroundColor="Transparent" />
+                        </Border>
+                        <Border IsVisible="{Binding HasMentionSuggestions}" BackgroundColor="{StaticResource AppSurface}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="4">
+                            <CollectionView ItemsSource="{Binding MentionSuggestions}" HeightRequest="150">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:User">
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" Padding="8,6">
+                                            <controls:AvatarView Grid.Column="0" Source="{Binding AvatarUrl}" Size="34" />
+                                            <Label Grid.Column="1" Text="{Binding Login}" VerticalOptions="Center"
+                                                   TextColor="{StaticResource AppAccentText}" FontAttributes="Bold" />
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding BindingContext.AddMentionCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Border>
+                        <CollectionView ItemsSource="{Binding SelectedMentions}" HeightRequest="40">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:User">
+                                    <Border BackgroundColor="{StaticResource AppOlive}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4">
+                                        <HorizontalStackLayout Spacing="6">
+                                            <Label Text="{Binding Login, StringFormat='@{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
+                                            <Label Text="✕" TextColor="White" FontSize="13" VerticalOptions="Center">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding BindingContext.RemoveMentionCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource AppError}"
+                           FontSize="13" HorizontalTextAlignment="Center"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}" />
+
+                    <!-- Опубликовать (только ПК) -->
+                    <Button Text="Опубликовать" Command="{Binding PublishCommand}"
+                            IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButton}"
+                            Margin="0,4,0,0" IsVisible="{OnIdiom Phone=False, Default=True}" />
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Переключатель Фото / Заметка -->
+            <Grid Grid.Row="2" ColumnDefinitions="*,*" Padding="14,8,14,16" ColumnSpacing="10">
+                <Border Grid.Column="0" BackgroundColor="{Binding PhotoTabBackground}"
+                        StrokeThickness="0" StrokeShape="RoundRectangle 14" HeightRequest="44">
+                    <Label Text="Фото" FontAttributes="Bold" TextColor="{Binding PhotoTabTextColor}"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectPhotoTabCommand}" />
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" BackgroundColor="{Binding NoteTabBackground}"
+                        StrokeThickness="0" StrokeShape="RoundRectangle 14" HeightRequest="44">
+                    <Label Text="Заметка" FontAttributes="Bold" TextColor="{Binding NoteTabTextColor}"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectNoteTabCommand}" />
+                    </Border.GestureRecognizers>
+                </Border>
             </Grid>
-
-            <!-- ===== ВКЛАДКА ФОТО ===== -->
-            <ScrollView Grid.Row="2"
-                        IsVisible="{Binding IsPhotoTabSelected}">
-                <StackLayout Padding="12,0,12,24" Spacing="10">
-
-                    <!-- Превью выбранного фото -->
-                    <Frame Padding="0" CornerRadius="16"
-                           IsClippedToBounds="True"
-                           BorderColor="Transparent"
-                           BackgroundColor="#D4873A"
-                           HeightRequest="{OnIdiom Phone=240, Default=320}">
-                        <Image Source="{Binding SelectedImagePath}"
-                               Aspect="AspectFill"/>
-                    </Frame>
-
-                    <!-- Альбом + Выбрать -->
-                    <Grid ColumnDefinitions="Auto, *, Auto">
-                        <Frame Grid.Column="0"
-                               Padding="10,6" CornerRadius="12"
-                               BorderColor="#5C3317" BackgroundColor="Transparent">
-                            <StackLayout Orientation="Horizontal" Spacing="4">
-                                <Label Text="Альбом" FontSize="13" TextColor="#2C1A0E"/>
-                                <Label Text="∨" FontSize="13" TextColor="#2C1A0E"/>
-                            </StackLayout>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding PickAlbumCommand}"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-
-                        <Frame Grid.Column="2"
-                               Padding="10,6" CornerRadius="12"
-                               BorderColor="#5C3317" BackgroundColor="Transparent">
-                            <Label Text="Выбрать" FontSize="13" TextColor="#2C1A0E"/>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding PickImageCommand}"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-                    </Grid>
-
-                    <!-- Сетка галереи 3 колонки -->
-                    <CollectionView ItemsSource="{Binding GalleryImages}"
-                                    HeightRequest="{OnIdiom Phone=220, Default=280}">
-                        <CollectionView.ItemsLayout>
-                            <GridItemsLayout Orientation="Vertical"
-                                             Span="3"
-                                             HorizontalItemSpacing="4"
-                                             VerticalItemSpacing="4"/>
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Frame Padding="0" CornerRadius="10"
-                                       IsClippedToBounds="True"
-                                       BorderColor="Transparent"
-                                       BackgroundColor="#8B4513"
-                                       HeightRequest="80">
-                                    <Image Source="{Binding .}" Aspect="AspectFill"/>
-                                    <Frame.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectGalleryImageCommand}"
-                                            CommandParameter="{Binding .}"/>
-                                    </Frame.GestureRecognizers>
-                                </Frame>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-
-                    <!-- Описание -->
-                    <Frame Padding="12,10" CornerRadius="12"
-                           BackgroundColor="#EDE5D8" BorderColor="Transparent">
-                        <Editor Placeholder="Описание ..."
-                                PlaceholderColor="#A08060"
-                                TextColor="#2C1A0E"
-                                BackgroundColor="Transparent"
-                                Text="{Binding Description}"
-                                AutoSize="TextChanges"
-                                MinimumHeightRequest="44"/>
-                    </Frame>
-
-                    <!-- Добавить хэштег -->
-                    <Frame Padding="0" CornerRadius="12"
-                           BackgroundColor="#4A6741" BorderColor="Transparent"
-                           HeightRequest="46">
-                        <Label Text="Добавить хэштег"
-                               FontSize="15" TextColor="White"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding AddHashtagCommand}"/>
-                        </Frame.GestureRecognizers>
-                    </Frame>
-
-                    <!-- Отметить -->
-                    <Frame Padding="0" CornerRadius="12"
-                           BackgroundColor="#4A6741" BorderColor="Transparent"
-                           HeightRequest="46">
-                        <Label Text="Отметить"
-                               FontSize="15" TextColor="White"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding TagPeopleCommand}"/>
-                        </Frame.GestureRecognizers>
-                    </Frame>
-
-                    <!-- Опубликовать -->
-                    <Frame Padding="0" CornerRadius="24"
-                           BackgroundColor="#EDE5D8" BorderColor="#5C3317"
-                           HeightRequest="52">
-                        <Label Text="Опубликовать"
-                               FontSize="16" FontAttributes="Bold"
-                               TextColor="#2C1A0E"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding PublishCommand}"/>
-                        </Frame.GestureRecognizers>
-                    </Frame>
-
-                </StackLayout>
-            </ScrollView>
-
-            <!-- ===== ВКЛАДКА ЗАМЕТКА ===== -->
-            <ScrollView Grid.Row="2"
-                        IsVisible="{Binding IsNoteTabSelected}">
-                <StackLayout Padding="12,0,12,24" Spacing="10">
-
-                    <!-- Текстовое поле заметки -->
-                    <Frame Padding="12" CornerRadius="16"
-                           BackgroundColor="#D4C5A9" BorderColor="Transparent"
-                           MinimumHeightRequest="200">
-                        <Editor Placeholder="Текст заметки ..."
-                                PlaceholderColor="#8B7355"
-                                TextColor="#2C1A0E"
-                                BackgroundColor="Transparent"
-                                Text="{Binding NoteText}"
-                                AutoSize="TextChanges"
-                                MinimumHeightRequest="180"/>
-                    </Frame>
-
-                    <!-- Добавить хэштег -->
-                    <Frame Padding="0" CornerRadius="12"
-                           BackgroundColor="#4A6741" BorderColor="Transparent"
-                           HeightRequest="46">
-                        <Label Text="Добавить хэштег"
-                               FontSize="15" TextColor="White"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding AddHashtagCommand}"/>
-                        </Frame.GestureRecognizers>
-                    </Frame>
-
-                    <!-- Отметить -->
-                    <Frame Padding="0" CornerRadius="12"
-                           BackgroundColor="#4A6741" BorderColor="Transparent"
-                           HeightRequest="46">
-                        <Label Text="Отметить"
-                               FontSize="15" TextColor="White"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding TagPeopleCommand}"/>
-                        </Frame.GestureRecognizers>
-                    </Frame>
-
-                    <!-- Опубликовать -->
-                    <Frame Padding="0" CornerRadius="24"
-                           BackgroundColor="#EDE5D8" BorderColor="#5C3317"
-                           HeightRequest="52">
-                        <Label Text="Опубликовать"
-                               FontSize="16" FontAttributes="Bold"
-                               TextColor="#2C1A0E"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding PublishCommand}"/>
-                        </Frame.GestureRecognizers>
-                    </Frame>
-
-                </StackLayout>
-            </ScrollView>
-
         </Grid>
     </Grid>
 </ContentPage>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Social_Network.ViewModels"
+             x:Class="Social_Network.Views.PrivacySettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*" Padding="0,14,0,0">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="{OnIdiom Phone='10,0,10,0', Default='40,0,40,0'}">
+            <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="46" HeightRequest="46"
+                   HorizontalOptions="Start" VerticalOptions="Center">
+                <Image.GestureRecognizers><TapGestureRecognizer Command="{Binding GoBackCommand}" /></Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Приватность" Style="{StaticResource PageTitle}" FontSize="22"
+                   VerticalOptions="Center" Margin="0,0,46,0" />
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="1" Padding="20,20" Spacing="16"
+                             WidthRequest="{OnIdiom Phone=-1, Default=520}"
+                             HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
+            <Label Text="{Binding StatusMessage}" TextColor="{StaticResource AppOlive}"
+                   IsVisible="{Binding StatusMessage, Converter={StaticResource StringToBoolConverter}}" />
+
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="Закрытый аккаунт" FontSize="16" TextColor="{StaticResource AppTextPrimary}" />
+                    <Label Text="Контент виден только подписчикам" FontSize="12" TextColor="{StaticResource AppTextSecondary}" />
+                </VerticalStackLayout>
+                <Switch Grid.Column="1" IsToggled="{Binding IsPrivate}" VerticalOptions="Center" />
+            </Grid>
+
+            <Button Text="Сохранить" Command="{Binding SavePrivacyCommand}" Style="{StaticResource PrimaryButton}" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

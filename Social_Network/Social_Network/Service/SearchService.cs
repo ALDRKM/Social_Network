@@ -32,5 +32,29 @@ namespace Social_Network.Service
                 return new();
             }
         }
+
+        public async Task<List<Post>> SearchByTagAsync(string tag)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<List<Post>>($"{ApiConfig.BaseUrl}/post/tag/{Uri.EscapeDataString(tag.TrimStart('#'))}") ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
+        public async Task<List<Post>> GetRecentAsync()
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<List<Post>>($"{ApiConfig.BaseUrl}/post/recent") ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
     }
 }

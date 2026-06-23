@@ -6,5 +6,6 @@ namespace Social_Network.API.Services
     {
         Task<User?> RegisterAsync(string login, string email, string password);
         Task<User?> LoginAsync(string email, string password);
+        Task SetOnlineAsync(int userId, bool online);
     }
 }

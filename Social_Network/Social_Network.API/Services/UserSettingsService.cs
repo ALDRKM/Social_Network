@@ -15,12 +15,16 @@ namespace Social_Network.API.Services
         public async Task<UserSettings?> UpdateAsync(int userId, bool isPrivate, bool notificationsEnabled)
         {
             var userset = await _db.UserSettings.FirstOrDefaultAsync(set => set.UserId == userId);
-            if (userset == null) return null;
+            if (userset == null)
+            {
+                // Создаём строку настроек, если её ещё нет
+                userset = new UserSettings { UserId = userId };
+                _db.UserSettings.Add(userset);
+            }
 
             userset.IsPrivateAccount = isPrivate;
             userset.NotificationsEnabled = notificationsEnabled;
 
-            
             await _db.SaveChangesAsync();
             return userset;
         }

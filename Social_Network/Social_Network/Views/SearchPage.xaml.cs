@@ -4,20 +4,17 @@ namespace Social_Network.Views;
 
 public partial class SearchPage : ContentPage
 {
-	public SearchPage(SearchViewModel vm)
-	{
-		InitializeComponent();
-        BindingContext = vm;
+    private readonly SearchViewModel _vm;
+
+    public SearchPage(SearchViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = _vm = vm;
     }
-    private async void OnHomeTapped(object sender, EventArgs e)
-        => await Shell.Current.GoToAsync("//FeedPage");
 
-    private async void OnCreatePostTapped(object sender, EventArgs e)
-        => await Shell.Current.GoToAsync("CreatePostPage");
-
-    private async void OnMessagesTapped(object sender, EventArgs e)
-        => await Shell.Current.GoToAsync("//ChatListPage");
-
-    private async void OnProfileTapped(object sender, EventArgs e)
-        => await Shell.Current.GoToAsync("//ProfilePage");
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await _vm.InitializeAsync();
+    }
 }

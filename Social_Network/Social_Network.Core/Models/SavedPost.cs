@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Social_Network.Core.Models
 {
@@ -11,8 +12,8 @@ namespace Social_Network.Core.Models
         public DateTime SavedAt { get; set; } = DateTime.UtcNow;
         // Foreign key and navigation property for User and Post
         public int UserId { get; set; }
-        public User? User { get; set; }
+        [JsonIgnore] public User? User { get; set; }
         public int PostId { get; set; }
-        public Post? Post { get; set; }
+        [JsonIgnore] public Post? Post { get; set; }
     }
 }
