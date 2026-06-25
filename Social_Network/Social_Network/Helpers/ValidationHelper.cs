@@ -31,5 +31,12 @@ namespace Social_Network.Helpers
         public static bool IsValidLogin(string? login)
             => !string.IsNullOrWhiteSpace(login)
                && Regex.IsMatch(login.Trim(), @"^[A-Za-z0-9._]{3,30}$");
+
+        // Тег: без пробелов и решётки, буквы/цифры/подчёркивание, 1–30 символов
+        public static bool IsValidTag(string? tag)
+        {
+            var t = tag?.Trim().TrimStart('#') ?? string.Empty;
+            return Regex.IsMatch(t, @"^[\p{L}\p{N}_]{1,30}$");
+        }
     }
 }

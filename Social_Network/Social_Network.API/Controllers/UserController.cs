@@ -12,7 +12,8 @@ namespace Social_Network.API.Controllers
 
         public UserController(IUserService user) => _user = user;
 
-        public record GetUserProfileResponse(int Id, string Login, string? Bio, string? AvatarUrl, DateTime CreatedAt);
+        public record GetUserProfileResponse(int Id, string Login, string Email, string? Bio,
+            string? AvatarUrl, DateTime CreatedAt, bool IsOnline, DateTime? LastSeen);
 
         [HttpGet("{id}")]
         public async Task<ActionResult<GetUserProfileResponse>> GetUserProfile([FromRoute]int id)
@@ -20,7 +21,8 @@ namespace Social_Network.API.Controllers
             var user = await _user.GetUserByIdAsync(id);
             if (user == null) return NotFound();
 
-            return Ok(new GetUserProfileResponse(user.Id, user.Login, user.Bio, user.AvatarUrl, user.CreatedAt));
+            return Ok(new GetUserProfileResponse(user.Id, user.Login, user.Email, user.Bio,
+                user.AvatarUrl, user.CreatedAt, user.IsOnline, user.LastSeen));
         }
 
         public record UpdateUserProfileRequest( string Login, string? Bio, string? AvatarUrl);

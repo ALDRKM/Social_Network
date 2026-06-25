@@ -23,9 +23,13 @@ namespace Social_Network.ViewModels
 
         [ObservableProperty] private int postId;
         [ObservableProperty] private Post? post;
-        [ObservableProperty] private bool isLiked;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LikeIcon))]
+        private bool isLiked;
         [ObservableProperty] private int likeCount;
         [ObservableProperty] private string newComment = string.Empty;
+
+        public string LikeIcon => IsLiked ? "icon_like_already.png" : "icon_like.png";
 
         // Если отвечаем на комментарий — id родителя и подпись
         [ObservableProperty]

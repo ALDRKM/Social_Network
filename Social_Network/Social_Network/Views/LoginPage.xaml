@@ -39,7 +39,7 @@
             <Border Grid.Row="2" Style="{StaticResource InputPill}" Margin="0,0,0,10">
                 <Entry
                     Text="{Binding Email}"
-                    Placeholder="Логин или эл. почта"
+                    Placeholder="Эл. почта"
                     PlaceholderColor="{StaticResource AppTextSecondary}"
                     TextColor="{StaticResource AppTextPrimary}"
                     BackgroundColor="Transparent"

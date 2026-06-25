@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Social_Network.Constants;
 using Social_Network.Core.Models;
+using Social_Network.Helpers;
 using Social_Network.Service;
 
 namespace Social_Network.ViewModels
@@ -42,15 +43,24 @@ namespace Social_Network.ViewModels
         [ObservableProperty] private string? errorMessage;
         [ObservableProperty] private bool isUploading;
 
+        // Одно фото (заменяется при повторном выборе)
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasImages))]
-        private ObservableCollection<string> selectedImages = new();
+        [NotifyPropertyChangedFor(nameof(HasImage))]
+        private string? selectedImage;
 
-        public bool HasImages => SelectedImages.Count > 0;
+        public bool HasImage => !string.IsNullOrEmpty(SelectedImage);
 
         // ----- Панели хэштегов / отметок -----
-        [ObservableProperty] private bool showHashtagPanel;
-        [ObservableProperty] private bool showMentionPanel;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HashtagButtonText))]
+        private bool showHashtagPanel;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MentionButtonText))]
+        private bool showMentionPanel;
+
+        public string HashtagButtonText => ShowHashtagPanel ? "Готово" : "Добавить хэштег";
+        public string MentionButtonText => ShowMentionPanel ? "Готово" : "Отметить";
 
         [RelayCommand]
         private void ToggleHashtagPanel()
@@ -66,7 +76,7 @@ namespace Social_Network.ViewModels
             if (ShowMentionPanel) ShowHashtagPanel = false;
         }
 
-        // ----- Хэштеги (динамический поиск существующих) -----
+        // ----- Хэштеги -----
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasTagSuggestions))]
         private string tagQuery = string.Empty;
@@ -92,18 +102,25 @@ namespace Social_Network.ViewModels
         [RelayCommand]
         private void AddTag(string? tag)
         {
-            var t = (tag ?? TagQuery).Trim().TrimStart('#').ToLowerInvariant();
-            if (!string.IsNullOrEmpty(t) && SelectedTags.All(s => s != t))
+            var raw = tag ?? TagQuery;
+            if (!ValidationHelper.IsValidTag(raw))
+            {
+                ErrorMessage = "Тег: без пробелов и решётки, например «лето» или «море»";
+                return;
+            }
+            var t = raw.Trim().TrimStart('#').ToLowerInvariant();
+            if (SelectedTags.All(s => s != t))
                 SelectedTags.Add(t);
             TagQuery = string.Empty;
             TagSuggestions.Clear();
+            ErrorMessage = null;
             OnPropertyChanged(nameof(HasTagSuggestions));
         }
 
         [RelayCommand]
         private void RemoveTag(string tag) => SelectedTags.Remove(tag);
 
-        // ----- Отметка людей (динамический поиск) -----
+        // ----- Отметка людей (только существующие) -----
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasMentionSuggestions))]
         private string mentionQuery = string.Empty;
@@ -127,6 +144,7 @@ namespace Social_Network.ViewModels
             OnPropertyChanged(nameof(HasMentionSuggestions));
         }
 
+        // Отметить можно только пользователя из списка (т.е. существующего)
         [RelayCommand]
         private void AddMention(User user)
         {
@@ -135,6 +153,7 @@ namespace Social_Network.ViewModels
                 SelectedMentions.Add(user);
             MentionQuery = string.Empty;
             MentionSuggestions.Clear();
+            ErrorMessage = null;
             OnPropertyChanged(nameof(HasMentionSuggestions));
         }
 
@@ -151,29 +170,27 @@ namespace Social_Network.ViewModels
         [RelayCommand]
         private void SelectNoteTab() => IsPhotoTabSelected = false;
 
+        // Выбрать одно фото (повторный выбор заменяет предыдущее)
         [RelayCommand]
         private async Task PickImages()
         {
             try
             {
-                var results = await FilePicker.PickMultipleAsync(new PickOptions
+                var file = await FilePicker.PickAsync(new PickOptions
                 {
                     PickerTitle = "Выберите фото",
                     FileTypes = FilePickerFileType.Images
                 });
-                if (results == null) return;
+                if (file == null) return;
 
                 IsUploading = true;
                 ErrorMessage = null;
-                foreach (var file in results)
-                {
-                    using var stream = await file.OpenReadAsync();
-                    var url = await _upload.UploadAsync(stream, file.FileName);
-                    if (!string.IsNullOrEmpty(url) && !SelectedImages.Contains(url))
-                        SelectedImages.Add(url);
-                }
+                using var stream = await file.OpenReadAsync();
+                var url = await _upload.UploadAsync(stream, file.FileName);
                 IsUploading = false;
-                OnPropertyChanged(nameof(HasImages));
+
+                if (!string.IsNullOrEmpty(url)) SelectedImage = url;
+                else ErrorMessage = "Не удалось загрузить фото";
             }
             catch (Exception ex)
             {
@@ -183,44 +200,41 @@ namespace Social_Network.ViewModels
         }
 
         [RelayCommand]
-        private void RemoveImage(string path)
-        {
-            SelectedImages.Remove(path);
-            OnPropertyChanged(nameof(HasImages));
-        }
+        private void RemoveImage() => SelectedImage = null;
 
         [RelayCommand]
         private async Task Publish()
         {
             if (IsBusy) return;
+            if (IsUploading)
+            {
+                ErrorMessage = "Дождитесь загрузки фото";
+                return;
+            }
             ErrorMessage = null;
 
             int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
             var type = IsPhotoTabSelected ? PostType.Photo : PostType.Note;
-            var content = IsPhotoTabSelected ? Description : NoteText;
+            var content = (IsPhotoTabSelected ? Description : NoteText)?.Trim() ?? string.Empty;
 
-            if (type == PostType.Photo && !HasImages)
+            if (type == PostType.Photo && !HasImage)
             {
-                ErrorMessage = "Выберите хотя бы одно фото";
+                ErrorMessage = "Выберите фото";
                 return;
             }
-            if (type == PostType.Note && string.IsNullOrWhiteSpace(content))
+            if (type == PostType.Note && string.IsNullOrWhiteSpace(content) && SelectedTags.Count == 0)
             {
-                ErrorMessage = "Введите текст заметки";
+                ErrorMessage = "Введите текст заметки или добавьте теги";
                 return;
             }
 
             IsBusy = true;
 
-            var tags = SelectedTags.ToList();
-            if (!string.IsNullOrWhiteSpace(TagQuery))
-                tags.AddRange(ParseTags(TagQuery));
-            tags = tags.Distinct().ToList();
-
+            var tags = SelectedTags.Distinct().ToList();
             var mentionIds = SelectedMentions.Select(u => u.Id).Distinct().ToList();
-            var images = IsPhotoTabSelected ? SelectedImages.ToList() : null;
+            var image = IsPhotoTabSelected ? SelectedImage : null;
 
-            var created = await _post.CreatePostAsync(userId, content, type, images, tags, mentionIds);
+            var created = await _post.CreatePostAsync(userId, content, type, image, tags, mentionIds);
             IsBusy = false;
 
             if (created == null)
@@ -246,24 +260,15 @@ namespace Social_Network.ViewModels
             NoteText = string.Empty;
             TagQuery = string.Empty;
             MentionQuery = string.Empty;
-            SelectedImages.Clear();
+            SelectedImage = null;
             SelectedTags.Clear();
             SelectedMentions.Clear();
             TagSuggestions.Clear();
             MentionSuggestions.Clear();
             ShowHashtagPanel = false;
             ShowMentionPanel = false;
+            ErrorMessage = null;
             IsPhotoTabSelected = true;
-        }
-
-        private static List<string> ParseTags(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return new();
-            return text.Split(new[] { ' ', ',', '#', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                       .Select(t => t.Trim().ToLowerInvariant())
-                       .Where(t => t.Length > 0)
-                       .Distinct()
-                       .ToList();
         }
     }
 }

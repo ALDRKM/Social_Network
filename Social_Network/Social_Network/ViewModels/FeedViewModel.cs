@@ -31,10 +31,13 @@ namespace Social_Network.ViewModels
 
         // Просмотренные истории (чтобы они оставались серыми после обновления ленты)
         private readonly HashSet<int> _viewedStories = new();
-        private bool _togglingFollow;
 
         [ObservableProperty]
         private bool hasStories;
+
+        // Отдельный флаг для RefreshView (не завязан на IsBusy-гард — иначе бесконечное обновление)
+        [ObservableProperty]
+        private bool isRefreshing;
 
         public FeedViewModel(IPostService post, ILikeService like, ISavedPostService saved, ISubscriptionService sub)
         {
@@ -48,27 +51,41 @@ namespace Social_Network.ViewModels
         [RelayCommand]
         private async Task LoadFeed()
         {
-            if (IsBusy) return;
+            if (IsBusy) { IsRefreshing = false; return; }
             IsBusy = true;
-
-            int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
-
-            var posts = await _post.GetFeedAsync(userId);
-            var followingIds = (await _sub.GetFollowingIdsAsync(userId)).ToHashSet();
-            var savedIds = (await _saved.GetSavedIdsAsync(userId)).ToHashSet();
-
-            Posts.Clear();
-            foreach (var p in posts)
+            try
             {
-                bool isLiked = p.Likes?.Any(l => l.UserId == userId) ?? false;
-                bool isSaved = savedIds.Contains(p.Id);
-                bool isFollowing = followingIds.Contains(p.UserId);
-                Posts.Add(new FeedPostViewModel(p, isLiked, isSaved, isFollowing, userId));
+                int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+
+                var posts = await _post.GetFeedAsync(userId);
+                var followingIds = (await _sub.GetFollowingIdsAsync(userId)).ToHashSet();
+                var savedIds = (await _saved.GetSavedIdsAsync(userId)).ToHashSet();
+
+                Posts.Clear();
+                foreach (var p in posts)
+                {
+                    bool isLiked = p.Likes?.Any(l => l.UserId == userId) ?? false;
+                    bool isSaved = savedIds.Contains(p.Id);
+                    bool isFollowing = followingIds.Contains(p.UserId);
+                    Posts.Add(new FeedPostViewModel(p, isLiked, isSaved, isFollowing, userId));
+                }
+
+                BuildStories(posts, followingIds, userId);
             }
+            finally
+            {
+                IsBusy = false;
+                IsRefreshing = false;
+            }
+        }
 
-            BuildStories(posts, followingIds, userId);
-
-            IsBusy = false;
+        [RelayCommand]
+        private async Task OpenUser(User user)
+        {
+            if (user == null) return;
+            int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+            if (user.Id == userId) await Shell.Current.GoToAsync("//ProfilePage");
+            else await Shell.Current.GoToAsync($"OtherProfilePage?userId={user.Id}");
         }
 
         // Истории: подписки, опубликовавшие что-то за последние 24 часа
@@ -152,24 +169,17 @@ namespace Social_Network.ViewModels
         [RelayCommand]
         private async Task ToggleFollow(FeedPostViewModel item)
         {
-            if (item == null || item.IsOwnPost || _togglingFollow) return;
-            _togglingFollow = true;
-            try
-            {
-                int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
-                bool follow = !item.IsFollowingAuthor;
+            if (item == null || item.IsOwnPost) return;
+            int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+            bool follow = !item.IsFollowingAuthor;
 
-                // Сразу обновляем все карточки этого автора (один логический клик)
-                foreach (var p in Posts.Where(p => p.UserId == item.UserId))
-                    p.IsFollowingAuthor = follow;
+            // Мгновенно и одинаково обновляем все карточки этого автора
+            foreach (var p in Posts.Where(p => p.UserId == item.UserId))
+                p.IsFollowingAuthor = follow;
 
-                if (follow) await _sub.FollowAsync(userId, item.UserId);
-                else await _sub.UnfollowAsync(userId, item.UserId);
-            }
-            finally
-            {
-                _togglingFollow = false;
-            }
+            // Сервер идемпотентен, поэтому быстрые клики не ломают состояние
+            if (follow) await _sub.FollowAsync(userId, item.UserId);
+            else await _sub.UnfollowAsync(userId, item.UserId);
         }
 
         [RelayCommand]

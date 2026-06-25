@@ -11,20 +11,30 @@ namespace Social_Network.API.Services
         // Самые популярные публикации по отметкам «нравится» за период
         public async Task<List<TopPostDto>> TopPostsByLikesAsync(DateTime? from, DateTime? to, int take = 20)
         {
-            var query = _db.Posts.Include(p => p.User).Include(p => p.Likes).AsQueryable();
+            var query = _db.Posts.Include(p => p.User).Include(p => p.Likes)
+                .Include(p => p.PostTags).ThenInclude(pt => pt.Tag).AsQueryable();
             if (from.HasValue) query = query.Where(p => p.CreatedAt >= from.Value);
             if (to.HasValue) query = query.Where(p => p.CreatedAt <= to.Value);
 
-            return await query
+            var list = await query
                 .OrderByDescending(p => p.Likes.Count)
                 .Take(take)
-                .Select(p => new TopPostDto(
+                .Select(p => new
+                {
                     p.Id,
-                    p.User.Login,
+                    Login = p.User.Login,
                     p.Content,
-                    p.Likes.Count,
-                    p.CreatedAt))
+                    Likes = p.Likes.Count,
+                    p.CreatedAt,
+                    Tags = p.PostTags.Select(t => t.Tag!.Name)
+                })
                 .ToListAsync();
+
+            // Для постов без описания показываем теги вместо пустой строки
+            return list.Select(x => new TopPostDto(
+                x.Id, x.Login,
+                string.IsNullOrWhiteSpace(x.Content) ? string.Join(" ", x.Tags.Select(t => "#" + t)) : x.Content,
+                x.Likes, x.CreatedAt)).ToList();
         }
 
         // Самые популярные теги по количеству использований

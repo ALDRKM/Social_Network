@@ -29,23 +29,29 @@ namespace Social_Network.ViewModels
         [NotifyPropertyChangedFor(nameof(IsSearching))]
         private string searchQuery = string.Empty;
 
+        [ObservableProperty] private bool isRefreshing;
+
         public bool IsSearching => !string.IsNullOrWhiteSpace(SearchQuery);
 
         [RelayCommand]
         public async Task LoadChats()
         {
-            if (IsBusy) return;
+            if (IsBusy) { IsRefreshing = false; return; }
             IsBusy = true;
+            try
+            {
+                int myId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+                var chats = await _chat.GetUserChatsAsync(myId);
 
-            int myId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
-            var chats = await _chat.GetUserChatsAsync(myId);
-
-            Chats.Clear();
-            // Последние переписки сверху
-            foreach (var c in chats.OrderByDescending(c => c.LastMessage?.SentAt ?? c.CreatedAt))
-                Chats.Add(c);
-
-            IsBusy = false;
+                Chats.Clear();
+                foreach (var c in chats.OrderByDescending(c => c.LastMessage?.SentAt ?? c.CreatedAt))
+                    Chats.Add(c);
+            }
+            finally
+            {
+                IsBusy = false;
+                IsRefreshing = false;
+            }
         }
 
         partial void OnSearchQueryChanged(string value) => _ = SearchUsersAsync();
@@ -74,7 +80,8 @@ namespace Social_Network.ViewModels
                 $"ChatPage?chatId={chat.Id}&otherUserId={chat.OtherUserId}" +
                 $"&otherLogin={Uri.EscapeDataString(chat.OtherUserLogin)}" +
                 $"&otherAvatar={Uri.EscapeDataString(chat.OtherUserAvatarUrl ?? string.Empty)}" +
-                $"&otherOnline={chat.OtherUserIsOnline}");
+                $"&otherOnline={chat.OtherUserIsOnline}" +
+                $"&otherLastSeen={Uri.EscapeDataString(chat.OtherUserLastSeen?.ToString("o") ?? string.Empty)}");
         }
 
         [RelayCommand]
@@ -91,7 +98,8 @@ namespace Social_Network.ViewModels
                 $"ChatPage?chatId={chat.Id}&otherUserId={user.Id}" +
                 $"&otherLogin={Uri.EscapeDataString(user.Login)}" +
                 $"&otherAvatar={Uri.EscapeDataString(user.AvatarUrl ?? string.Empty)}" +
-                $"&otherOnline={user.IsOnline}");
+                $"&otherOnline={user.IsOnline}" +
+                $"&otherLastSeen={Uri.EscapeDataString(user.LastSeen?.ToString("o") ?? string.Empty)}");
         }
     }
 }

@@ -22,7 +22,7 @@
                 <!-- Верхние пункты -->
                 <VerticalStackLayout Grid.Row="0" Spacing="6">
 
-                    <Border x:Name="SFeed" StrokeThickness="0" StrokeShape="RoundRectangle 22" Padding="12,10">
+                    <Border x:Name="SFeed" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
                         <HorizontalStackLayout Spacing="14">
                             <Image Source="icon_home.png" WidthRequest="24" HeightRequest="24" />
                             <Label Text="Главная" TextColor="White" FontSize="15" VerticalOptions="Center" />
@@ -30,7 +30,7 @@
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnFeed" /></Border.GestureRecognizers>
                     </Border>
 
-                    <Border x:Name="SSearch" StrokeThickness="0" StrokeShape="RoundRectangle 22" Padding="12,10">
+                    <Border x:Name="SSearch" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
                         <HorizontalStackLayout Spacing="14">
                             <Image Source="icon_search.png" WidthRequest="24" HeightRequest="24" />
                             <Label Text="Поиск" TextColor="White" FontSize="15" VerticalOptions="Center" />
@@ -38,7 +38,7 @@
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnSearch" /></Border.GestureRecognizers>
                     </Border>
 
-                    <Border x:Name="SChat" StrokeThickness="0" StrokeShape="RoundRectangle 22" Padding="12,10">
+                    <Border x:Name="SChat" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
                         <HorizontalStackLayout Spacing="14">
                             <Image Source="icon_chat.png" WidthRequest="24" HeightRequest="24" />
                             <Label Text="Сообщения" TextColor="White" FontSize="15" VerticalOptions="Center" />
@@ -46,7 +46,7 @@
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnChat" /></Border.GestureRecognizers>
                     </Border>
 
-                    <Border x:Name="SCreate" StrokeThickness="0" StrokeShape="RoundRectangle 22" Padding="12,10">
+                    <Border x:Name="SCreate" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
                         <HorizontalStackLayout Spacing="14">
                             <Image Source="icon_add.png" WidthRequest="24" HeightRequest="24" />
                             <Label Text="Создать" TextColor="White" FontSize="15" VerticalOptions="Center" />
@@ -58,7 +58,7 @@
 
                 <!-- Низ: профиль + шестерёнка -->
                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto" VerticalOptions="End">
-                    <Border x:Name="SProfile" Grid.Column="0" StrokeThickness="0" StrokeShape="RoundRectangle 22" Padding="12,10">
+                    <Border x:Name="SProfile" Grid.Column="0" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
                         <HorizontalStackLayout Spacing="14">
                             <Image Source="icon_profile.png" WidthRequest="24" HeightRequest="24" />
                             <Label Text="Профиль" TextColor="White" FontSize="15" VerticalOptions="Center" />
@@ -66,12 +66,9 @@
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnProfile" /></Border.GestureRecognizers>
                     </Border>
 
-                    <Path Grid.Column="1" WidthRequest="22" HeightRequest="22" Aspect="Uniform"
-                          Stroke="White" StrokeThickness="3" StrokeLineJoin="Round" Fill="Transparent"
-                          VerticalOptions="Center"
-                          Data="M50,38 A12,12 0 1,0 50,62 A12,12 0 1,0 50,38 Z M50,16 L54,16 L56,28 L64,31 L74,25 L80,31 L74,41 L77,48 L88,50 L88,54 L77,56 L74,63 L80,73 L74,79 L64,73 L56,76 L54,88 L50,88 L46,88 L44,76 L36,73 L26,79 L20,73 L26,63 L23,56 L12,54 L12,50 L23,48 L26,41 L20,31 L26,25 L36,31 L44,28 L46,16 Z">
-                        <Path.GestureRecognizers><TapGestureRecognizer Tapped="OnSettings" /></Path.GestureRecognizers>
-                    </Path>
+                    <Image Grid.Column="1" Source="icon_settings.png" WidthRequest="26" HeightRequest="26" VerticalOptions="Center">
+                        <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnSettings" /></Image.GestureRecognizers>
+                    </Image>
                 </Grid>
             </Grid>
         </Border>
@@ -81,7 +78,7 @@
                 IsVisible="False"
                 BackgroundColor="{StaticResource AppNavBar}"
                 Stroke="Transparent" StrokeThickness="0"
-                StrokeShape="RoundRectangle 26,26,0,0"
+                StrokeShape="RoundRectangle 14,14,0,0"
                 Margin="0" Padding="10,10"
                 VerticalOptions="End">
             <Grid ColumnDefinitions="*,*,*,*,*" VerticalOptions="Center">

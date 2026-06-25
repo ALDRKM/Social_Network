@@ -52,25 +52,20 @@
                         <ActivityIndicator IsRunning="{Binding IsUploading}" IsVisible="{Binding IsUploading}"
                                             Color="{StaticResource AppOlive}" />
 
-                        <CollectionView ItemsSource="{Binding SelectedImages}" IsVisible="{Binding HasImages}"
-                                        HeightRequest="120">
-                            <CollectionView.ItemsLayout>
-                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 10"
-                                            WidthRequest="110" HeightRequest="110">
-                                        <Image Source="{Binding ., Converter={StaticResource MediaUrlConverter}}" Aspect="AspectFill" />
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding BindingContext.RemoveImageCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                                CommandParameter="{Binding .}" />
-                                        </Border.GestureRecognizers>
-                                    </Border>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                        <!-- Одно фото целиком -->
+                        <Border IsVisible="{Binding HasImage}" StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                                BackgroundColor="{StaticResource AppSurface}"
+                                HeightRequest="{OnIdiom Phone=320, Default=380}">
+                            <Grid>
+                                <Image Source="{Binding SelectedImage, Converter={StaticResource MediaUrlConverter}}" Aspect="AspectFit" />
+                                <Image Source="icon_to_cansel.png" WidthRequest="30" HeightRequest="30"
+                                       HorizontalOptions="End" VerticalOptions="Start" Margin="6">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding RemoveImageCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </Grid>
+                        </Border>
 
                         <Border BackgroundColor="{StaticResource AppInput}" StrokeThickness="0"
                                 StrokeShape="RoundRectangle 14" Padding="12,8">
@@ -92,7 +87,7 @@
                     </Border>
 
                     <!-- Кнопки: Добавить хэштег / Отметить -->
-                    <Button Text="Добавить хэштег" Command="{Binding ToggleHashtagPanelCommand}"
+                    <Button Text="{Binding HashtagButtonText}" Command="{Binding ToggleHashtagPanelCommand}"
                             BackgroundColor="{StaticResource AppOlive}" TextColor="White" CornerRadius="12" HeightRequest="46" />
 
                     <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowHashtagPanel}">
@@ -106,7 +101,7 @@
                                 StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="4">
                             <CollectionView ItemsSource="{Binding TagSuggestions}" HeightRequest="130">
                                 <CollectionView.ItemTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="x:String">
                                         <Label Text="{Binding ., StringFormat='#{0}'}" Padding="10,8"
                                                TextColor="{StaticResource AppAccentText}">
                                             <Label.GestureRecognizers>
@@ -119,15 +114,12 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                         </Border>
-                        <CollectionView ItemsSource="{Binding SelectedTags}" HeightRequest="40">
-                            <CollectionView.ItemsLayout>
-                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BackgroundColor="{StaticResource AppOrange}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4">
+                        <!-- Выбранные теги (всегда видны, занимают место) -->
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding SelectedTags}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Border BackgroundColor="{StaticResource AppOrange}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4" Margin="0,0,6,6">
                                         <HorizontalStackLayout Spacing="6">
-                                            <Label Text="{Binding ., StringFormat='#{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
                                             <Label Text="✕" TextColor="White" FontSize="13" VerticalOptions="Center">
                                                 <Label.GestureRecognizers>
                                                     <TapGestureRecognizer
@@ -135,14 +127,15 @@
                                                         CommandParameter="{Binding .}" />
                                                 </Label.GestureRecognizers>
                                             </Label>
+                                            <Label Text="{Binding ., StringFormat='#{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
                                         </HorizontalStackLayout>
                                     </Border>
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
                     </VerticalStackLayout>
 
-                    <Button Text="Отметить" Command="{Binding ToggleMentionPanelCommand}"
+                    <Button Text="{Binding MentionButtonText}" Command="{Binding ToggleMentionPanelCommand}"
                             BackgroundColor="{StaticResource AppOlive}" TextColor="White" CornerRadius="12" HeightRequest="46" />
 
                     <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowMentionPanel}">
@@ -170,15 +163,12 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                         </Border>
-                        <CollectionView ItemsSource="{Binding SelectedMentions}" HeightRequest="40">
-                            <CollectionView.ItemsLayout>
-                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
+                        <!-- Выбранные отметки (всегда видны) -->
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding SelectedMentions}">
+                            <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:User">
-                                    <Border BackgroundColor="{StaticResource AppOlive}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4">
+                                    <Border BackgroundColor="{StaticResource AppOlive}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4" Margin="0,0,6,6">
                                         <HorizontalStackLayout Spacing="6">
-                                            <Label Text="{Binding Login, StringFormat='@{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
                                             <Label Text="✕" TextColor="White" FontSize="13" VerticalOptions="Center">
                                                 <Label.GestureRecognizers>
                                                     <TapGestureRecognizer
@@ -186,11 +176,12 @@
                                                         CommandParameter="{Binding .}" />
                                                 </Label.GestureRecognizers>
                                             </Label>
+                                            <Label Text="{Binding Login, StringFormat='@{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
                                         </HorizontalStackLayout>
                                     </Border>
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
                     </VerticalStackLayout>
 
                     <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource AppError}"

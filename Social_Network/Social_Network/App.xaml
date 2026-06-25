@@ -16,6 +16,7 @@
             <converters:AllTrueConverter x:Key="AllTrueConverter" />
             <converters:ImageMessageConverter x:Key="ImageMessageConverter" />
             <converters:MediaUrlConverter x:Key="MediaUrlConverter" />
+            <converters:MessageTimeConverter x:Key="MessageTimeConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

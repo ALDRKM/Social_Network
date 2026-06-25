@@ -38,8 +38,8 @@ namespace Social_Network.API.Services
 
         public async Task<User?> LoginAsync(string email, string password)
         {
-            // Вход по email или по логину
-            var user = await _db.Users.FirstOrDefaultAsync(user => user.Email == email || user.Login == email);
+            // Вход только по email (он уникальный, в отличие от логина)
+            var user = await _db.Users.FirstOrDefaultAsync(user => user.Email == email);
             if (user == null) return null;
 
             bool valid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
@@ -55,6 +55,7 @@ namespace Social_Network.API.Services
             var user = await _db.Users.FindAsync(userId);
             if (user == null) return;
             user.IsOnline = online;
+            if (!online) user.LastSeen = DateTime.UtcNow;
             await _db.SaveChangesAsync();
         }
     }

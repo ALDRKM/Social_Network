@@ -41,17 +41,14 @@ namespace Social_Network.API.Controllers
             int UserId,
             string Content,
             PostType Type,
-            List<string>? ImageUrls,
+            string? ImageUrl,
             List<string>? Tags,
-            List<int>? MentionUserIds,
-            string? ImageUrl);
+            List<int>? MentionUserIds);
 
         [HttpPost]
         public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest p)
         {
-            // Поддержка как нового списка изображений, так и старого одиночного ImageUrl
-            var images = p.ImageUrls ?? (p.ImageUrl != null ? new List<string> { p.ImageUrl } : null);
-            var post = await _post.CreatePostAsync(p.UserId, p.Content, p.Type, images, p.Tags, p.MentionUserIds);
+            var post = await _post.CreatePostAsync(p.UserId, p.Content, p.Type, p.ImageUrl, p.Tags, p.MentionUserIds);
             return Ok(post);
         }
 

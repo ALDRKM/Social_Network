@@ -30,6 +30,11 @@ namespace Social_Network.ViewModels
                 ErrorMessage = "Заполните все поля";
                 return;
             }
+            if (!Helpers.ValidationHelper.IsValidEmail(Email))
+            {
+                ErrorMessage = "Введите корректный адрес эл. почты";
+                return;
+            }
 
             IsBusy = true;
             ErrorMessage = null;

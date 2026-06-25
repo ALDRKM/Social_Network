@@ -18,7 +18,6 @@ namespace Social_Network.API.Services
                 .Include(p => p.User)
                 .Include(p => p.Comments)
                 .Include(p => p.Likes)
-                .Include(p => p.Images)
                 .Include(p => p.PostTags).ThenInclude(pt => pt.Tag)
                 .Include(p => p.Mentions).ThenInclude(m => m.MentionedUser);
 
@@ -61,32 +60,30 @@ namespace Social_Network.API.Services
         }
 
         public async Task<Post> CreatePostAsync(int userId, string content, PostType type,
-            List<string>? imageUrls = null, List<string>? tags = null, List<int>? mentionUserIds = null)
+            string? imageUrl = null, List<string>? tags = null, List<int>? mentionUserIds = null)
         {
-            var post = new Post
-            {
-                UserId = userId,
-                Content = content ?? string.Empty,
-                Type = type,
-                ImageUrl = imageUrls?.FirstOrDefault()
-            };
-
-            // Фотографии (карусель)
-            if (imageUrls != null)
-            {
-                int order = 0;
-                foreach (var url in imageUrls.Where(u => !string.IsNullOrWhiteSpace(u)))
-                    post.Images.Add(new PostImage { Url = url, Order = order++ });
-            }
+            content ??= string.Empty;
 
             // Теги: из текста (#тег) + переданные явно
-            var tagNames = HashtagRegex.Matches(content ?? string.Empty)
+            var tagNames = HashtagRegex.Matches(content)
                 .Select(m => m.Groups[1].Value)
                 .Concat(tags ?? Enumerable.Empty<string>())
                 .Select(t => t.TrimStart('#').Trim().ToLowerInvariant())
                 .Where(t => t.Length > 0)
                 .Distinct()
                 .ToList();
+
+            // Убираем хэштеги из текста — они показываются отдельными чипами
+            var cleanContent = HashtagRegex.Replace(content, string.Empty).Trim();
+            while (cleanContent.Contains("  ")) cleanContent = cleanContent.Replace("  ", " ");
+
+            var post = new Post
+            {
+                UserId = userId,
+                Content = cleanContent,
+                Type = type,
+                ImageUrl = imageUrl
+            };
 
             foreach (var name in tagNames)
             {

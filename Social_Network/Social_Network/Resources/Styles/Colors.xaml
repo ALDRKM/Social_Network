@@ -41,6 +41,13 @@
     <Color x:Key="AppError">#8B2020</Color>
     <Color x:Key="AppOnline">#6FBF4B</Color>
 
+    <!-- Цвет меню навигации (для разделителей/обводок/подсветки) -->
+    <Color x:Key="AppNavAccent">#5C3210</Color>
+    <!-- Полупрозрачный нав-цвет для невыбранных вкладок -->
+    <Color x:Key="AppNavAccentSoft">#A38B6B</Color>
+    <!-- Фон чата — чуть темнее основного -->
+    <Color x:Key="AppChatBackground">#EFE6CF</Color>
+
     <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackground}"/>
     <SolidColorBrush x:Key="AppSurfaceBrush" Color="{StaticResource AppSurface}"/>
     <SolidColorBrush x:Key="AppNavBarBrush" Color="{StaticResource AppNavBar}"/>

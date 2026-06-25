@@ -33,8 +33,9 @@ namespace Social_Network.ViewModels
         private bool isPhotosTab = true;
 
         public bool IsNotesTab => !IsPhotosTab;
-        public string PhotosTabColor => IsPhotosTab ? "#C8702A" : "#B89B73";
-        public string NotesTabColor => IsNotesTab ? "#C8702A" : "#B89B73";
+        // Выбранная — цвет меню навигации, невыбранная — полупрозрачная
+        public string PhotosTabColor => IsPhotosTab ? "#5C3210" : "#665C3210";
+        public string NotesTabColor => IsNotesTab ? "#5C3210" : "#665C3210";
 
         // Режим редактирования (удаление постов)
         [ObservableProperty]
@@ -43,7 +44,8 @@ namespace Social_Network.ViewModels
         private bool isEditing;
 
         public string EditButtonText => IsEditing ? "Отменить" : "Редактировать";
-        public string EditButtonColor => IsEditing ? "#8B5A2B" : "#C8702A";
+        // Поменяны местами: «Редактировать» — оливковая, «Мои действия» — оранжевая
+        public string EditButtonColor => IsEditing ? "#3E4D1F" : "#5A6E2E";
 
         public ObservableCollection<Post> Photos { get; } = new();
         public ObservableCollection<Post> Notes { get; } = new();

@@ -49,7 +49,7 @@ namespace Social_Network.Service
         }
 
         public async Task<Post?> CreatePostAsync(int userId, string content, PostType type,
-            List<string>? imageUrls = null, List<string>? tags = null, List<int>? mentionUserIds = null)
+            string? imageUrl = null, List<string>? tags = null, List<int>? mentionUserIds = null)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace Social_Network.Service
                     UserId = userId,
                     Content = content,
                     Type = type,
-                    ImageUrls = imageUrls,
+                    ImageUrl = imageUrl,
                     Tags = tags,
                     MentionUserIds = mentionUserIds
                 });

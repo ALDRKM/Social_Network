@@ -44,8 +44,8 @@ namespace Social_Network.ViewModels
         private bool isPhotosTab = true;
 
         public bool IsNotesTab => !IsPhotosTab;
-        public string PhotosTabColor => IsPhotosTab ? "#C8702A" : "#B89B73";
-        public string NotesTabColor => IsNotesTab ? "#C8702A" : "#B89B73";
+        public string PhotosTabColor => IsPhotosTab ? "#5C3210" : "#665C3210";
+        public string NotesTabColor => IsNotesTab ? "#5C3210" : "#665C3210";
 
         public string FollowButtonText => IsFollowing ? "Вы подписаны" : "Подписаться";
 
@@ -135,8 +135,14 @@ namespace Social_Network.ViewModels
         {
             int myId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
             var chat = await _chat.CreateOrGetChatAsync(myId, OtherUserId);
-            if (chat != null)
-                await Shell.Current.GoToAsync($"ChatPage?chatId={chat.Id}");
+            if (chat == null) return;
+
+            await Shell.Current.GoToAsync(
+                $"ChatPage?chatId={chat.Id}&otherUserId={OtherUserId}" +
+                $"&otherLogin={Uri.EscapeDataString(User?.Login ?? string.Empty)}" +
+                $"&otherAvatar={Uri.EscapeDataString(User?.AvatarUrl ?? string.Empty)}" +
+                $"&otherOnline={User?.IsOnline ?? false}" +
+                $"&otherLastSeen={Uri.EscapeDataString(User?.LastSeen?.ToString("o") ?? string.Empty)}");
         }
 
         [RelayCommand]

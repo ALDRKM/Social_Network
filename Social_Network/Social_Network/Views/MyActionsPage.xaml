@@ -24,25 +24,12 @@
                                 <TapGestureRecognizer Command="{Binding BindingContext.OpenProfileCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
                             </Label.GestureRecognizers>
                         </Label>
-                        <Button Text="Подписаться" BackgroundColor="{StaticResource AppOrange}" TextColor="White"
+                        <Button Text="{Binding FollowText}" BackgroundColor="{Binding FollowColor}" TextColor="{Binding FollowTextColor}"
                                 CornerRadius="14" HeightRequest="30" Padding="14,0" FontSize="13" HorizontalOptions="Start"
                                 IsVisible="{Binding IsOwnPost, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=invert}"
-                                Command="{Binding BindingContext.ToggleFollowCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}">
-                            <Button.Triggers>
-                                <DataTrigger TargetType="Button" Binding="{Binding IsFollowingAuthor}" Value="True">
-                                    <Setter Property="Text" Value="Отписаться" />
-                                    <Setter Property="BackgroundColor" Value="{StaticResource AppInput}" />
-                                    <Setter Property="TextColor" Value="{StaticResource AppTextPrimary}" />
-                                </DataTrigger>
-                            </Button.Triggers>
-                        </Button>
+                                Command="{Binding BindingContext.ToggleFollowCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
                     </VerticalStackLayout>
-                    <Image Grid.Column="2" Source="icon_button_to_save_to_favorite.png" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
-                        <Image.Triggers>
-                            <DataTrigger TargetType="Image" Binding="{Binding IsSaved}" Value="True">
-                                <Setter Property="Source" Value="icon_saved_already.png" />
-                            </DataTrigger>
-                        </Image.Triggers>
+                    <Image Grid.Column="2" Source="{Binding SaveIcon}" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                         <Image.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding BindingContext.ToggleSaveCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
                         </Image.GestureRecognizers>
@@ -61,12 +48,7 @@
 
                 <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="6" Margin="0,12,0,0">
                     <HorizontalStackLayout Grid.Column="0" Spacing="6">
-                        <Image Source="icon_like.png" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
-                            <Image.Triggers>
-                                <DataTrigger TargetType="Image" Binding="{Binding IsLiked}" Value="True">
-                                    <Setter Property="Source" Value="icon_like_already.png" />
-                                </DataTrigger>
-                            </Image.Triggers>
+                        <Image Source="{Binding LikeIcon}" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding BindingContext.ToggleLikeCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" CommandParameter="{Binding .}" />
                             </Image.GestureRecognizers>
@@ -74,9 +56,7 @@
                         <Label Text="{Binding LikeCount}" TextColor="{StaticResource AppTextPrimary}" FontSize="14" VerticalOptions="Center" />
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Grid.Column="1" Spacing="6" Margin="14,0,0,0">
-                        <Path WidthRequest="22" HeightRequest="22" Aspect="Uniform" Stroke="{StaticResource AppTextPrimary}"
-                              StrokeThickness="6" StrokeLineJoin="Round" Fill="Transparent" VerticalOptions="Center"
-                              Data="M16,24 L84,24 L84,66 L48,66 L30,82 L30,66 L16,66 Z" />
+                        <Image Source="icon_comments.png" WidthRequest="24" HeightRequest="24" VerticalOptions="Center" />
                         <Label Text="{Binding CommentCount}" TextColor="{StaticResource AppTextPrimary}" FontSize="14" VerticalOptions="Center" />
                     </HorizontalStackLayout>
                     <Image Grid.Column="3" Source="icon_to_shair_for_feed.png" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
@@ -112,14 +92,11 @@
                     </Image.GestureRecognizers>
                 </Image>
                 <Label Grid.Column="1" Text="Мои действия" Style="{StaticResource PageTitle}" FontSize="18" VerticalOptions="Center" />
-                <Path Grid.Column="2" WidthRequest="26" HeightRequest="26" Aspect="Uniform"
-                      Stroke="{StaticResource AppBrown}" StrokeThickness="4" StrokeLineJoin="Round" Fill="Transparent"
-                      VerticalOptions="Center"
-                      Data="M50,38 A12,12 0 1,0 50,62 A12,12 0 1,0 50,38 Z M50,16 L54,16 L56,28 L64,31 L74,25 L80,31 L74,41 L77,48 L88,50 L88,54 L77,56 L74,63 L80,73 L74,79 L64,73 L56,76 L54,88 L50,88 L46,88 L44,76 L36,73 L26,79 L20,73 L26,63 L23,56 L12,54 L12,50 L23,48 L26,41 L20,31 L26,25 L36,31 L44,28 L46,16 Z">
-                    <Path.GestureRecognizers>
+                <Image Grid.Column="2" Source="icon_settings.png" WidthRequest="40" HeightRequest="40" VerticalOptions="Center">
+                    <Image.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoToSettingsCommand}" />
-                    </Path.GestureRecognizers>
-                </Path>
+                    </Image.GestureRecognizers>
+                </Image>
             </Grid>
 
             <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource AppDivider}" BackgroundColor="{StaticResource AppDivider}" />
