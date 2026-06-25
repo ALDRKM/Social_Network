@@ -23,7 +23,6 @@ namespace Social_Network.Core.Models
         public ICollection<Like> Likes { get; set; } = new List<Like>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<SavedPost> SavedPosts { get; set; } = new List<SavedPost>();
-        public ICollection<PostImage> Images { get; set; } = new List<PostImage>();
         public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>();
         public ICollection<PostMention> Mentions { get; set; } = new List<PostMention>();
     }

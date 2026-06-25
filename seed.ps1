@@ -24,7 +24,7 @@ foreach($u in $users){
 $id = @{}; foreach($u in $users){ $id[$u.login] = $u.id }
 
 # ---------- Публикации ----------
-function Photo($login,$seed,$text){ Post "post" @{UserId=$id[$login];Content=$text;Type=0;ImageUrls=@("https://picsum.photos/seed/$seed/700/700")} }
+function Photo($login,$seed,$text){ Post "post" @{UserId=$id[$login];Content=$text;Type=0;ImageUrl="https://picsum.photos/seed/$seed/700/700"} }
 function Note($login,$text){ Post "post" @{UserId=$id[$login];Content=$text;Type=1} }
 
 $posts = @{}

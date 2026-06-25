@@ -19,14 +19,31 @@ namespace Social_Network.ViewModels
             IsOwnPost = post.UserId == currentUserId;
         }
 
-        [ObservableProperty] private bool isLiked;
-        [ObservableProperty] private bool isSaved;
-        [ObservableProperty] private bool isFollowingAuthor;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LikeIcon))]
+        private bool isLiked;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SaveIcon))]
+        private bool isSaved;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FollowText))]
+        [NotifyPropertyChangedFor(nameof(FollowColor))]
+        [NotifyPropertyChangedFor(nameof(FollowTextColor))]
+        private bool isFollowingAuthor;
+
         [ObservableProperty] private int likeCount;
 
         public bool IsOwnPost { get; }
 
-        // Удобные геттеры для привязок
+        // Прямо привязанные свойства (надёжнее DataTrigger при быстрых кликах)
+        public string LikeIcon => IsLiked ? "icon_like_already.png" : "icon_like.png";
+        public string SaveIcon => IsSaved ? "icon_saved_already.png" : "icon_button_to_save_to_favorite.png";
+        public string FollowText => IsFollowingAuthor ? "Отписаться" : "Подписаться";
+        public string FollowColor => IsFollowingAuthor ? "#C4A882" : "#C8702A";
+        public string FollowTextColor => IsFollowingAuthor ? "#3B2A1A" : "White";
+
         public int Id => Post.Id;
         public int UserId => Post.UserId;
         public string AuthorLogin => Post.User?.Login ?? string.Empty;
@@ -36,13 +53,22 @@ namespace Social_Network.ViewModels
         public bool HasImage => !string.IsNullOrEmpty(Post.ImageUrl);
         public int CommentCount => Post.Comments?.Count ?? 0;
         public bool HasContent => !string.IsNullOrWhiteSpace(Post.Content);
+        public bool IsNote => Post.Type == PostType.Note;
+        public bool HasPhotoDescription => HasImage && HasContent;
 
-        // Теги для красивого отображения (чипами)
+        // Теги (чипами)
         public List<string> Tags => Post.PostTags?
             .Select(pt => pt.Tag?.Name)
             .Where(n => !string.IsNullOrEmpty(n))
             .Select(n => "#" + n)
             .ToList() ?? new();
         public bool HasTags => Tags.Count > 0;
+
+        // Отметки людей (чипами, с переходом в профиль)
+        public List<User> MentionUsers => Post.Mentions?
+            .Select(m => m.MentionedUser)
+            .Where(u => u != null)
+            .ToList()! ?? new();
+        public bool HasMentions => MentionUsers.Count > 0;
     }
 }

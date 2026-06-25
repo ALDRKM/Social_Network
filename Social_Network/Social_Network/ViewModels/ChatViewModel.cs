@@ -12,13 +12,14 @@ namespace Social_Network.ViewModels
     [QueryProperty(nameof(OtherLogin),"otherLogin")]
     [QueryProperty(nameof(OtherAvatar),"otherAvatar")]
     [QueryProperty(nameof(OtherOnline),"otherOnline")]
+    [QueryProperty(nameof(OtherLastSeenStr),"otherLastSeen")]
     public partial class ChatViewModel: BaseViewModel
     {
         private readonly IMessageService _mes;
         private readonly IChatHubService _hub;
 
         private readonly List<MessageDto> _all = new();
-        public ObservableCollection<MessageDto> Messages { get; } = new();
+        public ObservableCollection<MessageItemViewModel> Messages { get; } = new();
 
         public ChatViewModel(IMessageService mes, IChatHubService hub)
         {
@@ -35,10 +36,35 @@ namespace Social_Network.ViewModels
         [NotifyPropertyChangedFor(nameof(StatusText))]
         [NotifyPropertyChangedFor(nameof(StatusColor))]
         private bool otherOnline;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(StatusText))]
+        private string otherLastSeenStr = string.Empty;
+
         [ObservableProperty] private string messageText = string.Empty;
 
-        public string StatusText => OtherOnline ? "в сети" : "не в сети";
+        public string StatusText
+        {
+            get
+            {
+                if (OtherOnline) return "в сети";
+                if (DateTime.TryParse(OtherLastSeenStr, null,
+                        System.Globalization.DateTimeStyles.RoundtripKind, out var ls))
+                    return "был(а) в сети " + FormatLastSeen(ls);
+                return "не в сети";
+            }
+        }
         public string StatusColor => OtherOnline ? "#6FBF4B" : "#7A5C3E";
+
+        private static string FormatLastSeen(DateTime utc)
+        {
+            var local = utc.ToLocalTime();
+            var diff = DateTime.Now - local;
+            if (diff.TotalMinutes < 1) return "только что";
+            if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes} мин. назад";
+            if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} ч. назад";
+            return local.ToString("dd.MM.yyyy HH:mm", new System.Globalization.CultureInfo("ru-RU"));
+        }
 
         // Поиск по сообщениям в чате
         [ObservableProperty]
@@ -51,6 +77,8 @@ namespace Social_Network.ViewModels
 
         private int _myId;
 
+        private MessageItemViewModel Wrap(MessageDto m) => new(m, DeleteMessageAsync);
+
         private void OnMessageReceived(MessageDto mes)
         {
             mes.IsMine = mes.SenderId == _myId;
@@ -58,7 +86,7 @@ namespace Social_Network.ViewModels
             {
                 if (_all.Any(m => m.Id == mes.Id)) return;
                 _all.Add(mes);
-                if (MatchesFilter(mes)) Messages.Add(mes);
+                if (MatchesFilter(mes)) Messages.Add(Wrap(mes));
             });
         }
 
@@ -89,6 +117,10 @@ namespace Social_Network.ViewModels
                 }
                 RebuildDisplay();
 
+                // Отмечаем входящие как прочитанные (убирает точку «новое»)
+                foreach (var m in messages.Where(m => m.SenderId != _myId && !m.IsRead))
+                    await _mes.MarksAsReadAsync(m.Id, _myId, id);
+
                 // Реалтайм через SignalR — не должен ронять страницу при сбое подключения
                 try
                 {
@@ -118,7 +150,7 @@ namespace Social_Network.ViewModels
         {
             Messages.Clear();
             foreach (var m in _all.Where(MatchesFilter))
-                Messages.Add(m);
+                Messages.Add(Wrap(m));
         }
 
         [RelayCommand]
@@ -161,7 +193,7 @@ namespace Social_Network.ViewModels
                         if (_all.All(m => m.Id != sent.Id))
                         {
                             _all.Add(sent);
-                            if (MatchesFilter(sent)) Messages.Add(sent);
+                            if (MatchesFilter(sent)) Messages.Add(Wrap(sent));
                         }
                     });
                 }
@@ -181,8 +213,7 @@ namespace Social_Network.ViewModels
         }
 
         // Удаление (отмена отправки) своего сообщения
-        [RelayCommand]
-        private async Task DeleteMessage(MessageDto message)
+        private async Task DeleteMessageAsync(MessageDto message)
         {
             if (message == null || !message.IsMine) return;
             bool confirm = await Shell.Current.DisplayAlertAsync(

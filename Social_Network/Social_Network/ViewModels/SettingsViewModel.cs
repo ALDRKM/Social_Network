@@ -94,9 +94,16 @@ namespace Social_Network.ViewModels
         private async Task SaveAccount()
         {
             int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+            if (!Helpers.ValidationHelper.IsValidLogin(Login))
+            {
+                StatusMessage = "Логин: 3–30 символов (буквы, цифры, точка, _)";
+                await Notify(StatusMessage);
+                return;
+            }
             if (!Helpers.ValidationHelper.IsValidEmail(Email))
             {
                 StatusMessage = "Некорректный email";
+                await Notify(StatusMessage);
                 return;
             }
 

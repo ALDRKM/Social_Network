@@ -19,6 +19,7 @@ namespace Social_Network.Core.Models
         public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsOnline { get; set; }
+        public DateTime? LastSeen { get; set; }
 
         // Navigation properties (не сериализуются — нужны только на сервере)
         [JsonIgnore] public UserSettings? Settings { get; set; }

@@ -21,7 +21,6 @@ namespace Social_Network.API.Data
         public DbSet<UserSettings> UserSettings { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTag> PostTags { get; set; }
-        public DbSet<PostImage> PostImages { get; set; }
         public DbSet<PostMention> PostMentions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -66,13 +65,6 @@ namespace Social_Network.API.Data
                 .HasOne(pt => pt.Tag)
                 .WithMany(t => t.PostTags)
                 .HasForeignKey(pt => pt.TagId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Изображения публикации
-            modelBuilder.Entity<PostImage>()
-                .HasOne(pi => pi.Post)
-                .WithMany(p => p.Images)
-                .HasForeignKey(pi => pi.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Отметки пользователей в публикации

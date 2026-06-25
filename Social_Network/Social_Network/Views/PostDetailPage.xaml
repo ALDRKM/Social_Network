@@ -53,12 +53,7 @@
                     <!-- Лайк -->
                     <HorizontalStackLayout Spacing="16">
                         <HorizontalStackLayout Spacing="6">
-                            <Image Source="icon_like.png" WidthRequest="24" HeightRequest="24">
-                                <Image.Triggers>
-                                    <DataTrigger TargetType="Image" Binding="{Binding IsLiked}" Value="True">
-                                        <Setter Property="Source" Value="icon_like_already.png" />
-                                    </DataTrigger>
-                                </Image.Triggers>
+                            <Image Source="{Binding LikeIcon}" WidthRequest="24" HeightRequest="24">
                                 <Image.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding ToggleLikeCommand}" />
                                 </Image.GestureRecognizers>

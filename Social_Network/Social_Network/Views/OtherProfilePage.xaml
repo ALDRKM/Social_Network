@@ -73,11 +73,14 @@
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                     <Button Grid.Column="0" Text="{Binding FollowButtonText}" Command="{Binding ToggleFollowCommand}"
                             BackgroundColor="{Binding FollowButtonColor}" TextColor="White"
-                            HeightRequest="38" CornerRadius="12" FontSize="13" />
+                            HeightRequest="38" CornerRadius="14" FontSize="13" />
                     <Button Grid.Column="1" Text="Сообщение" Command="{Binding OpenChatCommand}"
-                            Style="{StaticResource ChipButton}" HeightRequest="38" CornerRadius="12"
+                            Style="{StaticResource ChipButton}" HeightRequest="38" CornerRadius="14"
                             BackgroundColor="{StaticResource AppOlive}" />
                 </Grid>
+                <!-- Полоска под кнопками -->
+                <BoxView HeightRequest="2" Color="{StaticResource AppNavAccentSoft}"
+                         BackgroundColor="{StaticResource AppNavAccentSoft}" Margin="0,6,0,0" />
             </VerticalStackLayout>
 
             <!-- ===== Вкладки ===== -->

@@ -42,7 +42,7 @@ namespace Social_Network.API.Services
                 .Include(p => p.User)
                 .Include(p => p.Likes)
                 .Include(p => p.Comments)
-                .Include(p => p.Images)
+                .Include(p => p.PostTags).ThenInclude(pt => pt.Tag)
                 .OrderByDescending(p => p.SavedPosts.Where(s => s.UserId == userId).Max(s => s.SavedAt))
                 .ToListAsync();
     }

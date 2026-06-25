@@ -31,6 +31,9 @@ namespace Social_Network.API.Services
                     OtherUserLogin = other.Login,
                     OtherUserAvatarUrl = other.AvatarUrl,
                     OtherUserIsOnline = other.IsOnline,
+                    OtherUserLastSeen = other.LastSeen,
+                    // Непрочитанное: последнее сообщение от собеседника и ещё не прочитано
+                    HasUnread = last != null && last.SenderId != userId && !last.IsRead,
                     LastMessage = last == null ? null : new MessageDto()
                     {
                         Id = last.Id,

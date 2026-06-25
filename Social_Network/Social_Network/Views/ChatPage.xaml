@@ -5,9 +5,10 @@
              xmlns:dto="clr-namespace:Social_Network.Core.Models.DTOs;assembly=Social_Network.Core"
              xmlns:controls="clr-namespace:Social_Network.Controls"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="Social_Network.Views.ChatPage"
              x:DataType="vm:ChatViewModel"
-             BackgroundColor="{StaticResource AppBackground}"
+             BackgroundColor="{StaticResource AppChatBackground}"
              Shell.NavBarIsVisible="False">
 
     <Grid>
@@ -23,8 +24,8 @@
               HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
 
             <!-- Шапка -->
-            <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="10" Padding="12,12,14,8">
-                <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="36" HeightRequest="36" VerticalOptions="Center">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="10" Padding="4,12,6,8">
+                <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="36" HeightRequest="36" VerticalOptions="Center" HorizontalOptions="Start">
                     <Image.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                     </Image.GestureRecognizers>
@@ -69,25 +70,27 @@
             <!-- Сообщения -->
             <CollectionView Grid.Row="3" ItemsSource="{Binding Messages}" Margin="12,6">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="dto:MessageDto">
+                    <DataTemplate x:DataType="vm:MessageItemViewModel">
                         <Grid Padding="0,4">
                             <Border StrokeThickness="0" BackgroundColor="{StaticResource AppInput}"
                                     Padding="12,8" HorizontalOptions="Start" MaximumWidthRequest="320">
+                                <!-- Меньший угол со стороны отправителя: у собеседника — снизу слева -->
                                 <Border.StrokeShape>
-                                    <shapes:RoundRectangle CornerRadius="16,16,16,4" />
+                                    <shapes:RoundRectangle CornerRadius="16,16,4,16" />
                                 </Border.StrokeShape>
                                 <Border.Triggers>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsMine}" Value="True">
                                         <Setter Property="HorizontalOptions" Value="End" />
                                         <Setter Property="BackgroundColor" Value="{StaticResource AppBrown}" />
+                                        <!-- У меня — меньший угол снизу справа -->
                                         <Setter Property="StrokeShape">
                                             <Setter.Value>
-                                                <shapes:RoundRectangle CornerRadius="16,16,4,16" />
+                                                <shapes:RoundRectangle CornerRadius="16,16,16,4" />
                                             </Setter.Value>
                                         </Setter>
                                     </DataTrigger>
                                 </Border.Triggers>
-                                <Grid>
+                                <VerticalStackLayout Spacing="3">
                                     <Label Text="{Binding Text}" FontSize="14" TextColor="{StaticResource AppTextPrimary}"
                                            IsVisible="{Binding Text, Converter={StaticResource ImageMessageConverter}, ConverterParameter=istext}">
                                         <Label.Triggers>
@@ -99,12 +102,23 @@
                                     <Image Source="{Binding Text, Converter={StaticResource ImageMessageConverter}, ConverterParameter=source}"
                                            Aspect="AspectFill" HeightRequest="180" WidthRequest="180"
                                            IsVisible="{Binding Text, Converter={StaticResource ImageMessageConverter}, ConverterParameter=isimage}" />
-                                </Grid>
+                                    <!-- Время сообщения -->
+                                    <Label Text="{Binding SentAt, Converter={StaticResource MessageTimeConverter}}"
+                                           FontSize="10" HorizontalOptions="End" TextColor="{StaticResource AppTextSecondary}">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsMine}" Value="True">
+                                                <Setter Property="TextColor" Value="#E8D9C0" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </VerticalStackLayout>
+                                <!-- ПКМ (десктоп) и долгое нажатие (телефон) — удалить -->
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer
-                                        Command="{Binding BindingContext.DeleteMessageCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                        CommandParameter="{Binding .}" />
+                                    <TapGestureRecognizer Buttons="Secondary" Command="{Binding DeleteCommand}" />
                                 </Border.GestureRecognizers>
+                                <Border.Behaviors>
+                                    <toolkit:TouchBehavior LongPressCommand="{Binding DeleteCommand}" />
+                                </Border.Behaviors>
                             </Border>
                         </Grid>
                     </DataTemplate>
@@ -117,37 +131,29 @@
 
             <!-- Ввод -->
             <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" Padding="12,8,12,14">
-                <!-- Скрепка в квадрате -->
-                <Border Grid.Column="0" Stroke="{StaticResource AppBrown}" StrokeThickness="1.5"
-                        StrokeShape="RoundRectangle 12" WidthRequest="46" HeightRequest="46" Padding="11"
-                        VerticalOptions="Center">
-                    <Path Aspect="Uniform" Stroke="{StaticResource AppBrown}" StrokeThickness="4"
-                          StrokeLineCap="Round" StrokeLineJoin="Round" Fill="Transparent"
-                          Data="M72,34 L40,66 A14,14 0 0,0 60,86 L86,60 A22,22 0 0,0 54,28 L28,54 A30,30 0 0,0 70,96" />
-                    <Border.GestureRecognizers>
+                <!-- Скрепка (иконка со своей обводкой) -->
+                <Image Grid.Column="0" Source="icon_add_files_in_chat.png" WidthRequest="46" HeightRequest="46" VerticalOptions="Center">
+                    <Image.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding AttachCommand}" />
-                    </Border.GestureRecognizers>
-                </Border>
+                    </Image.GestureRecognizers>
+                </Image>
 
-                <Border Grid.Column="1" BackgroundColor="{StaticResource AppInput}" StrokeThickness="0"
-                        StrokeShape="RoundRectangle 22" Padding="14,0" HeightRequest="46">
+                <!-- Поле ввода: скругление как у кнопок + жирная обводка цвета меню -->
+                <Border Grid.Column="1" BackgroundColor="{StaticResource AppInput}"
+                        Stroke="{StaticResource AppNavAccent}" StrokeThickness="2.5"
+                        StrokeShape="RoundRectangle 14" Padding="14,0" HeightRequest="46">
                     <Entry Text="{Binding MessageText}" Placeholder="Сообщение..."
                            PlaceholderColor="{StaticResource AppTextSecondary}"
                            TextColor="{StaticResource AppTextPrimary}" BackgroundColor="Transparent"
                            VerticalOptions="Center" ReturnCommand="{Binding SendCommand}" />
                 </Border>
 
-                <!-- Отправка в квадрате -->
-                <Border Grid.Column="2" Stroke="{StaticResource AppBrown}" StrokeThickness="1.5"
-                        StrokeShape="RoundRectangle 12" WidthRequest="46" HeightRequest="46" Padding="10"
-                        VerticalOptions="Center">
-                    <Path Aspect="Uniform" Stroke="{StaticResource AppBrown}" StrokeThickness="5"
-                          StrokeLineJoin="Round" Fill="Transparent"
-                          Data="M14,52 L86,16 L60,86 L46,58 Z M46,58 L86,16" />
-                    <Border.GestureRecognizers>
+                <!-- Отправка (иконка со своей обводкой) -->
+                <Image Grid.Column="2" Source="icon_send.png" WidthRequest="46" HeightRequest="46" VerticalOptions="Center">
+                    <Image.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding SendCommand}" />
-                    </Border.GestureRecognizers>
-                </Border>
+                    </Image.GestureRecognizers>
+                </Image>
             </Grid>
         </Grid>
     </Grid>
