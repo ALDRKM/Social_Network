@@ -86,6 +86,56 @@
                                 BackgroundColor="Transparent" AutoSize="TextChanges" MinimumHeightRequest="160" />
                     </Border>
 
+                    <!-- Сводка под описанием: добавленные теги и отмеченные люди (после «Готово») -->
+                    <VerticalStackLayout Spacing="8" Margin="0,2,0,0">
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding HasSelectedTags}">
+                            <Label Text="Теги" FontSize="12" TextColor="{StaticResource AppTextSecondary}" />
+                            <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding SelectedTags}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border BackgroundColor="{StaticResource AppOrange}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4" Margin="0,0,6,6">
+                                            <HorizontalStackLayout Spacing="6">
+                                                <Label Text="✕" TextColor="White" FontSize="13" VerticalOptions="Center">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding BindingContext.RemoveTagCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                                <Label Text="{Binding ., StringFormat='#{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1" Color="{StaticResource AppDivider}" BackgroundColor="{StaticResource AppDivider}"
+                                 IsVisible="{Binding HasTagsAndMentions}" />
+
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding HasSelectedMentions}">
+                            <Label Text="Отмеченные люди" FontSize="12" TextColor="{StaticResource AppTextSecondary}" />
+                            <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding SelectedMentions}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:User">
+                                        <Border BackgroundColor="{StaticResource AppOlive}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4" Margin="0,0,6,6">
+                                            <HorizontalStackLayout Spacing="6">
+                                                <Label Text="✕" TextColor="White" FontSize="13" VerticalOptions="Center">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding BindingContext.RemoveMentionCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                                <Label Text="{Binding Login, StringFormat='@{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
                     <!-- Кнопки: Добавить хэштег / Отметить -->
                     <Button Text="{Binding HashtagButtonText}" Command="{Binding ToggleHashtagPanelCommand}"
                             BackgroundColor="{StaticResource AppOlive}" TextColor="White" CornerRadius="12" HeightRequest="46" />
@@ -114,29 +164,10 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                         </Border>
-                        <!-- Выбранные теги (всегда видны, занимают место) -->
-                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding SelectedTags}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="x:String">
-                                    <Border BackgroundColor="{StaticResource AppOrange}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4" Margin="0,0,6,6">
-                                        <HorizontalStackLayout Spacing="6">
-                                            <Label Text="✕" TextColor="White" FontSize="13" VerticalOptions="Center">
-                                                <Label.GestureRecognizers>
-                                                    <TapGestureRecognizer
-                                                        Command="{Binding BindingContext.RemoveTagCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                                        CommandParameter="{Binding .}" />
-                                                </Label.GestureRecognizers>
-                                            </Label>
-                                            <Label Text="{Binding ., StringFormat='#{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
-                                        </HorizontalStackLayout>
-                                    </Border>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </FlexLayout>
                     </VerticalStackLayout>
 
                     <Button Text="{Binding MentionButtonText}" Command="{Binding ToggleMentionPanelCommand}"
-                            BackgroundColor="{StaticResource AppOlive}" TextColor="White" CornerRadius="12" HeightRequest="46" />
+                            BackgroundColor="#46541F" TextColor="White" CornerRadius="12" HeightRequest="46" />
 
                     <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowMentionPanel}">
                         <Border BackgroundColor="{StaticResource AppInput}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,2">
@@ -163,35 +194,18 @@
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
                         </Border>
-                        <!-- Выбранные отметки (всегда видны) -->
-                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding SelectedMentions}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models:User">
-                                    <Border BackgroundColor="{StaticResource AppOlive}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="10,4" Margin="0,0,6,6">
-                                        <HorizontalStackLayout Spacing="6">
-                                            <Label Text="✕" TextColor="White" FontSize="13" VerticalOptions="Center">
-                                                <Label.GestureRecognizers>
-                                                    <TapGestureRecognizer
-                                                        Command="{Binding BindingContext.RemoveMentionCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                                        CommandParameter="{Binding .}" />
-                                                </Label.GestureRecognizers>
-                                            </Label>
-                                            <Label Text="{Binding Login, StringFormat='@{0}'}" TextColor="White" FontSize="13" VerticalOptions="Center" />
-                                        </HorizontalStackLayout>
-                                    </Border>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </FlexLayout>
                     </VerticalStackLayout>
 
                     <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource AppError}"
                            FontSize="13" HorizontalTextAlignment="Center"
                            IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}" />
 
-                    <!-- Опубликовать (только ПК) -->
+                    <!-- Опубликовать (только ПК): кремовая с обводкой, как на скрине -->
                     <Button Text="Опубликовать" Command="{Binding PublishCommand}"
-                            IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButton}"
-                            Margin="0,4,0,0" IsVisible="{OnIdiom Phone=False, Default=True}" />
+                            IsEnabled="{Binding IsNotBusy}"
+                            BackgroundColor="{StaticResource AppBackground}" TextColor="{StaticResource AppTextPrimary}"
+                            BorderColor="{StaticResource AppNavAccent}" BorderWidth="2" CornerRadius="24" HeightRequest="50"
+                            FontAttributes="Bold" Margin="0,4,0,0" IsVisible="{OnIdiom Phone=False, Default=True}" />
                 </VerticalStackLayout>
             </ScrollView>
 

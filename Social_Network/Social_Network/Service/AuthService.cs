@@ -21,7 +21,7 @@ namespace Social_Network.Service
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return (false, "Неверный логин или пароль", 0, string.Empty, null);
+                    return (false, "Неверная почта или пароль", 0, string.Empty, null);
                 }
 
                 var result = await response.Content.ReadFromJsonAsync<LoginResponse>();

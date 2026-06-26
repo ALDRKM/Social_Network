@@ -17,6 +17,20 @@ namespace Social_Network.Controls
             InitializeComponent();
             ApplyMode();
             ApplyHighlight();
+
+            ApplyUnread();
+            Helpers.AppState.UnreadChanged += OnUnreadChanged;
+            Unloaded += (_, _) => Helpers.AppState.UnreadChanged -= OnUnreadChanged;
+        }
+
+        private void OnUnreadChanged(object? sender, EventArgs e)
+            => MainThread.BeginInvokeOnMainThread(ApplyUnread);
+
+        private void ApplyUnread()
+        {
+            bool unread = Helpers.AppState.HasUnreadChats;
+            SChatBadge.IsVisible = unread;
+            BChatBadge.IsVisible = unread;
         }
 
         public string Mode

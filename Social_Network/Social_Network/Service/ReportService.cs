@@ -49,6 +49,18 @@ namespace Social_Network.Service
             }
         }
 
+        public async Task<UserReportDto?> GetUserReportAsync(int userId)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<UserReportDto>($"{ApiConfig.BaseUrl}/report/user-stats/{userId}");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         // Возвращает JSON-строку с данными пользователя (для сохранения в файл)
         public async Task<string?> ExportUserDataAsync(int userId)
         {

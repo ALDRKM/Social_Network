@@ -175,9 +175,28 @@ namespace Social_Network.ViewModels
         }
 
         // ===== Отчёты =====
+        // Проверка корректности указанного периода
+        private bool ValidatePeriod()
+        {
+            if (!UsePeriod) return true;
+            if (FromDate > ToDate)
+            {
+                StatusMessage = "Период указан неверно: дата «с» позже даты «по»";
+                return false;
+            }
+            if (FromDate > DateTime.Today)
+            {
+                StatusMessage = "Период указан неверно: дата «с» в будущем";
+                return false;
+            }
+            return true;
+        }
+
         [RelayCommand]
         public async Task LoadReports()
         {
+            if (!ValidatePeriod()) { await Notify(StatusMessage!); return; }
+
             DateTime? from = UsePeriod ? FromDate : null;
             DateTime? to = UsePeriod ? ToDate.AddDays(1).AddSeconds(-1) : null;
             var posts = await _report.TopPostsByLikesAsync(from, to);
@@ -196,11 +215,47 @@ namespace Social_Network.ViewModels
         [RelayCommand]
         private async Task ExportData()
         {
+            if (!ValidatePeriod()) { await Notify(StatusMessage!); return; }
+
             await LoadReports();
 
-            var statsSheet = new ExcelExporter.Sheet { Name = "Статистика" };
-            statsSheet.ColumnWidths.AddRange(new[] { 28d, 14d });
-            statsSheet.Add("Показатель", "Значение");
+            int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+            var me = await _report.GetUserReportAsync(userId);
+            var period = UsePeriod
+                ? $"{FromDate:dd.MM.yyyy} — {ToDate:dd.MM.yyyy}"
+                : "за всё время";
+
+            // ===== Лист 1: Мой отчёт (кто сформировал + его статистика) =====
+            var meSheet = new ExcelExporter.Sheet { Name = "Мой отчёт" };
+            meSheet.AddStyled(ExcelExporter.StyleTitle, $"Отчёт пользователя @{me?.Login ?? Login}");
+            meSheet.AddStyled(ExcelExporter.StyleLabel, "Период:", period);
+            meSheet.AddStyled(ExcelExporter.StyleLabel, "Сформирован:", DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
+            meSheet.Add(string.Empty);
+            meSheet.AddStyled(ExcelExporter.StyleHeader, "Показатель", "Значение");
+            if (me != null)
+            {
+                meSheet.Add("Логин", me.Login);
+                meSheet.Add("Email", me.Email ?? string.Empty);
+                meSheet.Add("Публикаций", me.Posts);
+                meSheet.Add("Сообщений отправлено", me.MessagesSent);
+                meSheet.Add("Лайков получено (на его постах)", me.LikesReceived);
+                meSheet.Add("Лайков поставлено", me.LikesGiven);
+                meSheet.Add("Комментариев", me.Comments);
+                meSheet.Add("Подписок (он подписан)", me.Following);
+                meSheet.Add("Подписчиков (на него)", me.Followers);
+            }
+            meSheet.Add(string.Empty);
+            meSheet.AddStyled(ExcelExporter.StyleHeader, "Его популярные хэштеги", "Использований");
+            if (me != null && me.TopTags.Count > 0)
+                foreach (var t in me.TopTags)
+                    meSheet.Add("#" + t.Tag, t.Count);
+            else
+                meSheet.Add("— нет —", 0);
+
+            // ===== Лист 2: Статистика приложения (как на странице отчётов) =====
+            var statsSheet = new ExcelExporter.Sheet { Name = "Статистика приложения" };
+            statsSheet.AddStyled(ExcelExporter.StyleTitle, "Общая статистика приложения");
+            statsSheet.AddStyled(ExcelExporter.StyleHeader, "Показатель", "Значение");
             if (Stats != null)
             {
                 statsSheet.Add("Пользователей", Stats.Users);
@@ -211,21 +266,20 @@ namespace Social_Network.ViewModels
                 statsSheet.Add("Отметок «нравится»", Stats.Likes);
             }
 
-            var period = UsePeriod ? $"{FromDate:yyyy-MM-dd} — {ToDate:yyyy-MM-dd}" : "за всё время";
+            // ===== Лист 3: Популярные публикации за период =====
             var postsSheet = new ExcelExporter.Sheet { Name = "Популярные публикации" };
-            postsSheet.ColumnWidths.AddRange(new[] { 18d, 50d, 10d, 14d });
-            postsSheet.Add($"Самые популярные публикации по «нравится» ({period})");
-            postsSheet.Add("Автор", "Текст", "Лайки", "Дата");
+            postsSheet.AddStyled(ExcelExporter.StyleTitle, $"Самые популярные публикации по «нравится» ({period})");
+            postsSheet.AddStyled(ExcelExporter.StyleHeader, "Автор", "Текст", "Лайки", "Дата");
             foreach (var p in TopPosts)
-                postsSheet.Add(p.Author, p.Content, p.Likes, p.CreatedAt.ToString("yyyy-MM-dd"));
+                postsSheet.Add(p.Author, p.Content, p.Likes, p.CreatedAt.ToString("dd.MM.yyyy"));
 
+            // ===== Лист 4: Популярные теги =====
             var tagsSheet = new ExcelExporter.Sheet { Name = "Популярные теги" };
-            tagsSheet.ColumnWidths.AddRange(new[] { 24d, 16d });
-            tagsSheet.Add("Тег", "Использований");
+            tagsSheet.AddStyled(ExcelExporter.StyleHeader, "Тег", "Использований");
             foreach (var t in TopTags)
                 tagsSheet.Add("#" + t.Tag, t.Count);
 
-            var bytes = ExcelExporter.Build(new[] { statsSheet, postsSheet, tagsSheet });
+            var bytes = ExcelExporter.Build(new[] { meSheet, statsSheet, postsSheet, tagsSheet });
             var fileName = $"otchet_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
 
             try

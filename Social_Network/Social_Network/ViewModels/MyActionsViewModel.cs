@@ -40,9 +40,10 @@ namespace Social_Network.ViewModels
         public bool IsCommentsTab => ActiveTab == 1;
         public bool IsSavedTab => ActiveTab == 2;
 
-        public string LikesTabColor => IsLikesTab ? "#C8702A" : "#D9C6A5";
-        public string CommentsTabColor => IsCommentsTab ? "#C8702A" : "#D9C6A5";
-        public string SavedTabColor => IsSavedTab ? "#C8702A" : "#D9C6A5";
+        // Выбранная вкладка — чуть темнее, невыбранная — светлее
+        public string LikesTabColor => IsLikesTab ? "#8B4E1C" : "#C8955A";
+        public string CommentsTabColor => IsCommentsTab ? "#8B4E1C" : "#C8955A";
+        public string SavedTabColor => IsSavedTab ? "#8B4E1C" : "#C8955A";
 
         [RelayCommand]
         public async Task Load()

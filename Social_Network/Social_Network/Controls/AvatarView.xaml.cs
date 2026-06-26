@@ -37,11 +37,14 @@ namespace Social_Network.Controls
 
         private void ApplySize()
         {
-            // Квадратная рамка + клип Ellipse = идеальный круг
-            Ring.WidthRequest = Size;
-            Ring.HeightRequest = Size;
+            // Квадрат + EllipseGeometry-клип = идеальный круг (и фон, и фото обрезаются)
+            Holder.WidthRequest = Size;
+            Holder.HeightRequest = Size;
             WidthRequest = Size;
             HeightRequest = Size;
+            Clip.Center = new Point(Size / 2, Size / 2);
+            Clip.RadiusX = Size / 2;
+            Clip.RadiusY = Size / 2;
         }
 
         private void ApplySource()

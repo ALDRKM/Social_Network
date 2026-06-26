@@ -40,7 +40,13 @@
 
                     <Border x:Name="SChat" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
                         <HorizontalStackLayout Spacing="14">
-                            <Image Source="icon_chat.png" WidthRequest="24" HeightRequest="24" />
+                            <Grid WidthRequest="24" HeightRequest="24">
+                                <Image Source="icon_chat.png" WidthRequest="24" HeightRequest="24" />
+                                <Ellipse x:Name="SChatBadge" IsVisible="False" Fill="{StaticResource AppOrange}"
+                                         Stroke="White" StrokeThickness="1.5"
+                                         WidthRequest="11" HeightRequest="11"
+                                         HorizontalOptions="End" VerticalOptions="Start" Margin="0,-2,-3,0" />
+                            </Grid>
                             <Label Text="Сообщения" TextColor="White" FontSize="15" VerticalOptions="Center" />
                         </HorizontalStackLayout>
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnChat" /></Border.GestureRecognizers>
@@ -66,7 +72,7 @@
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnProfile" /></Border.GestureRecognizers>
                     </Border>
 
-                    <Image Grid.Column="1" Source="icon_settings.png" WidthRequest="26" HeightRequest="26" VerticalOptions="Center">
+                    <Image Grid.Column="1" Source="icon_settings.png" WidthRequest="30" HeightRequest="30" VerticalOptions="Center">
                         <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnSettings" /></Image.GestureRecognizers>
                     </Image>
                 </Grid>
@@ -103,7 +109,13 @@
 
                 <Border x:Name="BChat" Grid.Column="3" StrokeThickness="0" StrokeShape="RoundRectangle 22"
                         WidthRequest="44" HeightRequest="44" Padding="9" HorizontalOptions="Center">
-                    <Image Source="icon_chat.png" Aspect="AspectFit" />
+                    <Grid>
+                        <Image Source="icon_chat.png" Aspect="AspectFit" />
+                        <Ellipse x:Name="BChatBadge" IsVisible="False" Fill="{StaticResource AppOrange}"
+                                 Stroke="{StaticResource AppNavBar}" StrokeThickness="1.5"
+                                 WidthRequest="11" HeightRequest="11"
+                                 HorizontalOptions="End" VerticalOptions="Start" Margin="0,-3,-3,0" />
+                    </Grid>
                     <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnChat" /></Border.GestureRecognizers>
                 </Border>
 
