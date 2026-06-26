@@ -19,7 +19,24 @@ namespace Social_Network.ViewModels
             _post = post;
             _user = user;
             _upload = upload;
+
+            // Сводка под описанием обновляется при изменении наборов
+            SelectedTags.CollectionChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(HasSelectedTags));
+                OnPropertyChanged(nameof(HasTagsAndMentions));
+            };
+            SelectedMentions.CollectionChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(HasSelectedMentions));
+                OnPropertyChanged(nameof(HasTagsAndMentions));
+            };
         }
+
+        // Сводка выбранного (под описанием, видна после «Готово»)
+        public bool HasSelectedTags => SelectedTags.Count > 0;
+        public bool HasSelectedMentions => SelectedMentions.Count > 0;
+        public bool HasTagsAndMentions => HasSelectedTags && HasSelectedMentions;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNoteTabSelected))]
@@ -33,8 +50,9 @@ namespace Social_Network.ViewModels
         public bool IsNoteTabSelected => !IsPhotoTabSelected;
         public string HeaderTitle => IsPhotoTabSelected ? "Новая публикация" : "Новая заметка";
 
-        public string PhotoTabBackground => IsPhotoTabSelected ? "#C8702A" : "#EDE5D8";
-        public string NoteTabBackground => IsNoteTabSelected ? "#C8702A" : "#EDE5D8";
+        // Выбранная — чуть темнее, невыбранная — как на скрине (тан)
+        public string PhotoTabBackground => IsPhotoTabSelected ? "#8B4E1C" : "#D9C6A5";
+        public string NoteTabBackground => IsNoteTabSelected ? "#8B4E1C" : "#D9C6A5";
         public string PhotoTabTextColor => IsPhotoTabSelected ? "White" : "#7A5C3E";
         public string NoteTabTextColor => IsNoteTabSelected ? "White" : "#7A5C3E";
 

@@ -112,14 +112,15 @@
                                     <BoxView HeightRequest="1" Color="{StaticResource AppDivider}"
                                              BackgroundColor="{StaticResource AppDivider}" Margin="16,0" />
 
-                                    <!-- Заметка: текст в контейнере -->
-                                    <Border IsVisible="{Binding IsNote}" BackgroundColor="{StaticResource AppInput}" StrokeThickness="0"
+                                    <!-- Заметка: текст в контейнере с обводкой меню -->
+                                    <Border IsVisible="{Binding IsNote}" BackgroundColor="{StaticResource AppInput}"
+                                            Stroke="{StaticResource AppNavAccent}" StrokeThickness="2"
                                             StrokeShape="RoundRectangle 12" Margin="14,12" Padding="14,12">
                                         <Label Text="{Binding Content}" TextColor="{StaticResource AppTextPrimary}" FontSize="14" LineHeight="1.25" />
                                     </Border>
 
-                                    <!-- Фото -->
-                                    <Border IsVisible="{Binding HasImage}" BackgroundColor="{StaticResource AppOrangeBright}" StrokeThickness="0"
+                                    <!-- Фото (без оранжевого фона) -->
+                                    <Border IsVisible="{Binding HasImage}" BackgroundColor="Transparent" StrokeThickness="0"
                                             StrokeShape="RoundRectangle 12"
                                             HeightRequest="{OnIdiom Phone=320, Default=440}" Margin="14,12,14,8">
                                         <Image Source="{Binding ImageUrl, Converter={StaticResource MediaUrlConverter}}" Aspect="AspectFit" />
@@ -161,8 +162,9 @@
                                         </BindableLayout.ItemTemplate>
                                     </FlexLayout>
 
-                                    <!-- Действия в контейнере со скруглёнными нижними углами -->
-                                    <Border BackgroundColor="{StaticResource AppInput}" StrokeThickness="0" Padding="16,10" Margin="0,4,0,0">
+                                    <!-- Действия: только обводка цвета таб-бара, нижние углы скруглены сильнее -->
+                                    <Border BackgroundColor="Transparent" Stroke="{StaticResource AppNavBar}" StrokeThickness="2"
+                                            Padding="16,10" Margin="0,4,0,0">
                                         <Border.StrokeShape>
                                             <shapes:RoundRectangle CornerRadius="6,6,18,18" />
                                         </Border.StrokeShape>

@@ -7,12 +7,28 @@ namespace Social_Network.Helpers
     // Первая строка каждого листа — жирный заголовок; задаются ширины колонок.
     public static class ExcelExporter
     {
+        // Стили строк (индексы соответствуют cellXfs в Styles())
+        public const int StyleNormal = 0;
+        public const int StyleBold = 1;
+        public const int StyleHeader = 2;   // шапка таблицы — оливковая заливка, белый жирный
+        public const int StyleTitle = 3;    // заголовок листа — коричневая заливка, белый жирный
+        public const int StyleLabel = 4;    // важная ячейка — светлая заливка, жирный тёмный
+
         public sealed class Sheet
         {
             public string Name { get; set; } = "Лист1";
             public List<List<object?>> Rows { get; } = new();
             public List<double> ColumnWidths { get; } = new();
+            // Индивидуальный стиль для строки (по индексу)
+            public Dictionary<int, int> RowStyle { get; } = new();
+
             public void Add(params object?[] cells) => Rows.Add(cells.ToList());
+
+            public void AddStyled(int style, params object?[] cells)
+            {
+                RowStyle[Rows.Count] = style;
+                Rows.Add(cells.ToList());
+            }
         }
 
         public static byte[] Build(IEnumerable<Sheet> sheets)
@@ -60,16 +76,32 @@ namespace Social_Network.Helpers
             "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/>" +
             "</Relationships>";
 
-        // Стили: индекс 1 — жирный (для заголовков)
+        // Стили в тему приложения: жирный, шапка (олива), заголовок (коричневый), важная ячейка (тан)
         private static string Styles() =>
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
             "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">" +
-            "<fonts count=\"2\"><font><sz val=\"11\"/><name val=\"Calibri\"/></font>" +
-            "<font><b/><sz val=\"11\"/><name val=\"Calibri\"/></font></fonts>" +
-            "<fills count=\"1\"><fill><patternFill patternType=\"none\"/></fill></fills>" +
+            "<fonts count=\"4\">" +
+            "<font><sz val=\"11\"/><name val=\"Calibri\"/></font>" +
+            "<font><b/><sz val=\"11\"/><name val=\"Calibri\"/></font>" +
+            "<font><b/><sz val=\"11\"/><color rgb=\"FFFFFFFF\"/><name val=\"Calibri\"/></font>" +
+            "<font><b/><sz val=\"13\"/><color rgb=\"FFFFFFFF\"/><name val=\"Calibri\"/></font>" +
+            "</fonts>" +
+            "<fills count=\"5\">" +
+            "<fill><patternFill patternType=\"none\"/></fill>" +
+            "<fill><patternFill patternType=\"gray125\"/></fill>" +
+            "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF5A6E2E\"/></patternFill></fill>" +
+            "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF4A2810\"/></patternFill></fill>" +
+            "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFEDE0C8\"/></patternFill></fill>" +
+            "</fills>" +
             "<borders count=\"1\"><border/></borders>" +
             "<cellStyleXfs count=\"1\"><xf/></cellStyleXfs>" +
-            "<cellXfs count=\"2\"><xf/><xf fontId=\"1\" applyFont=\"1\"/></cellXfs>" +
+            "<cellXfs count=\"5\">" +
+            "<xf/>" +
+            "<xf fontId=\"1\" applyFont=\"1\"/>" +
+            "<xf fontId=\"2\" fillId=\"2\" applyFont=\"1\" applyFill=\"1\"><alignment vertical=\"center\"/></xf>" +
+            "<xf fontId=\"3\" fillId=\"3\" applyFont=\"1\" applyFill=\"1\"><alignment vertical=\"center\"/></xf>" +
+            "<xf fontId=\"1\" fillId=\"4\" applyFont=\"1\" applyFill=\"1\"/>" +
+            "</cellXfs>" +
             "</styleSheet>";
 
         private static string Workbook(List<Sheet> sheets)
@@ -101,11 +133,13 @@ namespace Social_Network.Helpers
             sb.Append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
             sb.Append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
 
-            if (sheet.ColumnWidths.Count > 0)
+            // Автоширина: если ширины не заданы — считаем по содержимому
+            var widths = sheet.ColumnWidths.Count > 0 ? sheet.ColumnWidths : AutoWidths(sheet);
+            if (widths.Count > 0)
             {
                 sb.Append("<cols>");
-                for (int c = 0; c < sheet.ColumnWidths.Count; c++)
-                    sb.Append($"<col min=\"{c + 1}\" max=\"{c + 1}\" width=\"{sheet.ColumnWidths[c].ToString(System.Globalization.CultureInfo.InvariantCulture)}\" customWidth=\"1\"/>");
+                for (int c = 0; c < widths.Count; c++)
+                    sb.Append($"<col min=\"{c + 1}\" max=\"{c + 1}\" width=\"{widths[c].ToString(System.Globalization.CultureInfo.InvariantCulture)}\" customWidth=\"1\"/>");
                 sb.Append("</cols>");
             }
 
@@ -114,7 +148,10 @@ namespace Social_Network.Helpers
             {
                 sb.Append($"<row r=\"{r + 1}\">");
                 var row = sheet.Rows[r];
-                string style = r == 0 ? " s=\"1\"" : string.Empty; // первая строка — жирная
+                int styleId = sheet.RowStyle.TryGetValue(r, out var sid)
+                    ? sid
+                    : (sheet.RowStyle.Count == 0 && r == 0 ? 1 : 0); // совместимость: первая строка жирная
+                string style = styleId > 0 ? $" s=\"{styleId}\"" : string.Empty;
                 for (int c = 0; c < row.Count; c++)
                 {
                     var cellRef = $"{Col(c)}{r + 1}";
@@ -128,6 +165,25 @@ namespace Social_Network.Helpers
             }
             sb.Append("</sheetData></worksheet>");
             return sb.ToString();
+        }
+
+        // Ширина столбцов по самой длинной ячейке (с разумными границами)
+        private static List<double> AutoWidths(Sheet sheet)
+        {
+            int cols = sheet.Rows.Count == 0 ? 0 : sheet.Rows.Max(r => r.Count);
+            var widths = new List<double>();
+            for (int c = 0; c < cols; c++)
+            {
+                double max = 8;
+                foreach (var row in sheet.Rows)
+                {
+                    if (c >= row.Count) continue;
+                    int len = (row[c]?.ToString() ?? string.Empty).Length;
+                    if (len + 2 > max) max = len + 2;
+                }
+                widths.Add(Math.Min(max, 60));
+            }
+            return widths;
         }
 
         private static string Col(int index)

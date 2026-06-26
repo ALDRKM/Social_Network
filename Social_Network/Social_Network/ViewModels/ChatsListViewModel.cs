@@ -46,6 +46,8 @@ namespace Social_Network.ViewModels
                 Chats.Clear();
                 foreach (var c in chats.OrderByDescending(c => c.LastMessage?.SentAt ?? c.CreatedAt))
                     Chats.Add(c);
+
+                Helpers.AppState.HasUnreadChats = chats.Any(c => c.HasUnread);
             }
             finally
             {

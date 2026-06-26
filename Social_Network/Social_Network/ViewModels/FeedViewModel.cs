@@ -25,6 +25,7 @@ namespace Social_Network.ViewModels
         private readonly ILikeService _like;
         private readonly ISavedPostService _saved;
         private readonly ISubscriptionService _sub;
+        private readonly IChatService _chat;
 
         public ObservableCollection<FeedPostViewModel> Posts { get; } = new();
         public ObservableCollection<StoryItem> Stories { get; } = new();
@@ -39,13 +40,25 @@ namespace Social_Network.ViewModels
         [ObservableProperty]
         private bool isRefreshing;
 
-        public FeedViewModel(IPostService post, ILikeService like, ISavedPostService saved, ISubscriptionService sub)
+        public FeedViewModel(IPostService post, ILikeService like, ISavedPostService saved, ISubscriptionService sub, IChatService chat)
         {
             _post = post;
             _like = like;
             _saved = saved;
             _sub = sub;
+            _chat = chat;
             Title = "Лента";
+        }
+
+        // Обновить индикатор непрочитанных сообщений в меню навигации
+        private async Task RefreshUnreadAsync(int userId)
+        {
+            try
+            {
+                var chats = await _chat.GetUserChatsAsync(userId);
+                Helpers.AppState.HasUnreadChats = chats.Any(c => c.HasUnread);
+            }
+            catch { }
         }
 
         [RelayCommand]
@@ -71,6 +84,7 @@ namespace Social_Network.ViewModels
                 }
 
                 BuildStories(posts, followingIds, userId);
+                await RefreshUnreadAsync(userId);
             }
             finally
             {

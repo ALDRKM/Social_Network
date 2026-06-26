@@ -45,6 +45,37 @@ namespace Social_Network.API.Services
                 .Select(t => new TopTagDto(t.Name, t.PostTags.Count))
                 .ToListAsync();
 
+        // Статистика конкретного пользователя (для отчёта об экспорте)
+        public async Task<UserReportDto?> GetUserReportAsync(int userId)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return null;
+
+            int posts = await _db.Posts.CountAsync(p => p.UserId == userId);
+            int messagesSent = await _db.Messages.CountAsync(m => m.SenderId == userId);
+            int likesReceived = await _db.Likes.CountAsync(l => l.Post!.UserId == userId);
+            int likesGiven = await _db.Likes.CountAsync(l => l.UserId == userId);
+            int comments = await _db.Comments.CountAsync(c => c.UserId == userId);
+            int following = await _db.Subscriptions.CountAsync(s => s.FollowerId == userId);
+            int followers = await _db.Subscriptions.CountAsync(s => s.FollowingId == userId);
+
+            // Группировка в памяти — SQLite не умеет переводить GroupBy с проекцией
+            var tagNames = await _db.PostTags
+                .Where(pt => pt.Post!.UserId == userId)
+                .Select(pt => pt.Tag!.Name)
+                .ToListAsync();
+
+            var topTags = tagNames
+                .GroupBy(n => n)
+                .Select(g => new TopTagDto(g.Key, g.Count()))
+                .OrderByDescending(t => t.Count)
+                .Take(10)
+                .ToList();
+
+            return new UserReportDto(user.Login, user.Email, posts, messagesSent,
+                likesReceived, likesGiven, comments, following, followers, topTags);
+        }
+
         public async Task<StatsDto> GetStatsAsync() => new StatsDto(
             await _db.Users.CountAsync(),
             await _db.Posts.CountAsync(),
