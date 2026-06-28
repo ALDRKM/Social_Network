@@ -89,8 +89,8 @@
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                         <Label Text="{Binding OtherUserLogin}" FontAttributes="Bold" FontSize="15"
                                                TextColor="{StaticResource AppAccentText}" />
-                                        <Label Text="{Binding LastMessage.Text}" FontSize="13"
-                                               TextColor="{StaticResource AppTextSecondary}"
+                                        <Label Text="{Binding LastMessage.Text, Converter={StaticResource ImageMessageConverter}, ConverterParameter=preview}"
+                                               FontSize="13" TextColor="{StaticResource AppTextSecondary}"
                                                LineBreakMode="TailTruncation" MaxLines="1" />
                                     </VerticalStackLayout>
                                     <VerticalStackLayout Grid.Column="2" Spacing="4" HorizontalOptions="End">

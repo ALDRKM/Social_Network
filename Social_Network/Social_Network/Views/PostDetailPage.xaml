@@ -84,17 +84,20 @@
                                                             CommandParameter="{Binding .}" />
                                                     </Label.GestureRecognizers>
                                                 </Label>
-                                                <Label Text="✎" FontSize="17" TextColor="{StaticResource AppAccentText}" IsVisible="{Binding IsMine}" VerticalOptions="Center">
+                                                <Label Text="Изм." FontSize="12" TextColor="{StaticResource AppAccentText}" IsVisible="{Binding IsMine}" VerticalOptions="Center">
                                                     <Label.GestureRecognizers>
                                                         <TapGestureRecognizer
                                                             Command="{Binding BindingContext.EditCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                                             CommandParameter="{Binding .}" />
                                                     </Label.GestureRecognizers>
                                                 </Label>
-                                                <Button Text="Удалить" FontSize="11" BackgroundColor="{StaticResource AppOrange}" TextColor="White"
-                                                        CornerRadius="12" HeightRequest="28" Padding="12,0" IsVisible="{Binding IsMine}"
-                                                        Command="{Binding BindingContext.DeleteCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                                        CommandParameter="{Binding .}" />
+                                                <Label Text="Удалить" FontSize="12" TextColor="{StaticResource AppOrange}" IsVisible="{Binding IsMine}" VerticalOptions="Center">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding BindingContext.DeleteCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
                                             </HorizontalStackLayout>
                                         </VerticalStackLayout>
                                     </Grid>
@@ -107,18 +110,21 @@
                                                     <VerticalStackLayout Grid.Column="1" Spacing="2">
                                                         <Label Text="{Binding AuthorLogin}" FontAttributes="Bold" FontSize="12" TextColor="{StaticResource AppAccentText}" />
                                                         <Label Text="{Binding Text}" FontSize="12" TextColor="{StaticResource AppTextPrimary}" />
-                                                        <HorizontalStackLayout Spacing="12" IsVisible="{Binding IsMine}">
-                                                            <Label Text="✎" FontSize="15" TextColor="{StaticResource AppAccentText}" VerticalOptions="Center">
+                                                        <HorizontalStackLayout Spacing="14" IsVisible="{Binding IsMine}">
+                                                            <Label Text="Изм." FontSize="12" TextColor="{StaticResource AppAccentText}" VerticalOptions="Center">
                                                                 <Label.GestureRecognizers>
                                                                     <TapGestureRecognizer
                                                                         Command="{Binding BindingContext.EditCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                                                         CommandParameter="{Binding .}" />
                                                                 </Label.GestureRecognizers>
                                                             </Label>
-                                                            <Button Text="Удалить" FontSize="10" BackgroundColor="{StaticResource AppOrange}" TextColor="White"
-                                                                    CornerRadius="11" HeightRequest="26" Padding="10,0"
-                                                                    Command="{Binding BindingContext.DeleteCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                                                    CommandParameter="{Binding .}" />
+                                                            <Label Text="Удалить" FontSize="12" TextColor="{StaticResource AppOrange}" VerticalOptions="Center">
+                                                                <Label.GestureRecognizers>
+                                                                    <TapGestureRecognizer
+                                                                        Command="{Binding BindingContext.DeleteCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                                        CommandParameter="{Binding .}" />
+                                                                </Label.GestureRecognizers>
+                                                            </Label>
                                                         </HorizontalStackLayout>
                                                     </VerticalStackLayout>
                                                 </Grid>

@@ -96,6 +96,7 @@
             <Button Text="Удалить аккаунт" Command="{Binding DeleteAccountCommand}"
                     Style="{StaticResource PrimaryButton}" Margin="20,10,20,0"
                     BackgroundColor="{StaticResource AppError}" />
+
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

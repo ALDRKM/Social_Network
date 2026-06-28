@@ -216,12 +216,14 @@ namespace Social_Network.ViewModels
         private async Task DeleteMessageAsync(MessageDto message)
         {
             if (message == null || !message.IsMine) return;
-            bool confirm = await Shell.Current.DisplayAlertAsync(
-                "Удалить сообщение?", "Сообщение будет отменено.", "Удалить", "Отмена");
-            if (!confirm) return;
-
-            if (await _mes.RevokeAsync(message.Id, ChatId))
-                OnMessageDeleted(message.Id);
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                bool confirm = await Shell.Current.DisplayAlertAsync(
+                    "Удалить сообщение?", "Сообщение будет отменено.", "Удалить", "Отмена");
+                if (!confirm) return;
+                if (await _mes.RevokeAsync(message.Id, ChatId))
+                    OnMessageDeleted(message.Id);
+            });
         }
 
         // По нажатию на аватар собеседника — переход в его профиль
