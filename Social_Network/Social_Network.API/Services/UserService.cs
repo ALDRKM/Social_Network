@@ -95,7 +95,10 @@ namespace Social_Network.API.Services
 
         public async Task<List<User>> SearchUsersAsync(string query)
         {
-            return await _db.Users.Where(u => u.Login.ToLower().Contains(query.ToLower())).Take(30).ToListAsync();
+            return await _db.Users
+                .Where(u => !u.IsSystemAccount && u.Login.ToLower().Contains(query.ToLower()))
+                .Take(30)
+                .ToListAsync();
         }
 
     }

@@ -76,7 +76,7 @@
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="10,10">
                                     <!-- Аватар + индикатор онлайн -->
                                     <Grid Grid.Column="0" WidthRequest="52" HeightRequest="52">
-                                        <controls:AvatarView Source="{Binding OtherUserAvatarUrl}" Size="52" />
+                                        <controls:AvatarView Source="{Binding OtherUserAvatarUrl}" IsSystem="{Binding IsSystemChat}" Size="52" />
                                         <Border IsVisible="{Binding OtherUserIsOnline}"
                                                 BackgroundColor="{StaticResource AppOnline}" Stroke="{StaticResource AppBackground}" StrokeThickness="2"
                                                 WidthRequest="15" HeightRequest="15"

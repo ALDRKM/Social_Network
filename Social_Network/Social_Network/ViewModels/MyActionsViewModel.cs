@@ -53,12 +53,14 @@ namespace Social_Network.ViewModels
 
             int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
             var followingIds = (await _sub.GetFollowingIdsAsync(userId)).ToHashSet();
+            var pendingIds = (await _sub.GetPendingFollowingIdsAsync(userId)).ToHashSet();
             var savedIds = (await _saved.GetSavedIdsAsync(userId)).ToHashSet();
 
             var liked = await _like.GetUserLikedPostsAsync(userId);
             LikedPosts.Clear();
             foreach (var p in liked)
-                LikedPosts.Add(new FeedPostViewModel(p, true, savedIds.Contains(p.Id), followingIds.Contains(p.UserId), userId));
+                LikedPosts.Add(new FeedPostViewModel(p, true, savedIds.Contains(p.Id),
+                    followingIds.Contains(p.UserId), pendingIds.Contains(p.UserId), userId));
 
             var comments = await _com.GetUserCommentsAsync(userId);
             MyComments.Clear();
@@ -67,7 +69,8 @@ namespace Social_Network.ViewModels
             var saved = await _saved.GetSavedAsync(userId);
             SavedPosts.Clear();
             foreach (var p in saved)
-                SavedPosts.Add(new FeedPostViewModel(p, p.Likes?.Any(l => l.UserId == userId) ?? false, true, followingIds.Contains(p.UserId), userId));
+                SavedPosts.Add(new FeedPostViewModel(p, p.Likes?.Any(l => l.UserId == userId) ?? false, true,
+                    followingIds.Contains(p.UserId), pendingIds.Contains(p.UserId), userId));
 
             IsBusy = false;
         }
@@ -100,11 +103,32 @@ namespace Social_Network.ViewModels
         {
             if (item == null || item.IsOwnPost) return;
             int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
-            bool follow = !item.IsFollowingAuthor;
-            if (follow) await _sub.FollowAsync(userId, item.UserId);
-            else await _sub.UnfollowAsync(userId, item.UserId);
+
+            if (item.IsFollowingAuthor)
+            {
+                await _sub.UnfollowAsync(userId, item.UserId);
+                foreach (var p in LikedPosts.Concat(SavedPosts).Where(p => p.UserId == item.UserId))
+                {
+                    p.IsFollowingAuthor = false;
+                    p.IsPendingRequest = false;
+                }
+                return;
+            }
+
+            if (item.IsPendingRequest)
+            {
+                await _sub.UnfollowAsync(userId, item.UserId);
+                foreach (var p in LikedPosts.Concat(SavedPosts).Where(p => p.UserId == item.UserId))
+                    p.IsPendingRequest = false;
+                return;
+            }
+
+            var result = await _sub.FollowAsync(userId, item.UserId);
             foreach (var p in LikedPosts.Concat(SavedPosts).Where(p => p.UserId == item.UserId))
-                p.IsFollowingAuthor = follow;
+            {
+                p.IsFollowingAuthor = result.Status == "followed";
+                p.IsPendingRequest = result.Status == "requested";
+            }
         }
 
         [RelayCommand]

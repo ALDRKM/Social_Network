@@ -7,8 +7,8 @@ using Social_Network.Constants;
 
 namespace Social_Network.ViewModels
 {
-    [QueryProperty(nameof(OtherUserId),"userId")]
-    public partial class OtherProfileViewModel: BaseViewModel
+    [QueryProperty(nameof(OtherUserId), "userId")]
+    public partial class OtherProfileViewModel : BaseViewModel
     {
         private readonly IUserService _user;
         private readonly IPostService _post;
@@ -25,18 +25,23 @@ namespace Social_Network.ViewModels
         [NotifyPropertyChangedFor(nameof(CanViewContent))]
         private bool isFollowing;
 
-        public string FollowButtonColor => IsFollowing ? "#C4A882" : "#C8702A";
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FollowButtonText))]
+        [NotifyPropertyChangedFor(nameof(FollowButtonColor))]
+        [NotifyPropertyChangedFor(nameof(CanViewContent))]
+        private bool isPendingRequest;
+
+        public string FollowButtonColor =>
+            IsPendingRequest ? "#A89880" : IsFollowing ? "#C4A882" : "#C8702A";
 
         [ObservableProperty] private int followersCount;
         [ObservableProperty] private int followingCount;
         [ObservableProperty] private int postsCount;
 
-        // Приватный аккаунт
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CanViewContent))]
         private bool isPrivate;
 
-        // Вкладки Заметки / Фото
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNotesTab))]
         [NotifyPropertyChangedFor(nameof(PhotosTabColor))]
@@ -47,9 +52,15 @@ namespace Social_Network.ViewModels
         public string PhotosTabColor => IsPhotosTab ? "#5C3210" : "#665C3210";
         public string NotesTabColor => IsNotesTab ? "#5C3210" : "#665C3210";
 
-        public string FollowButtonText => IsFollowing ? "Вы подписаны" : "Подписаться";
+        public string FollowButtonText
+        {
+            get
+            {
+                if (IsPendingRequest) return "Запрос отправлен";
+                return IsFollowing ? "Вы подписаны" : "Подписаться";
+            }
+        }
 
-        // Контент виден, если аккаунт не приватный или мы уже подписаны
         public bool CanViewContent => !IsPrivate || IsFollowing;
 
         public ObservableCollection<Post> Photos { get; } = new();
@@ -72,6 +83,7 @@ namespace Social_Network.ViewModels
 
             User = await _user.GetUserByIdAsync(targetUserId);
             IsFollowing = await _sub.IsFollowingAsync(myId, targetUserId);
+            IsPendingRequest = await _sub.HasPendingRequestAsync(myId, targetUserId);
             FollowersCount = await _sub.GetFollowersCountAsync(targetUserId);
             FollowingCount = await _sub.GetFollowingCountAsync(targetUserId);
 
@@ -89,7 +101,6 @@ namespace Social_Network.ViewModels
             Notes.Clear();
             PostsCount = 0;
 
-            // Если приватный и мы не подписаны — контент скрыт
             if (!CanViewContent) return;
 
             var photos = await _post.GetUserPostsAsync(targetUserId, PostType.Photo);
@@ -118,15 +129,21 @@ namespace Social_Network.ViewModels
             {
                 await _sub.UnfollowAsync(myId, OtherUserId);
                 IsFollowing = false;
+                IsPendingRequest = false;
+            }
+            else if (IsPendingRequest)
+            {
+                await _sub.UnfollowAsync(myId, OtherUserId);
+                IsPendingRequest = false;
             }
             else
             {
-                await _sub.FollowAsync(myId, OtherUserId);
-                IsFollowing = true;
+                var result = await _sub.FollowAsync(myId, OtherUserId);
+                IsFollowing = result.Status == "followed";
+                IsPendingRequest = result.Status == "requested";
             }
 
             FollowersCount = await _sub.GetFollowersCountAsync(OtherUserId);
-            // Перезагружаем контент (для приватного аккаунта он появится/исчезнет)
             await LoadPostsAsync(OtherUserId);
         }
 
@@ -142,7 +159,8 @@ namespace Social_Network.ViewModels
                 $"&otherLogin={Uri.EscapeDataString(User?.Login ?? string.Empty)}" +
                 $"&otherAvatar={Uri.EscapeDataString(User?.AvatarUrl ?? string.Empty)}" +
                 $"&otherOnline={User?.IsOnline ?? false}" +
-                $"&otherLastSeen={Uri.EscapeDataString(User?.LastSeen?.ToString("o") ?? string.Empty)}");
+                $"&otherLastSeen={Uri.EscapeDataString(User?.LastSeen?.ToString("o") ?? string.Empty)}" +
+                $"&isSystem=false");
         }
 
         [RelayCommand]

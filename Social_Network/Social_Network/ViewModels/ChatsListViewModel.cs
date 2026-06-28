@@ -83,7 +83,8 @@ namespace Social_Network.ViewModels
                 $"&otherLogin={Uri.EscapeDataString(chat.OtherUserLogin)}" +
                 $"&otherAvatar={Uri.EscapeDataString(chat.OtherUserAvatarUrl ?? string.Empty)}" +
                 $"&otherOnline={chat.OtherUserIsOnline}" +
-                $"&otherLastSeen={Uri.EscapeDataString(chat.OtherUserLastSeen?.ToString("o") ?? string.Empty)}");
+                $"&otherLastSeen={Uri.EscapeDataString(chat.OtherUserLastSeen?.ToString("o") ?? string.Empty)}" +
+                $"&isSystem={chat.IsSystemChat}");
         }
 
         [RelayCommand]

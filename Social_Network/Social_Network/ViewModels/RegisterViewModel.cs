@@ -4,12 +4,12 @@ using Social_Network.Constants;
 using Social_Network.Helpers;
 using Social_Network.Service;
 
-
 namespace Social_Network.ViewModels
 {
-    public partial class RegisterViewModel: BaseViewModel
+    public partial class RegisterViewModel : BaseViewModel
     {
         private readonly IAuthService _auth;
+
         public RegisterViewModel(IAuthService auth)
         {
             _auth = auth;
@@ -30,7 +30,8 @@ namespace Social_Network.ViewModels
         [RelayCommand]
         private async Task Register()
         {
-            if(string.IsNullOrWhiteSpace(Login)||string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(ConfirmPassword) || string.IsNullOrWhiteSpace(Password))
+            if (string.IsNullOrWhiteSpace(Login) || string.IsNullOrWhiteSpace(Email) ||
+                string.IsNullOrWhiteSpace(ConfirmPassword) || string.IsNullOrWhiteSpace(Password))
             {
                 ErrorMessage = "Заполните все поля";
                 return;
@@ -50,23 +51,35 @@ namespace Social_Network.ViewModels
                 ErrorMessage = "Пароль должен быть не короче 6 символов и содержать хотя бы одну букву и одну цифру";
                 return;
             }
-            if(Password != ConfirmPassword)
+            if (Password != ConfirmPassword)
             {
                 ErrorMessage = "Пароли не совпадают";
                 return;
             }
 
             IsBusy = true;
-            var (success, error) = await _auth.RegisterAsync(Login,Email,Password);
-            IsBusy = false;
-
+            var (success, error) = await _auth.RegisterAsync(Login, Email, Password);
             if (!success)
             {
+                IsBusy = false;
                 ErrorMessage = error;
                 return;
             }
-            await Shell.Current.DisplayAlertAsync("Готово","Аккаунт был создан успешно! Войдите в аккаунт","ОК");
-            await Shell.Current.GoToAsync("//LoginPage");
+
+            var (loginOk, loginError, userId, userLogin, avatarUrl) = await _auth.LoginAsync(Email, Password);
+            IsBusy = false;
+
+            if (!loginOk)
+            {
+                ErrorMessage = loginError ?? "Не удалось выполнить вход";
+                await Shell.Current.GoToAsync("//LoginPage");
+                return;
+            }
+
+            Preferences.Default.Set(AppSettings.UserIdKey, userId);
+            Preferences.Default.Set(AppSettings.UserLoginKey, userLogin);
+            Preferences.Default.Set(AppSettings.AvatarUrlKey, avatarUrl);
+            await Shell.Current.GoToAsync("//FeedPage");
         }
 
         [RelayCommand]

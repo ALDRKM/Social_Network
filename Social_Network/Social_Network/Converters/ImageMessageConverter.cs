@@ -28,7 +28,7 @@ namespace Social_Network.Converters
             {
                 "source"  => isImg ? MediaHelper.Resolve(s) : null,
                 "istext"  => !isImg,
-                "preview" => isImg ? "🖼 Изображение" : s,
+                "preview" => isImg ? "🖼 Изображение" : SystemMessageHelper.GetDisplayText(s ?? string.Empty),
                 _         => isImg,
             };
         }

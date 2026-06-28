@@ -23,8 +23,9 @@ namespace Social_Network.API.Controllers
             => Ok(await _report.GetStatsAsync());
 
         [HttpGet("user-stats/{userId}")]
-        public async Task<IActionResult> UserStats([FromRoute] int userId)
-            => Ok(await _report.GetUserReportAsync(userId));
+        public async Task<IActionResult> UserStats([FromRoute] int userId,
+            [FromQuery] DateTime? from, [FromQuery] DateTime? to)
+            => Ok(await _report.GetUserReportAsync(userId, from, to));
 
         [HttpGet("export/{userId}")]
         public async Task<IActionResult> Export([FromRoute] int userId)

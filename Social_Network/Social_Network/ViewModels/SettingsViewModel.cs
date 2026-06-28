@@ -44,9 +44,8 @@ namespace Social_Network.ViewModels
         [ObservableProperty] private bool notificationsEnabled = true;
 
         // Отчёты
-        public ObservableCollection<TopPostDto> TopPosts { get; } = new();
         public ObservableCollection<TopTagDto> TopTags { get; } = new();
-        [ObservableProperty] private StatsDto? stats;
+        [ObservableProperty] private UserReportDto? userReport;
 
         // Период для отчёта по публикациям ("за весь/указанный период")
         [ObservableProperty] private bool usePeriod;
@@ -199,15 +198,13 @@ namespace Social_Network.ViewModels
 
             DateTime? from = UsePeriod ? FromDate : null;
             DateTime? to = UsePeriod ? ToDate.AddDays(1).AddSeconds(-1) : null;
-            var posts = await _report.TopPostsByLikesAsync(from, to);
-            TopPosts.Clear();
-            foreach (var p in posts) TopPosts.Add(p);
 
-            var tags = await _report.TopTagsAsync();
+            int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+            UserReport = await _report.GetUserReportAsync(userId, from, to);
+
             TopTags.Clear();
+            var tags = await _report.TopTagsAsync();
             foreach (var t in tags) TopTags.Add(t);
-
-            Stats = await _report.GetStatsAsync();
         }
 
         // Экспорт отчётов в Excel (.xlsx).
@@ -219,14 +216,13 @@ namespace Social_Network.ViewModels
 
             await LoadReports();
 
-            int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
-            var me = await _report.GetUserReportAsync(userId);
+            var me = UserReport;
             var period = UsePeriod
                 ? $"{FromDate:dd.MM.yyyy} — {ToDate:dd.MM.yyyy}"
                 : "за всё время";
 
-            // ===== Лист 1: Мой отчёт (кто сформировал + его статистика) =====
-            var meSheet = new ExcelExporter.Sheet { Name = "Мой отчёт" };
+            // ===== Лист 1: Отчёт пользователя =====
+            var meSheet = new ExcelExporter.Sheet { Name = "Отчёт пользователя" };
             meSheet.AddStyled(ExcelExporter.StyleTitle, $"Отчёт пользователя @{me?.Login ?? Login}");
             meSheet.AddStyled(ExcelExporter.StyleLabel, "Период:", period);
             meSheet.AddStyled(ExcelExporter.StyleLabel, "Сформирован:", DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
@@ -237,49 +233,23 @@ namespace Social_Network.ViewModels
                 meSheet.Add("Логин", me.Login);
                 meSheet.Add("Email", me.Email ?? string.Empty);
                 meSheet.Add("Публикаций", me.Posts);
-                meSheet.Add("Сообщений отправлено", me.MessagesSent);
-                meSheet.Add("Лайков получено (на его постах)", me.LikesReceived);
+                meSheet.Add("Подписок оформлено", me.Following);
+                meSheet.Add("Подписок получено", me.Followers);
+                meSheet.Add("Лайков получено", me.LikesReceived);
                 meSheet.Add("Лайков поставлено", me.LikesGiven);
-                meSheet.Add("Комментариев", me.Comments);
-                meSheet.Add("Подписок (он подписан)", me.Following);
-                meSheet.Add("Подписчиков (на него)", me.Followers);
-            }
-            meSheet.Add(string.Empty);
-            meSheet.AddStyled(ExcelExporter.StyleHeader, "Его популярные хэштеги", "Использований");
-            if (me != null && me.TopTags.Count > 0)
-                foreach (var t in me.TopTags)
-                    meSheet.Add("#" + t.Tag, t.Count);
-            else
-                meSheet.Add("— нет —", 0);
-
-            // ===== Лист 2: Статистика приложения (как на странице отчётов) =====
-            var statsSheet = new ExcelExporter.Sheet { Name = "Статистика приложения" };
-            statsSheet.AddStyled(ExcelExporter.StyleTitle, "Общая статистика приложения");
-            statsSheet.AddStyled(ExcelExporter.StyleHeader, "Показатель", "Значение");
-            if (Stats != null)
-            {
-                statsSheet.Add("Пользователей", Stats.Users);
-                statsSheet.Add("Публикаций", Stats.Posts);
-                statsSheet.Add("Подписок", Stats.Subscriptions);
-                statsSheet.Add("Сообщений в чатах", Stats.Messages);
-                statsSheet.Add("Комментариев", Stats.Comments);
-                statsSheet.Add("Отметок «нравится»", Stats.Likes);
+                meSheet.Add("Комментариев получено", me.CommentsReceived);
+                meSheet.Add("Комментариев оставлено", me.CommentsGiven);
+                meSheet.Add("Сообщений отправлено в чатах", me.MessagesSent);
             }
 
-            // ===== Лист 3: Популярные публикации за период =====
-            var postsSheet = new ExcelExporter.Sheet { Name = "Популярные публикации" };
-            postsSheet.AddStyled(ExcelExporter.StyleTitle, $"Самые популярные публикации по «нравится» ({period})");
-            postsSheet.AddStyled(ExcelExporter.StyleHeader, "Автор", "Текст", "Лайки", "Дата");
-            foreach (var p in TopPosts)
-                postsSheet.Add(p.Author, p.Content, p.Likes, p.CreatedAt.ToString("dd.MM.yyyy"));
-
-            // ===== Лист 4: Популярные теги =====
-            var tagsSheet = new ExcelExporter.Sheet { Name = "Популярные теги" };
-            tagsSheet.AddStyled(ExcelExporter.StyleHeader, "Тег", "Использований");
+            // ===== Лист 2: Популярные хэштеги =====
+            var tagsSheet = new ExcelExporter.Sheet { Name = "Популярные хэштеги" };
+            tagsSheet.AddStyled(ExcelExporter.StyleTitle, $"Популярные хэштеги ({period})");
+            tagsSheet.AddStyled(ExcelExporter.StyleHeader, "Хэштег", "Использований");
             foreach (var t in TopTags)
                 tagsSheet.Add("#" + t.Tag, t.Count);
 
-            var bytes = ExcelExporter.Build(new[] { meSheet, statsSheet, postsSheet, tagsSheet });
+            var bytes = ExcelExporter.Build(new[] { meSheet, tagsSheet });
             var fileName = $"otchet_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
 
             try

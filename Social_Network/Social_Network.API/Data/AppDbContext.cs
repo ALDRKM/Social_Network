@@ -22,6 +22,7 @@ namespace Social_Network.API.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTag> PostTags { get; set; }
         public DbSet<PostMention> PostMentions { get; set; }
+        public DbSet<SubscriptionRequest> SubscriptionRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -85,6 +86,18 @@ namespace Social_Network.API.Data
                 .HasOne(c => c.ParentComment)
                 .WithMany(c => c.Replies)
                 .HasForeignKey(c => c.ParentCommentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SubscriptionRequest>()
+                .HasOne(r => r.Follower)
+                .WithMany()
+                .HasForeignKey(r => r.FollowerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SubscriptionRequest>()
+                .HasOne(r => r.Following)
+                .WithMany()
+                .HasForeignKey(r => r.FollowingId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

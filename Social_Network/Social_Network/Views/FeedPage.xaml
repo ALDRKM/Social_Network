@@ -24,10 +24,21 @@
 
         <Grid Grid.Column="1" Grid.Row="0"
               WidthRequest="{OnIdiom Phone=-1, Default=620}"
-              HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
+              HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}"
+              RowDefinitions="Auto,*">
 
-            <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadFeedCommand}">
-                <CollectionView ItemsSource="{Binding Posts}">
+            <Grid Grid.Row="0" ColumnDefinitions="*,*" Margin="12,10,12,4" ColumnSpacing="8">
+                <Button Grid.Column="0" Text="Все" Command="{Binding SelectAllFeedCommand}"
+                        BackgroundColor="{Binding AllFeedTabColor}" TextColor="White"
+                        CornerRadius="14" HeightRequest="38" FontSize="14" />
+                <Button Grid.Column="1" Text="Подписки" Command="{Binding SelectFollowingFeedCommand}"
+                        BackgroundColor="{Binding FollowingFeedTabColor}" TextColor="White"
+                        CornerRadius="14" HeightRequest="38" FontSize="14" />
+            </Grid>
+
+            <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadFeedCommand}">
+                <CollectionView x:Name="FeedCollection" ItemsSource="{Binding Posts}"
+                                ItemsUpdatingScrollMode="KeepScrollOffset">
 
                     <!-- Истории как шапка списка — скроллятся вместе с лентой -->
                     <CollectionView.Header>
