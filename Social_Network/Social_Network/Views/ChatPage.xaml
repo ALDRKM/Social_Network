@@ -71,7 +71,22 @@
             <CollectionView Grid.Row="3" ItemsSource="{Binding Messages}" Margin="12,6">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:MessageItemViewModel">
-                        <Grid Padding="0,4">
+                        <!-- Свайп влево по своему сообщению открывает «Удалить» (надёжно на телефоне),
+                             правый клик удаляет на ПК. У чужих сообщений пункт скрыт. -->
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+                                    <SwipeItemView IsVisible="{Binding IsMine}" Command="{Binding DeleteCommand}">
+                                        <Border BackgroundColor="{StaticResource AppError}" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 12" Margin="6,4" Padding="18,0"
+                                                VerticalOptions="Center">
+                                            <Label Text="Удалить" TextColor="White" FontAttributes="Bold"
+                                                   VerticalOptions="Center" HorizontalOptions="Center" />
+                                        </Border>
+                                    </SwipeItemView>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <Grid Padding="0,4" BackgroundColor="Transparent">
                             <Border StrokeThickness="0" BackgroundColor="{StaticResource AppInput}"
                                     Padding="12,8" HorizontalOptions="Start" MaximumWidthRequest="320">
                                 <!-- Меньший угол со стороны отправителя: у собеседника — снизу слева -->
@@ -112,15 +127,13 @@
                                         </Label.Triggers>
                                     </Label>
                                 </VerticalStackLayout>
-                                <!-- ПКМ (десктоп) и долгое нажатие (телефон) — удалить -->
+                                <!-- ПКМ (десктоп) — удалить -->
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Buttons="Secondary" Command="{Binding DeleteCommand}" />
                                 </Border.GestureRecognizers>
-                                <Border.Behaviors>
-                                    <toolkit:TouchBehavior LongPressCommand="{Binding DeleteCommand}" />
-                                </Border.Behaviors>
                             </Border>
-                        </Grid>
+                            </Grid>
+                        </SwipeView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
                 <CollectionView.EmptyView>

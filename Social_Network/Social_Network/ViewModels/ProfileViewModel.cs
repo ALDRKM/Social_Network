@@ -111,6 +111,13 @@ namespace Social_Network.ViewModels
         }
 
         [RelayCommand]
+        private async Task OpenPost(Post post)
+        {
+            if (post == null) return;
+            await Shell.Current.GoToAsync($"PostDetailPage?postId={post.Id}");
+        }
+
+        [RelayCommand]
         private async Task Share()
         {
             if (User == null) return;

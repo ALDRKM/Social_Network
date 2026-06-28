@@ -26,9 +26,10 @@ namespace Social_Network.Converters
 
             return mode switch
             {
-                "source" => isImg ? MediaHelper.Resolve(s) : null,
-                "istext" => !isImg,
-                _ => isImg,
+                "source"  => isImg ? MediaHelper.Resolve(s) : null,
+                "istext"  => !isImg,
+                "preview" => isImg ? "🖼 Изображение" : s,
+                _         => isImg,
             };
         }
 
