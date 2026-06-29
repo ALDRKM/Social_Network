@@ -10,10 +10,15 @@ namespace Social_Network.Controls
             BindableProperty.Create(nameof(Source), typeof(string), typeof(AvatarView), null,
                 propertyChanged: OnSourceChanged);
 
+        public static readonly BindableProperty IsSystemProperty =
+            BindableProperty.Create(nameof(IsSystem), typeof(bool), typeof(AvatarView), false,
+                propertyChanged: OnIsSystemChanged);
+
         public AvatarView()
         {
             InitializeComponent();
             ApplySize();
+            ApplyAppearance();
         }
 
         public double Size
@@ -29,15 +34,24 @@ namespace Social_Network.Controls
             set => SetValue(SourceProperty, value);
         }
 
+        // Системный чат: иконка компьютера на фоне цвета меню навигации
+        public bool IsSystem
+        {
+            get => (bool)GetValue(IsSystemProperty);
+            set => SetValue(IsSystemProperty, value);
+        }
+
         private static void OnSizeChanged(BindableObject bindable, object oldValue, object newValue)
             => ((AvatarView)bindable).ApplySize();
 
         private static void OnSourceChanged(BindableObject bindable, object oldValue, object newValue)
-            => ((AvatarView)bindable).ApplySource();
+            => ((AvatarView)bindable).ApplyAppearance();
+
+        private static void OnIsSystemChanged(BindableObject bindable, object oldValue, object newValue)
+            => ((AvatarView)bindable).ApplyAppearance();
 
         private void ApplySize()
         {
-            // Квадрат + EllipseGeometry-клип = идеальный круг (и фон, и фото обрезаются)
             Holder.WidthRequest = Size;
             Holder.HeightRequest = Size;
             WidthRequest = Size;
@@ -47,8 +61,21 @@ namespace Social_Network.Controls
             Clip.RadiusY = Size / 2;
         }
 
-        private void ApplySource()
+        private void ApplyAppearance()
         {
+            if (IsSystem)
+            {
+                BackgroundCircle.BackgroundColor = (Color)Application.Current!.Resources["AppNavAccent"];
+                Avatar.IsVisible = false;
+                Avatar.Source = null;
+                Silhouette.IsVisible = false;
+                ComputerIcon.IsVisible = true;
+                return;
+            }
+
+            BackgroundCircle.BackgroundColor = (Color)Application.Current!.Resources["AppBrown"];
+            ComputerIcon.IsVisible = false;
+
             var url = Source;
             if (string.IsNullOrWhiteSpace(url))
             {

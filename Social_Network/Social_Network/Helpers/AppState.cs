@@ -1,6 +1,5 @@
 namespace Social_Network.Helpers
 {
-    // Глобальное состояние для индикаторов в меню навигации (например, непрочитанные сообщения)
     public static class AppState
     {
         private static bool _hasUnreadChats;
@@ -17,5 +16,8 @@ namespace Social_Network.Helpers
         }
 
         public static event EventHandler? UnreadChanged;
+
+        public static bool SkipFeedReload { get; set; }
+        public static int FeedScrollIndex { get; set; } = -1;
     }
 }

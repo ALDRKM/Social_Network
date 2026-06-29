@@ -30,7 +30,7 @@
                         <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                     </Image.GestureRecognizers>
                 </Image>
-                <controls:AvatarView Grid.Column="1" Source="{Binding OtherAvatar}" Size="42" VerticalOptions="Center">
+                <controls:AvatarView Grid.Column="1" Source="{Binding OtherAvatar}" IsSystem="{Binding IsSystemChat}" Size="42" VerticalOptions="Center">
                     <controls:AvatarView.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding OpenOtherProfileCommand}" />
                     </controls:AvatarView.GestureRecognizers>
@@ -79,7 +79,7 @@
                                     <SwipeItemView IsVisible="{Binding IsMine}" Command="{Binding DeleteCommand}">
                                         <Border BackgroundColor="{StaticResource AppError}" StrokeThickness="0"
                                                 StrokeShape="RoundRectangle 12" Margin="6,4" Padding="18,0"
-                                                VerticalOptions="Center">
+                                                VerticalOptions="Fill" HorizontalOptions="Fill">
                                             <Label Text="Удалить" TextColor="White" FontAttributes="Bold"
                                                    VerticalOptions="Center" HorizontalOptions="Center" />
                                         </Border>
@@ -114,6 +114,19 @@
                                             </DataTrigger>
                                         </Label.Triggers>
                                     </Label>
+                                    <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsSubscriptionRequest}">
+                                        <Button Text="Одобрить" Command="{Binding ApproveRequestCommand}"
+                                                BackgroundColor="{StaticResource AppOlive}" TextColor="White"
+                                                CornerRadius="12" HeightRequest="32" FontSize="12" Padding="12,0" />
+                                        <Button Text="Отклонить" Command="{Binding RejectRequestCommand}"
+                                                BackgroundColor="{StaticResource AppError}" TextColor="White"
+                                                CornerRadius="12" HeightRequest="32" FontSize="12" Padding="12,0" />
+                                    </HorizontalStackLayout>
+                                    <Button Text="Открыть публикацию" Command="{Binding OpenMentionPostCommand}"
+                                            IsVisible="{Binding IsMentionNotification}"
+                                            BackgroundColor="{StaticResource AppNavAccent}" TextColor="White"
+                                            CornerRadius="12" HeightRequest="32" FontSize="12" Padding="12,0"
+                                            HorizontalOptions="Start" />
                                     <Image Source="{Binding Text, Converter={StaticResource ImageMessageConverter}, ConverterParameter=source}"
                                            Aspect="AspectFill" HeightRequest="180" WidthRequest="180"
                                            IsVisible="{Binding Text, Converter={StaticResource ImageMessageConverter}, ConverterParameter=isimage}" />
@@ -143,7 +156,8 @@
             </CollectionView>
 
             <!-- Ввод -->
-            <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" Padding="12,8,12,14">
+            <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" Padding="12,8,12,14"
+                  IsVisible="{Binding CanSendMessages}">
                 <!-- Скрепка (иконка со своей обводкой) -->
                 <Image Grid.Column="0" Source="icon_add_files_in_chat.png" WidthRequest="46" HeightRequest="46" VerticalOptions="Center">
                     <Image.GestureRecognizers>

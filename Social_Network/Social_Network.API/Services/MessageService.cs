@@ -10,16 +10,58 @@ namespace Social_Network.API.Services
         private readonly AppDbContext _db;
         public MessageService(AppDbContext db) => _db = db;
 
-        public async Task<List<MessageDto>> GetByChatIdAsync(int chatId) =>
-            await _db.Messages.Include(m => m.Sender).Where(m => m.ChatId == chatId).OrderBy(m => m.SentAt).Select(m => new MessageDto
+        public async Task<List<MessageDto>> GetByChatIdAsync(int chatId)
+        {
+            var messages = await _db.Messages.Include(m => m.Sender)
+                .Where(m => m.ChatId == chatId).OrderBy(m => m.SentAt)
+                .Select(m => new MessageDto
+                {
+                    Id = m.Id,
+                    ChatId = m.ChatId,
+                    SenderId = m.SenderId,
+                    Text = m.Text,
+                    SentAt = m.SentAt,
+                    IsRead = m.IsRead
+                }).ToListAsync();
+
+            await EnrichSubscriptionRequestMessagesAsync(messages);
+            return messages;
+        }
+
+        private async Task EnrichSubscriptionRequestMessagesAsync(List<MessageDto> messages)
+        {
+            var pendingIds = new List<int>();
+            foreach (var m in messages)
             {
-                Id = m.Id,
-                ChatId = m.ChatId,
-                SenderId = m.SenderId,
-                Text = m.Text,
-                SentAt = m.SentAt,
-                IsRead = m.IsRead
-            }).ToListAsync();
+                if (!m.Text.StartsWith("[SUB_REQ:", StringComparison.Ordinal)) continue;
+                if (m.Text.Contains(":OK]", StringComparison.Ordinal) ||
+                    m.Text.Contains(":DEN]", StringComparison.Ordinal)) continue;
+
+                var idPart = m.Text.Split(']')[0];
+                var idStr = idPart["[SUB_REQ:".Length..];
+                if (int.TryParse(idStr, out var reqId))
+                    pendingIds.Add(reqId);
+            }
+
+            if (pendingIds.Count == 0) return;
+
+            var statuses = await _db.SubscriptionRequests
+                .Where(r => pendingIds.Contains(r.Id) &&
+                            r.Status != SubscriptionRequestStatus.Pending)
+                .Select(r => new { r.Id, r.Status })
+                .ToListAsync();
+
+            foreach (var m in messages)
+            {
+                foreach (var st in statuses)
+                {
+                    var prefix = $"[SUB_REQ:{st.Id}]";
+                    if (!m.Text.StartsWith(prefix, StringComparison.Ordinal)) continue;
+                    var suffix = st.Status == SubscriptionRequestStatus.Approved ? "OK" : "DEN";
+                    m.Text = $"[SUB_REQ:{st.Id}:{suffix}]{m.Text[prefix.Length..]}";
+                }
+            }
+        }
 
         public async Task<MessageDto> SendAsync(int chatId, int senderId, string text)
         {

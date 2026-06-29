@@ -7,24 +7,27 @@ using Social_Network.Constants;
 
 namespace Social_Network.ViewModels
 {
-    [QueryProperty(nameof(ChatId),"chatId")]
-    [QueryProperty(nameof(OtherUserId),"otherUserId")]
-    [QueryProperty(nameof(OtherLogin),"otherLogin")]
-    [QueryProperty(nameof(OtherAvatar),"otherAvatar")]
-    [QueryProperty(nameof(OtherOnline),"otherOnline")]
-    [QueryProperty(nameof(OtherLastSeenStr),"otherLastSeen")]
-    public partial class ChatViewModel: BaseViewModel
+    [QueryProperty(nameof(ChatId), "chatId")]
+    [QueryProperty(nameof(OtherUserId), "otherUserId")]
+    [QueryProperty(nameof(OtherLogin), "otherLogin")]
+    [QueryProperty(nameof(OtherAvatar), "otherAvatar")]
+    [QueryProperty(nameof(OtherOnline), "otherOnline")]
+    [QueryProperty(nameof(OtherLastSeenStr), "otherLastSeen")]
+    [QueryProperty(nameof(IsSystemChatStr), "isSystem")]
+    public partial class ChatViewModel : BaseViewModel
     {
         private readonly IMessageService _mes;
         private readonly IChatHubService _hub;
+        private readonly ISubscriptionService _sub;
 
         private readonly List<MessageDto> _all = new();
         public ObservableCollection<MessageItemViewModel> Messages { get; } = new();
 
-        public ChatViewModel(IMessageService mes, IChatHubService hub)
+        public ChatViewModel(IMessageService mes, IChatHubService hub, ISubscriptionService sub)
         {
             _mes = mes;
             _hub = hub;
+            _sub = sub;
             Title = "Чат";
         }
 
@@ -43,10 +46,24 @@ namespace Social_Network.ViewModels
 
         [ObservableProperty] private string messageText = string.Empty;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanSendMessages))]
+        [NotifyPropertyChangedFor(nameof(CanOpenProfile))]
+        private bool isSystemChat;
+
+        public string IsSystemChatStr
+        {
+            set => IsSystemChat = bool.TryParse(value, out var b) && b;
+        }
+
+        public bool CanSendMessages => !IsSystemChat;
+        public bool CanOpenProfile => !IsSystemChat && OtherUserId > 0;
+
         public string StatusText
         {
             get
             {
+                if (IsSystemChat) return "уведомления";
                 if (OtherOnline) return "в сети";
                 if (DateTime.TryParse(OtherLastSeenStr, null,
                         System.Globalization.DateTimeStyles.RoundtripKind, out var ls))
@@ -54,7 +71,8 @@ namespace Social_Network.ViewModels
                 return "не в сети";
             }
         }
-        public string StatusColor => OtherOnline ? "#6FBF4B" : "#7A5C3E";
+
+        public string StatusColor => IsSystemChat ? "#7A5C3E" : OtherOnline ? "#6FBF4B" : "#7A5C3E";
 
         private static string FormatLastSeen(DateTime utc)
         {
@@ -66,7 +84,6 @@ namespace Social_Network.ViewModels
             return local.ToString("dd.MM.yyyy HH:mm", new System.Globalization.CultureInfo("ru-RU"));
         }
 
-        // Поиск по сообщениям в чате
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsSearchVisible))]
         private bool isSearchOpen;
@@ -77,7 +94,8 @@ namespace Social_Network.ViewModels
 
         private int _myId;
 
-        private MessageItemViewModel Wrap(MessageDto m) => new(m, DeleteMessageAsync);
+        private MessageItemViewModel Wrap(MessageDto m) => new(m, DeleteMessageAsync, IsSystemChat,
+            ApproveRequestAsync, RejectRequestAsync, OpenMentionPostAsync);
 
         private void OnMessageReceived(MessageDto mes)
         {
@@ -117,11 +135,9 @@ namespace Social_Network.ViewModels
                 }
                 RebuildDisplay();
 
-                // Отмечаем входящие как прочитанные (убирает точку «новое»)
                 foreach (var m in messages.Where(m => m.SenderId != _myId && !m.IsRead))
                     await _mes.MarksAsReadAsync(m.Id, _myId, id);
 
-                // Реалтайм через SignalR — не должен ронять страницу при сбое подключения
                 try
                 {
                     _hub.MessageReceived -= OnMessageReceived;
@@ -131,7 +147,7 @@ namespace Social_Network.ViewModels
                     await _hub.StartAsync();
                     await _hub.JoinChatAsync(id, _myId);
                 }
-                catch { /* без реалтайма сообщения всё равно отправляются по HTTP */ }
+                catch { }
             }
             catch { }
             finally { IsBusy = false; }
@@ -153,19 +169,37 @@ namespace Social_Network.ViewModels
                 Messages.Add(Wrap(m));
         }
 
+        private async Task ApproveRequestAsync(int requestId)
+        {
+            await _sub.ApproveRequestAsync(requestId, _myId);
+            await InitializeAsync(ChatId);
+        }
+
+        private async Task RejectRequestAsync(int requestId)
+        {
+            await _sub.RejectRequestAsync(requestId, _myId);
+            await InitializeAsync(ChatId);
+        }
+
+        private async Task OpenMentionPostAsync(int postId)
+        {
+            await Shell.Current.GoToAsync($"PostDetailPage?postId={postId}");
+        }
+
         [RelayCommand]
         private async Task Send()
         {
+            if (IsSystemChat) return;
             var text = MessageText;
             if (string.IsNullOrWhiteSpace(text)) return;
             MessageText = string.Empty;
             await SendTextAsync(text);
         }
 
-        // Скрепка — прикрепить фото (отправляем путь, в чате отрисуется картинкой)
         [RelayCommand]
         private async Task Attach()
         {
+            if (IsSystemChat) return;
             try
             {
                 var file = await FilePicker.PickAsync(new PickOptions
@@ -187,7 +221,6 @@ namespace Social_Network.ViewModels
                 if (sent != null)
                 {
                     sent.IsMine = true;
-                    // Показываем сразу (если реалтайм не доставит — дедуп по Id)
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
                         if (_all.All(m => m.Id != sent.Id))
@@ -212,10 +245,9 @@ namespace Social_Network.ViewModels
             }
         }
 
-        // Удаление (отмена отправки) своего сообщения
         private async Task DeleteMessageAsync(MessageDto message)
         {
-            if (message == null || !message.IsMine) return;
+            if (message == null || !message.IsMine || IsSystemChat) return;
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 bool confirm = await Shell.Current.DisplayAlertAsync(
@@ -226,11 +258,10 @@ namespace Social_Network.ViewModels
             });
         }
 
-        // По нажатию на аватар собеседника — переход в его профиль
         [RelayCommand]
         private async Task OpenOtherProfile()
         {
-            if (OtherUserId <= 0) return;
+            if (!CanOpenProfile) return;
             await Shell.Current.GoToAsync($"OtherProfilePage?userId={OtherUserId}");
         }
 

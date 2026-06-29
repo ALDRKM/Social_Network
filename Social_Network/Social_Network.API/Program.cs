@@ -36,6 +36,7 @@ namespace Social_Network.API
             builder.Services.AddScoped<ICommentsService,CommentsService>();
             builder.Services.AddScoped<IUserSettingsService, UserSettingsService>();
             builder.Services.AddScoped<IReportService, ReportService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
 
             var app = builder.Build();
 
@@ -44,6 +45,18 @@ namespace Social_Network.API
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 db.Database.Migrate();
+
+                if (!db.Users.Any(u => u.IsSystemAccount))
+                {
+                    db.Users.Add(new Social_Network.Core.Models.User
+                    {
+                        Login = "__system__",
+                        Email = "__system__@local",
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
+                        IsSystemAccount = true
+                    });
+                    db.SaveChanges();
+                }
             }
 
             // Папка для загруженных изображений (доступна по сети с любого устройства)

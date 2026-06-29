@@ -3,18 +3,18 @@ using Social_Network.Core.Models;
 
 namespace Social_Network.ViewModels
 {
-    // Обёртка над публикацией с наблюдаемым состоянием (лайк/сохранение/подписка),
-    // чтобы обновлять одну карточку, а не всю ленту
     public partial class FeedPostViewModel : ObservableObject
     {
         public Post Post { get; }
 
-        public FeedPostViewModel(Post post, bool isLiked, bool isSaved, bool isFollowingAuthor, int currentUserId)
+        public FeedPostViewModel(Post post, bool isLiked, bool isSaved, bool isFollowingAuthor,
+            bool isPendingRequest, int currentUserId)
         {
             Post = post;
             this.isLiked = isLiked;
             this.isSaved = isSaved;
             this.isFollowingAuthor = isFollowingAuthor;
+            this.isPendingRequest = isPendingRequest;
             likeCount = post.Likes?.Count ?? 0;
             IsOwnPost = post.UserId == currentUserId;
         }
@@ -33,16 +33,30 @@ namespace Social_Network.ViewModels
         [NotifyPropertyChangedFor(nameof(FollowTextColor))]
         private bool isFollowingAuthor;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FollowText))]
+        [NotifyPropertyChangedFor(nameof(FollowColor))]
+        [NotifyPropertyChangedFor(nameof(FollowTextColor))]
+        private bool isPendingRequest;
+
         [ObservableProperty] private int likeCount;
 
         public bool IsOwnPost { get; }
 
-        // Прямо привязанные свойства (надёжнее DataTrigger при быстрых кликах)
         public string LikeIcon => IsLiked ? "icon_like_already.png" : "icon_like.png";
         public string SaveIcon => IsSaved ? "icon_saved_already.png" : "icon_button_to_save_to_favorite.png";
-        public string FollowText => IsFollowingAuthor ? "Отписаться" : "Подписаться";
-        public string FollowColor => IsFollowingAuthor ? "#C4A882" : "#C8702A";
-        public string FollowTextColor => IsFollowingAuthor ? "#3B2A1A" : "White";
+
+        public string FollowText
+        {
+            get
+            {
+                if (IsPendingRequest) return "Запрос отправлен";
+                return IsFollowingAuthor ? "Отписаться" : "Подписаться";
+            }
+        }
+
+        public string FollowColor => IsPendingRequest ? "#A89880" : IsFollowingAuthor ? "#C4A882" : "#C8702A";
+        public string FollowTextColor => IsPendingRequest ? "#3B2A1A" : IsFollowingAuthor ? "#3B2A1A" : "White";
 
         public int Id => Post.Id;
         public int UserId => Post.UserId;
@@ -56,7 +70,6 @@ namespace Social_Network.ViewModels
         public bool IsNote => Post.Type == PostType.Note;
         public bool HasPhotoDescription => HasImage && HasContent;
 
-        // Теги (чипами)
         public List<string> Tags => Post.PostTags?
             .Select(pt => pt.Tag?.Name)
             .Where(n => !string.IsNullOrEmpty(n))
@@ -64,11 +77,12 @@ namespace Social_Network.ViewModels
             .ToList() ?? new();
         public bool HasTags => Tags.Count > 0;
 
-        // Отметки людей (чипами, с переходом в профиль)
         public List<User> MentionUsers => Post.Mentions?
             .Select(m => m.MentionedUser)
             .Where(u => u != null)
             .ToList()! ?? new();
         public bool HasMentions => MentionUsers.Count > 0;
+
+        public DateTime CreatedAt => Post.CreatedAt;
     }
 }

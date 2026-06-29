@@ -14,13 +14,21 @@
         </Grid.Clip>
 
         <!-- Фон-круг -->
-        <BoxView BackgroundColor="{StaticResource AppBrown}" />
+        <BoxView x:Name="BackgroundCircle" BackgroundColor="{StaticResource AppBrown}" />
 
         <!-- Заглушка-силуэт (когда фото нет): тело касается нижнего края круга -->
         <Path x:Name="Silhouette"
               Aspect="Fill"
               Fill="{StaticResource AppTextOnDark}"
               Data="M50,20 C61,20 70,29 70,40 C70,51 61,60 50,60 C39,60 30,51 30,40 C30,29 39,20 50,20 Z M50,64 C28,64 12,80 12,100 L88,100 C88,80 72,64 50,64 Z" />
+
+        <!-- Иконка компьютера для системного чата -->
+        <Path x:Name="ComputerIcon"
+              IsVisible="False"
+              Aspect="Uniform"
+              Margin="8"
+              Fill="{StaticResource AppBackground}"
+              Data="M8,14 L92,14 C96,14 98,16 98,20 L98,62 C98,66 96,68 92,68 L8,68 C4,68 2,66 2,62 L2,20 C2,16 4,14 8,14 Z M12,22 L88,22 L88,58 L12,58 Z M32,68 L32,76 L68,76 L68,68 M40,76 L40,84 L60,84 L60,76" />
 
         <!-- Реальная аватарка -->
         <Image x:Name="Avatar"

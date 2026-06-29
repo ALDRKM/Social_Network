@@ -24,10 +24,10 @@ namespace Social_Network.API.Controllers
         }
 
         [HttpGet("feed/{userId}")]
-        public async Task<IActionResult> GetFeed([FromRoute]int userId)
+        public async Task<IActionResult> GetFeed([FromRoute] int userId, [FromQuery] string mode = "all")
         {
-            var ListPost = await _post.GetFeedAsync(userId);
-            return Ok(ListPost);
+            var listPost = await _post.GetFeedAsync(userId, mode);
+            return Ok(listPost);
         }
 
         [HttpGet("user/{userId}")]

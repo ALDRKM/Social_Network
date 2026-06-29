@@ -15,6 +15,7 @@ namespace Social_Network.Core.Models.DTOs
         public DateTime? OtherUserLastSeen { get; set; }
         // Есть непрочитанные входящие сообщения
         public bool HasUnread { get; set; }
+        public bool IsSystemChat { get; set; }
         public MessageDto? LastMessage { get; set; }
     }
 }

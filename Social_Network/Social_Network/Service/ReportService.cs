@@ -49,11 +49,16 @@ namespace Social_Network.Service
             }
         }
 
-        public async Task<UserReportDto?> GetUserReportAsync(int userId)
+        public async Task<UserReportDto?> GetUserReportAsync(int userId, DateTime? from = null, DateTime? to = null)
         {
             try
             {
-                return await _http.GetFromJsonAsync<UserReportDto>($"{ApiConfig.BaseUrl}/report/user-stats/{userId}");
+                var url = $"{ApiConfig.BaseUrl}/report/user-stats/{userId}";
+                var qs = new List<string>();
+                if (from.HasValue) qs.Add($"from={from.Value:yyyy-MM-dd}");
+                if (to.HasValue) qs.Add($"to={to.Value:yyyy-MM-dd}");
+                if (qs.Count > 0) url += "?" + string.Join("&", qs);
+                return await _http.GetFromJsonAsync<UserReportDto>(url);
             }
             catch
             {

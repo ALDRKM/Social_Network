@@ -22,11 +22,12 @@ namespace Social_Network.Service
             }
         }
 
-        public async Task<List<Post>> GetFeedAsync(int userId)
+        public async Task<List<Post>> GetFeedAsync(int userId, string mode = "all")
         {
             try
             {
-                return await _http.GetFromJsonAsync<List<Post>>($"{ApiConfig.BaseUrl}/post/feed/{userId}") ?? new();
+                return await _http.GetFromJsonAsync<List<Post>>(
+                           $"{ApiConfig.BaseUrl}/post/feed/{userId}?mode={Uri.EscapeDataString(mode)}") ?? new();
             }
             catch
             {
