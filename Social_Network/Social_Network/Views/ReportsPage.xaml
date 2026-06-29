@@ -12,7 +12,7 @@
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="{OnIdiom Phone='10,0,10,0', Default='40,0,40,0'}">
             <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="46" HeightRequest="46"
                    HorizontalOptions="Start" VerticalOptions="Center">
-                <Image.GestureRecognizers><TapGestureRecognizer Command="{Binding GoBackCommand}" /></Image.GestureRecognizers>
+                <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped" /></Image.GestureRecognizers>
             </Image>
             <Label Grid.Column="1" Text="Отчёты и статистика" Style="{StaticResource PageTitle}" FontSize="20"
                    VerticalOptions="Center" Margin="0,0,46,0" />

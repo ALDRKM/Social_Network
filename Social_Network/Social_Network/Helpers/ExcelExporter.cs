@@ -150,7 +150,7 @@ namespace Social_Network.Helpers
                 int styleId = sheet.RowStyle.TryGetValue(r, out var sid)
                     ? sid
                     : (sheet.RowStyle.Count == 0 && r == 0 ? 1 : 0);
-                var rowHeight = RowHeightForStyle(styleId);
+                var rowHeight = RowHeightForStyle(styleId, row);
                 if (rowHeight > 0)
                     sb.Append($"<row r=\"{r + 1}\" ht=\"{rowHeight.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" customHeight=\"1\">");
                 else
@@ -167,18 +167,44 @@ namespace Social_Network.Helpers
                 }
                 sb.Append("</row>");
             }
-            sb.Append("</sheetData></worksheet>");
+            sb.Append("</sheetData>");
+            var merges = MergeRanges(sheet);
+            if (merges.Count > 0)
+            {
+                sb.Append($"<mergeCells count=\"{merges.Count}\">");
+                foreach (var range in merges)
+                    sb.Append($"<mergeCell ref=\"{range}\"/>");
+                sb.Append("</mergeCells>");
+            }
+            sb.Append("</worksheet>");
             return sb.ToString();
         }
 
         // Ширина столбцов по самой длинной ячейке (с разумными границами)
-        private static double RowHeightForStyle(int styleId) => styleId switch
+        private static double RowHeightForStyle(int styleId, List<object?> row) => styleId switch
         {
-            StyleTitle => 26,
+            StyleTitle => (row.FirstOrDefault()?.ToString() ?? string.Empty).Length > 42 ? 42 : 30,
             StyleHeader => 20,
             StyleLabel => 18,
             _ => 0
         };
+
+        private static List<string> MergeRanges(Sheet sheet)
+        {
+            var ranges = new List<string>();
+            var totalCols = sheet.Rows.Count == 0 ? 0 : sheet.Rows.Max(r => r.Count);
+            if (totalCols < 2) return ranges;
+
+            for (int r = 0; r < sheet.Rows.Count; r++)
+            {
+                if (sheet.RowStyle.TryGetValue(r, out var styleId)
+                    && styleId == StyleTitle
+                    && sheet.Rows[r].Count == 1)
+                    ranges.Add($"A{r + 1}:{Col(totalCols - 1)}{r + 1}");
+            }
+
+            return ranges;
+        }
 
         private static List<double> AutoWidths(Sheet sheet)
         {

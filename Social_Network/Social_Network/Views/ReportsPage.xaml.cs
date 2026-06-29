@@ -17,4 +17,19 @@ public partial class ReportsPage : ContentPage
         base.OnAppearing();
         await _vm.LoadReportsCommand.ExecuteAsync(null);
     }
+
+    private async void OnBackTapped(object? sender, TappedEventArgs e)
+    {
+        try
+        {
+            if (Shell.Current.Navigation.NavigationStack.Count > 1)
+                await Shell.Current.Navigation.PopAsync(false);
+            else
+                await Shell.Current.GoToAsync("SettingsPage");
+        }
+        catch (InvalidOperationException)
+        {
+            await Shell.Current.GoToAsync("SettingsPage");
+        }
+    }
 }

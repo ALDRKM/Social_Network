@@ -243,11 +243,11 @@
             <VerticalStackLayout Grid.Column="2"
                                  IsVisible="{OnIdiom Phone=False, Default=True}"
                                  Spacing="8" VerticalOptions="Start" Margin="14,58,0,0">
-                <Button Text="↓" Command="{Binding SelectDescSortCommand}"
-                        BackgroundColor="{Binding DescSortTabColor}" TextColor="White"
-                        CornerRadius="12" HeightRequest="34" FontSize="14" WidthRequest="42" />
                 <Button Text="↑" Command="{Binding SelectAscSortCommand}"
                         BackgroundColor="{Binding AscSortTabColor}" TextColor="White"
+                        CornerRadius="12" HeightRequest="34" FontSize="14" WidthRequest="42" />
+                <Button Text="↓" Command="{Binding SelectDescSortCommand}"
+                        BackgroundColor="{Binding DescSortTabColor}" TextColor="White"
                         CornerRadius="12" HeightRequest="34" FontSize="14" WidthRequest="42" />
             </VerticalStackLayout>
         </Grid>
@@ -268,35 +268,28 @@
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                         <Button Grid.Column="0" Text="Дата" Command="{Binding SelectDateSortCommand}"
                                 BackgroundColor="{Binding DateSortTabColor}" TextColor="White"
-                                CornerRadius="12" HeightRequest="38" FontSize="13" />
+                                BorderColor="{StaticResource AppNavAccent}" BorderWidth="2"
+                                CornerRadius="18" HeightRequest="38" FontSize="13" />
                         <Button Grid.Column="1" Text="Лайки" Command="{Binding SelectPopularitySortCommand}"
                                 BackgroundColor="{Binding PopularitySortTabColor}" TextColor="White"
-                                CornerRadius="12" HeightRequest="38" FontSize="13" />
+                                BorderColor="{StaticResource AppNavAccent}" BorderWidth="2"
+                                CornerRadius="18" HeightRequest="38" FontSize="13" />
                     </Grid>
                     <Label Text="Порядок" FontSize="13" TextColor="{StaticResource AppTextSecondary}" />
                     <VerticalStackLayout Spacing="8">
-                        <Border BackgroundColor="{Binding DescSortTabColor}" StrokeThickness="0"
-                                StrokeShape="RoundRectangle 12" HeightRequest="44">
-                            <Label Text="↓ Новые / больше" TextColor="White" FontSize="13"
-                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
-                                   HorizontalOptions="Fill" VerticalOptions="Fill" />
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SelectDescSortCommand}" />
-                            </Border.GestureRecognizers>
-                        </Border>
-                        <Border BackgroundColor="{Binding AscSortTabColor}" StrokeThickness="0"
-                                StrokeShape="RoundRectangle 12" HeightRequest="44">
-                            <Label Text="↑ Старые / меньше" TextColor="White" FontSize="13"
-                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
-                                   HorizontalOptions="Fill" VerticalOptions="Fill" />
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SelectAscSortCommand}" />
-                            </Border.GestureRecognizers>
-                        </Border>
+                        <Button Text="↓ Новые / больше" Command="{Binding SelectDescSortCommand}"
+                                BackgroundColor="{Binding DescSortTabColor}" TextColor="White"
+                                BorderColor="{StaticResource AppNavAccent}" BorderWidth="2"
+                                CornerRadius="22" HeightRequest="44" FontSize="13" Padding="10,0" />
+                        <Button Text="↑ Старые / меньше" Command="{Binding SelectAscSortCommand}"
+                                BackgroundColor="{Binding AscSortTabColor}" TextColor="White"
+                                BorderColor="{StaticResource AppNavAccent}" BorderWidth="2"
+                                CornerRadius="22" HeightRequest="44" FontSize="13" Padding="10,0" />
                     </VerticalStackLayout>
                     <Button Text="Закрыть" Command="{Binding CloseFilterModalCommand}"
                             BackgroundColor="{StaticResource AppNavAccent}" TextColor="White"
-                            CornerRadius="14" HeightRequest="40" FontSize="14" Margin="0,4,0,0" />
+                            BorderColor="{StaticResource AppNavAccent}" BorderWidth="2"
+                            CornerRadius="22" HeightRequest="40" FontSize="14" Margin="0,4,0,0" />
                 </VerticalStackLayout>
             </Border>
         </Grid>
