@@ -99,8 +99,8 @@ namespace Social_Network.Helpers
             "<xf/>" +
             "<xf fontId=\"1\" applyFont=\"1\"/>" +
             "<xf fontId=\"2\" fillId=\"2\" applyFont=\"1\" applyFill=\"1\"><alignment vertical=\"center\"/></xf>" +
-            "<xf fontId=\"3\" fillId=\"3\" applyFont=\"1\" applyFill=\"1\"><alignment vertical=\"center\"/></xf>" +
-            "<xf fontId=\"1\" fillId=\"4\" applyFont=\"1\" applyFill=\"1\"/>" +
+            "<xf fontId=\"3\" fillId=\"3\" applyFont=\"1\" applyFill=\"1\"><alignment vertical=\"center\" wrapText=\"1\"/></xf>" +
+            "<xf fontId=\"1\" fillId=\"4\" applyFont=\"1\" applyFill=\"1\"><alignment vertical=\"center\"/></xf>" +
             "</cellXfs>" +
             "</styleSheet>";
 
@@ -146,11 +146,15 @@ namespace Social_Network.Helpers
             sb.Append("<sheetData>");
             for (int r = 0; r < sheet.Rows.Count; r++)
             {
-                sb.Append($"<row r=\"{r + 1}\">");
                 var row = sheet.Rows[r];
                 int styleId = sheet.RowStyle.TryGetValue(r, out var sid)
                     ? sid
-                    : (sheet.RowStyle.Count == 0 && r == 0 ? 1 : 0); // совместимость: первая строка жирная
+                    : (sheet.RowStyle.Count == 0 && r == 0 ? 1 : 0);
+                var rowHeight = RowHeightForStyle(styleId);
+                if (rowHeight > 0)
+                    sb.Append($"<row r=\"{r + 1}\" ht=\"{rowHeight.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" customHeight=\"1\">");
+                else
+                    sb.Append($"<row r=\"{r + 1}\">");
                 string style = styleId > 0 ? $" s=\"{styleId}\"" : string.Empty;
                 for (int c = 0; c < row.Count; c++)
                 {
@@ -168,6 +172,14 @@ namespace Social_Network.Helpers
         }
 
         // Ширина столбцов по самой длинной ячейке (с разумными границами)
+        private static double RowHeightForStyle(int styleId) => styleId switch
+        {
+            StyleTitle => 26,
+            StyleHeader => 20,
+            StyleLabel => 18,
+            _ => 0
+        };
+
         private static List<double> AutoWidths(Sheet sheet)
         {
             int cols = sheet.Rows.Count == 0 ? 0 : sheet.Rows.Max(r => r.Count);

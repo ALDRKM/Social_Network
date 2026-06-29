@@ -15,8 +15,13 @@ namespace Social_Network.Helpers
 
         public static string GetDisplayText(string text)
         {
-            var result = GetSubscriptionRequestResult(text);
-            if (result != null) return result;
+            var match = SubReqResolvedRegex.Match(text);
+            if (match.Success)
+            {
+                var body = MarkerRegex.Replace(text, string.Empty).Trim();
+                var result = match.Groups[2].Value == "OK" ? "Одобрено" : "Отклонено";
+                return string.IsNullOrEmpty(body) ? result : $"{body} — {result}";
+            }
             return StripMarkers(text);
         }
 
@@ -35,7 +40,7 @@ namespace Social_Network.Helpers
 
         public static int? GetSubscriptionRequestId(string text)
         {
-            var match = Regex.Match(text, @"^\[SUB_REQ:(\d+)\]");
+            var match = Regex.Match(text, @"^\[SUB_REQ:(\d+)(?::(?:OK|DEN))?\]");
             if (!match.Success) return null;
             return int.TryParse(match.Groups[1].Value, out var id) ? id : null;
         }

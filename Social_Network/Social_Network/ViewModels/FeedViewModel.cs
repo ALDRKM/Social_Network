@@ -24,6 +24,18 @@ namespace Social_Network.ViewModels
         Following
     }
 
+    public enum FeedSortBy
+    {
+        Date,
+        Popularity
+    }
+
+    public enum FeedSortOrder
+    {
+        Desc,
+        Asc
+    }
+
     public partial class FeedViewModel : BaseViewModel
     {
         private readonly IPostService _post;
@@ -50,10 +62,28 @@ namespace Social_Network.ViewModels
         [NotifyPropertyChangedFor(nameof(FollowingFeedTabColor))]
         private FeedMode feedMode = FeedMode.All;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DateSortTabColor))]
+        [NotifyPropertyChangedFor(nameof(PopularitySortTabColor))]
+        private FeedSortBy sortBy = FeedSortBy.Date;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DescSortTabColor))]
+        [NotifyPropertyChangedFor(nameof(AscSortTabColor))]
+        private FeedSortOrder sortOrder = FeedSortOrder.Desc;
+
+        [ObservableProperty]
+        private bool isFilterModalOpen;
+
         public bool IsAllFeed => FeedMode == FeedMode.All;
         public bool IsFollowingFeed => FeedMode == FeedMode.Following;
         public string AllFeedTabColor => IsAllFeed ? "#5C3210" : "#665C3210";
         public string FollowingFeedTabColor => IsFollowingFeed ? "#5C3210" : "#665C3210";
+
+        public string DateSortTabColor => SortBy == FeedSortBy.Date ? "#5C3210" : "#665C3210";
+        public string PopularitySortTabColor => SortBy == FeedSortBy.Popularity ? "#5C3210" : "#665C3210";
+        public string DescSortTabColor => SortOrder == FeedSortOrder.Desc ? "#5C3210" : "#665C3210";
+        public string AscSortTabColor => SortOrder == FeedSortOrder.Asc ? "#5C3210" : "#665C3210";
 
         public FeedViewModel(IPostService post, ILikeService like, ISavedPostService saved,
             ISubscriptionService sub, IChatService chat)
@@ -64,6 +94,22 @@ namespace Social_Network.ViewModels
             _sub = sub;
             _chat = chat;
             Title = "Лента";
+        }
+
+        private static string ViewedStoriesKey(int userId) => $"viewedStories_{userId}";
+
+        private void LoadViewedStories(int userId)
+        {
+            _viewedStories.Clear();
+            var saved = Preferences.Default.Get(ViewedStoriesKey(userId), string.Empty);
+            foreach (var part in saved.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                if (int.TryParse(part, out var id))
+                    _viewedStories.Add(id);
+        }
+
+        private void SaveViewedStories(int userId)
+        {
+            Preferences.Default.Set(ViewedStoriesKey(userId), string.Join(',', _viewedStories));
         }
 
         private async Task RefreshUnreadAsync(int userId)
@@ -93,6 +139,68 @@ namespace Social_Network.ViewModels
         }
 
         [RelayCommand]
+        private void OpenFilterModal() => IsFilterModalOpen = true;
+
+        [RelayCommand]
+        private void CloseFilterModal() => IsFilterModalOpen = false;
+
+        [RelayCommand]
+        private void SelectDateSort()
+        {
+            if (SortBy == FeedSortBy.Date) return;
+            SortBy = FeedSortBy.Date;
+            ApplySort();
+        }
+
+        [RelayCommand]
+        private void SelectPopularitySort()
+        {
+            if (SortBy == FeedSortBy.Popularity) return;
+            SortBy = FeedSortBy.Popularity;
+            ApplySort();
+        }
+
+        [RelayCommand]
+        private void SelectDescSort()
+        {
+            if (SortOrder == FeedSortOrder.Desc) return;
+            SortOrder = FeedSortOrder.Desc;
+            ApplySort();
+        }
+
+        [RelayCommand]
+        private void SelectAscSort()
+        {
+            if (SortOrder == FeedSortOrder.Asc) return;
+            SortOrder = FeedSortOrder.Asc;
+            ApplySort();
+        }
+
+        private void ApplySort()
+        {
+            if (Posts.Count == 0) return;
+
+            IEnumerable<FeedPostViewModel> sorted;
+            if (SortBy == FeedSortBy.Popularity)
+            {
+                sorted = SortOrder == FeedSortOrder.Desc
+                    ? Posts.OrderByDescending(p => p.LikeCount).ThenByDescending(p => p.CreatedAt)
+                    : Posts.OrderBy(p => p.LikeCount).ThenByDescending(p => p.CreatedAt);
+            }
+            else
+            {
+                sorted = SortOrder == FeedSortOrder.Desc
+                    ? Posts.OrderByDescending(p => p.CreatedAt)
+                    : Posts.OrderBy(p => p.CreatedAt);
+            }
+
+            var list = sorted.ToList();
+            Posts.Clear();
+            foreach (var p in list)
+                Posts.Add(p);
+        }
+
+        [RelayCommand]
         private async Task LoadFeed()
         {
             if (IsBusy) { IsRefreshing = false; return; }
@@ -100,6 +208,8 @@ namespace Social_Network.ViewModels
             try
             {
                 int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+                LoadViewedStories(userId);
+
                 var mode = FeedMode == FeedMode.Following ? "following" : "all";
 
                 var posts = await _post.GetFeedAsync(userId, mode);
@@ -117,6 +227,7 @@ namespace Social_Network.ViewModels
                     Posts.Add(new FeedPostViewModel(p, isLiked, isSaved, isFollowing, isPending, userId));
                 }
 
+                ApplySort();
                 BuildStories(posts, followingIds, userId);
                 await RefreshUnreadAsync(userId);
             }
@@ -177,6 +288,10 @@ namespace Social_Network.ViewModels
             if (story == null) return;
             story.IsViewed = true;
             _viewedStories.Add(story.PostId);
+
+            int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+            SaveViewedStories(userId);
+
             int idx = Stories.IndexOf(story);
             if (idx >= 0 && idx < Stories.Count - 1)
                 Stories.Move(idx, Stories.Count - 1);
@@ -204,6 +319,9 @@ namespace Social_Network.ViewModels
                 item.IsLiked = true;
                 item.LikeCount += 1;
             }
+
+            if (SortBy == FeedSortBy.Popularity)
+                ApplySort();
         }
 
         [RelayCommand]

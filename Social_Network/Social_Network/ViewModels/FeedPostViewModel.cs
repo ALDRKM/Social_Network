@@ -82,5 +82,7 @@ namespace Social_Network.ViewModels
             .Where(u => u != null)
             .ToList()! ?? new();
         public bool HasMentions => MentionUsers.Count > 0;
+
+        public DateTime CreatedAt => Post.CreatedAt;
     }
 }
