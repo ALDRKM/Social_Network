@@ -12,7 +12,7 @@
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="{OnIdiom Phone='10,0,10,0', Default='40,0,40,0'}">
             <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="46" HeightRequest="46"
                    HorizontalOptions="Start" VerticalOptions="Center">
-                <Image.GestureRecognizers><TapGestureRecognizer Command="{Binding GoBackCommand}" /></Image.GestureRecognizers>
+                <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped" /></Image.GestureRecognizers>
             </Image>
             <Label Grid.Column="1" Text="Отчёты и статистика" Style="{StaticResource PageTitle}" FontSize="20"
                    VerticalOptions="Center" Margin="0,0,46,0" />
@@ -35,9 +35,9 @@
                                 <Label Grid.Column="0" Text="Указать период" VerticalOptions="Center" TextColor="{StaticResource AppTextPrimary}" />
                                 <Switch Grid.Column="1" IsToggled="{Binding UsePeriod}" VerticalOptions="Center" />
                             </Grid>
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding UsePeriod}">
-                                <DatePicker Grid.Column="0" Date="{Binding FromDate}" TextColor="{StaticResource AppTextPrimary}" />
-                                <DatePicker Grid.Column="1" Date="{Binding ToDate}" TextColor="{StaticResource AppTextPrimary}" />
+                            <Grid x:Name="PeriodDates" ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding UsePeriod}">
+                                <DatePicker x:Name="FromDatePicker" Grid.Column="0" Date="{Binding FromDate}" TextColor="{StaticResource AppTextPrimary}" />
+                                <DatePicker x:Name="ToDatePicker" Grid.Column="1" Date="{Binding ToDate}" TextColor="{StaticResource AppTextPrimary}" />
                             </Grid>
                             <Button Text="Обновить отчёт" Command="{Binding LoadReportsCommand}"
                                     BackgroundColor="{StaticResource AppOlive}" TextColor="White" HeightRequest="38" CornerRadius="12" FontSize="13" />
