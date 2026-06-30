@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Social_Network.ViewModels"
+             xmlns:controls="clr-namespace:Social_Network.Controls"
+             x:Class="Social_Network.Views.ProfileSettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*" Padding="0,14,0,0">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="{OnIdiom Phone='10,0,10,0', Default='40,0,40,0'}">
+            <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="46" HeightRequest="46"
+                   HorizontalOptions="Start" VerticalOptions="Center">
+                <Image.GestureRecognizers><TapGestureRecognizer Command="{Binding GoBackCommand}" /></Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Профиль" Style="{StaticResource PageTitle}" FontSize="22"
+                   VerticalOptions="Center" Margin="0,0,46,0" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,20" Spacing="14"
+                                 WidthRequest="{OnIdiom Phone=-1, Default=520}"
+                                 HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
+                <Label Text="{Binding StatusMessage}" TextColor="{StaticResource AppOlive}" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding StatusMessage, Converter={StaticResource StringToBoolConverter}}" />
+
+                <controls:AvatarView Source="{Binding AvatarUrl}" Size="100" HorizontalOptions="Center" />
+                <Button Text="Выбрать аватар" Command="{Binding PickAvatarCommand}"
+                        Style="{StaticResource ChipButton}" HeightRequest="40" CornerRadius="12"
+                        HorizontalOptions="Center" />
+
+                <Label Text="Описание профиля" FontAttributes="Bold" TextColor="{StaticResource AppTextSecondary}" />
+                <Border BackgroundColor="{StaticResource AppInput}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,8">
+                    <Editor Text="{Binding Bio}" Placeholder="Расскажите о себе" AutoSize="TextChanges"
+                            BackgroundColor="Transparent" PlaceholderColor="{StaticResource AppTextSecondary}"
+                            TextColor="{StaticResource AppTextPrimary}" MinimumHeightRequest="100" />
+                </Border>
+
+                <Button Text="Сохранить профиль" Command="{Binding SaveProfileCommand}" Style="{StaticResource PrimaryButton}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

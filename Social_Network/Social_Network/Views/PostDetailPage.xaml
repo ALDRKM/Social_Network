@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Social_Network.ViewModels"
+             xmlns:controls="clr-namespace:Social_Network.Controls"
+             x:Class="Social_Network.Views.PostDetailPage"
+             x:DataType="vm:PostDetailViewModel"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{OnIdiom Phone=0, Default=220}" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <controls:AppNavBar Grid.Column="0" Mode="Sidebar" Current="Feed" />
+
+        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto"
+              WidthRequest="{OnIdiom Phone=-1, Default=640}"
+              HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
+
+            <!-- Заголовок -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="12,12,12,4">
+                <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="38" HeightRequest="38">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBack" />
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label Grid.Column="1" Text="Публикация" Style="{StaticResource PageTitle}"
+                       FontSize="18" VerticalOptions="Center" Margin="0,0,38,0" />
+            </Grid>
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="16,4,16,12" Spacing="12">
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <controls:AvatarView Grid.Column="0" Source="{Binding Post.User.AvatarUrl}" Size="44" />
+                        <Label Grid.Column="1" Text="{Binding Post.User.Login}" VerticalOptions="Center"
+                               FontAttributes="Bold" FontSize="15" TextColor="{StaticResource AppAccentText}" />
+                    </Grid>
+
+                    <Label Text="{Binding Post.Content}" TextColor="{StaticResource AppTextPrimary}" FontSize="14" />
+
+                    <Border IsVisible="{Binding Post.ImageUrl, Converter={StaticResource StringToBoolConverter}}"
+                            StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                            BackgroundColor="{StaticResource AppSurface}"
+                            WidthRequest="{OnIdiom Phone=330, Default=460}"
+                            HeightRequest="{OnIdiom Phone=330, Default=460}" HorizontalOptions="Center">
+                        <Image Source="{Binding Post.ImageUrl, Converter={StaticResource MediaUrlConverter}}" Aspect="AspectFit" />
+                    </Border>
+
+                    <!-- Лайк -->
+                    <HorizontalStackLayout Spacing="16">
+                        <HorizontalStackLayout Spacing="6">
+                            <Image Source="{Binding LikeIcon}" WidthRequest="24" HeightRequest="24">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleLikeCommand}" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                            <Label Text="{Binding LikeCount}" VerticalOptions="Center" TextColor="{StaticResource AppTextPrimary}" />
+                        </HorizontalStackLayout>
+                        <Label Text="Комментарии" TextColor="{StaticResource AppTextSecondary}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource AppDivider}" BackgroundColor="{StaticResource AppDivider}" />
+
+                    <!-- Комментарии (дерево) -->
+                    <CollectionView ItemsSource="{Binding Comments}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CommentItemViewModel">
+                                <VerticalStackLayout Spacing="2" Padding="0,6">
+                                    <!-- Сам комментарий -->
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <controls:AvatarView Grid.Column="0" Source="{Binding AuthorAvatar}" Size="36" VerticalOptions="Start" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="{Binding AuthorLogin}" FontAttributes="Bold" FontSize="13" TextColor="{StaticResource AppAccentText}" />
+                                            <Label Text="{Binding Text}" FontSize="13" TextColor="{StaticResource AppTextPrimary}" />
+                                            <HorizontalStackLayout Spacing="14">
+                                                <Label Text="Ответить" FontSize="12" TextColor="{StaticResource AppTextSecondary}">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding BindingContext.ReplyCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                                <Label Text="Изм." FontSize="12" TextColor="{StaticResource AppAccentText}" IsVisible="{Binding IsMine}" VerticalOptions="Center">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding BindingContext.EditCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                                <Label Text="Удалить" FontSize="12" TextColor="{StaticResource AppOrange}" IsVisible="{Binding IsMine}" VerticalOptions="Center">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding BindingContext.DeleteCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                    <!-- Ответы -->
+                                    <CollectionView ItemsSource="{Binding Replies}" IsVisible="{Binding HasReplies}" Margin="46,2,0,0">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:CommentItemViewModel">
+                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Padding="0,4">
+                                                    <controls:AvatarView Grid.Column="0" Source="{Binding AuthorAvatar}" Size="28" VerticalOptions="Start" />
+                                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                        <Label Text="{Binding AuthorLogin}" FontAttributes="Bold" FontSize="12" TextColor="{StaticResource AppAccentText}" />
+                                                        <Label Text="{Binding Text}" FontSize="12" TextColor="{StaticResource AppTextPrimary}" />
+                                                        <HorizontalStackLayout Spacing="14" IsVisible="{Binding IsMine}">
+                                                            <Label Text="Изм." FontSize="12" TextColor="{StaticResource AppAccentText}" VerticalOptions="Center">
+                                                                <Label.GestureRecognizers>
+                                                                    <TapGestureRecognizer
+                                                                        Command="{Binding BindingContext.EditCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                                        CommandParameter="{Binding .}" />
+                                                                </Label.GestureRecognizers>
+                                                            </Label>
+                                                            <Label Text="Удалить" FontSize="12" TextColor="{StaticResource AppOrange}" VerticalOptions="Center">
+                                                                <Label.GestureRecognizers>
+                                                                    <TapGestureRecognizer
+                                                                        Command="{Binding BindingContext.DeleteCommentCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                                        CommandParameter="{Binding .}" />
+                                                                </Label.GestureRecognizers>
+                                                            </Label>
+                                                        </HorizontalStackLayout>
+                                                    </VerticalStackLayout>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.EmptyView>
+                            <Label Text="Пока нет комментариев" TextColor="{StaticResource AppTextSecondary}"
+                                   HorizontalTextAlignment="Center" Margin="0,20,0,0" />
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Ввод -->
+            <VerticalStackLayout Grid.Row="2" Padding="14,4,14,14" Spacing="4">
+                <Grid IsVisible="{Binding IsReplying}" ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="{Binding ReplyHint}" TextColor="{StaticResource AppAccentText}" FontSize="12" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="отмена ✕" TextColor="{StaticResource AppTextSecondary}" FontSize="12">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelReplyCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Border Grid.Column="0" BackgroundColor="{StaticResource AppInput}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 22" Padding="14,0" HeightRequest="46">
+                        <Entry Text="{Binding NewComment}" Placeholder="Добавить комментарий..."
+                               PlaceholderColor="{StaticResource AppTextSecondary}"
+                               TextColor="{StaticResource AppTextPrimary}" BackgroundColor="Transparent"
+                               VerticalOptions="Center" ReturnCommand="{Binding AddCommentCommand}" />
+                    </Border>
+                    <Button Grid.Column="1" Text="Отпр." Command="{Binding AddCommentCommand}"
+                            Style="{StaticResource PrimaryButton}" HeightRequest="46" CornerRadius="22" Padding="16,0" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

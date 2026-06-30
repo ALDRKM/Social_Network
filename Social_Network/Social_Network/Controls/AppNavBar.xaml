@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Social_Network.Controls.AppNavBar"
+             x:Name="Root">
+
+    <Grid>
+        <!-- ================= БОКОВАЯ ПАНЕЛЬ (десктоп) ================= -->
+        <Border x:Name="Sidebar"
+                IsVisible="False"
+                Stroke="Transparent" StrokeThickness="0"
+                Padding="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="{StaticResource AppSidebarTop}" Offset="0.0" />
+                    <GradientStop Color="{StaticResource AppSidebarBottom}" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <Grid RowDefinitions="Auto,*,Auto" Padding="14,28,14,20">
+
+                <!-- Верхние пункты -->
+                <VerticalStackLayout Grid.Row="0" Spacing="6">
+
+                    <Border x:Name="SFeed" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Source="icon_home.png" WidthRequest="24" HeightRequest="24" />
+                            <Label Text="Главная" TextColor="White" FontSize="15" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnFeed" /></Border.GestureRecognizers>
+                    </Border>
+
+                    <Border x:Name="SSearch" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Source="icon_search.png" WidthRequest="24" HeightRequest="24" />
+                            <Label Text="Поиск" TextColor="White" FontSize="15" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnSearch" /></Border.GestureRecognizers>
+                    </Border>
+
+                    <Border x:Name="SChat" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
+                        <HorizontalStackLayout Spacing="14">
+                            <Grid WidthRequest="24" HeightRequest="24">
+                                <Image Source="icon_chat.png" WidthRequest="24" HeightRequest="24" />
+                                <Ellipse x:Name="SChatBadge" IsVisible="False" Fill="{StaticResource AppOrange}"
+                                         Stroke="White" StrokeThickness="1.5"
+                                         WidthRequest="11" HeightRequest="11"
+                                         HorizontalOptions="End" VerticalOptions="Start" Margin="0,-2,-3,0" />
+                            </Grid>
+                            <Label Text="Сообщения" TextColor="White" FontSize="15" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnChat" /></Border.GestureRecognizers>
+                    </Border>
+
+                    <Border x:Name="SCreate" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Source="icon_add.png" WidthRequest="24" HeightRequest="24" />
+                            <Label Text="Создать" TextColor="White" FontSize="15" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnCreate" /></Border.GestureRecognizers>
+                    </Border>
+
+                </VerticalStackLayout>
+
+                <!-- Низ: профиль + шестерёнка -->
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" VerticalOptions="End">
+                    <Border x:Name="SProfile" Grid.Column="0" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,10">
+                        <HorizontalStackLayout Spacing="14">
+                            <Image Source="icon_profile.png" WidthRequest="24" HeightRequest="24" />
+                            <Label Text="Профиль" TextColor="White" FontSize="15" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnProfile" /></Border.GestureRecognizers>
+                    </Border>
+
+                    <Image Grid.Column="1" Source="icon_settings.png" WidthRequest="30" HeightRequest="30" VerticalOptions="Center">
+                        <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnSettings" /></Image.GestureRecognizers>
+                    </Image>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ================= НИЖНИЙ БАР (телефон) ================= -->
+        <Border x:Name="BottomBar"
+                IsVisible="False"
+                BackgroundColor="{StaticResource AppNavBar}"
+                Stroke="Transparent" StrokeThickness="0"
+                StrokeShape="RoundRectangle 14,14,0,0"
+                Margin="0" Padding="10,10"
+                VerticalOptions="End">
+            <Grid ColumnDefinitions="*,*,*,*,*" VerticalOptions="Center">
+
+                <Border x:Name="BFeed" Grid.Column="0" StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                        WidthRequest="44" HeightRequest="44" Padding="9" HorizontalOptions="Center">
+                    <Image Source="icon_home.png" Aspect="AspectFit" />
+                    <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnFeed" /></Border.GestureRecognizers>
+                </Border>
+
+                <Border x:Name="BSearch" Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                        WidthRequest="44" HeightRequest="44" Padding="9" HorizontalOptions="Center">
+                    <Image Source="icon_search.png" Aspect="AspectFit" />
+                    <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnSearch" /></Border.GestureRecognizers>
+                </Border>
+
+                <Border x:Name="BCreate" Grid.Column="2" StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                        WidthRequest="44" HeightRequest="44" Padding="8" HorizontalOptions="Center">
+                    <Image Source="icon_add.png" Aspect="AspectFit" />
+                    <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnCreate" /></Border.GestureRecognizers>
+                </Border>
+
+                <Border x:Name="BChat" Grid.Column="3" StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                        WidthRequest="44" HeightRequest="44" Padding="9" HorizontalOptions="Center">
+                    <Grid>
+                        <Image Source="icon_chat.png" Aspect="AspectFit" />
+                        <Ellipse x:Name="BChatBadge" IsVisible="False" Fill="{StaticResource AppOrange}"
+                                 Stroke="{StaticResource AppNavBar}" StrokeThickness="1.5"
+                                 WidthRequest="11" HeightRequest="11"
+                                 HorizontalOptions="End" VerticalOptions="Start" Margin="0,-3,-3,0" />
+                    </Grid>
+                    <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnChat" /></Border.GestureRecognizers>
+                </Border>
+
+                <Border x:Name="BProfile" Grid.Column="4" StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                        WidthRequest="44" HeightRequest="44" Padding="9" HorizontalOptions="Center">
+                    <Image Source="icon_profile.png" Aspect="AspectFit" />
+                    <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnProfile" /></Border.GestureRecognizers>
+                </Border>
+
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

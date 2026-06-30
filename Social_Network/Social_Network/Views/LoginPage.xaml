@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Social_Network.ViewModels"
+    x:Class="Social_Network.Views.LoginPage"
+    x:DataType="vm:LoginViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource AppBackground}">
+
+    <Grid>
+
+        <!-- Фоновое дерево -->
+        <Image
+            Source="bg_tree.png"
+            Opacity="0.18"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            Aspect="AspectFit"
+            HeightRequest="{OnIdiom Phone=500, Default=720}" />
+
+        <!-- Контент -->
+        <Grid RowDefinitions="*, Auto, Auto, Auto, Auto, Auto, *"
+              Padding="32,0"
+              WidthRequest="{OnIdiom Phone=-1, Default=360}"
+              HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
+
+            <BoxView Grid.Row="0" Color="Transparent" BackgroundColor="Transparent" />
+
+            <Label
+                Grid.Row="1"
+                Text="Авторизация"
+                Style="{StaticResource PageTitle}"
+                FontAttributes="None"
+                FontSize="24"
+                Margin="0,0,0,20" />
+
+            <!-- Логин или почта -->
+            <Border Grid.Row="2" Style="{StaticResource InputPill}" Margin="0,0,0,10">
+                <Entry
+                    Text="{Binding Email}"
+                    Placeholder="Эл. почта"
+                    PlaceholderColor="{StaticResource AppTextSecondary}"
+                    TextColor="{StaticResource AppTextPrimary}"
+                    BackgroundColor="Transparent"
+                    VerticalOptions="Center"
+                    Keyboard="Email" />
+            </Border>
+
+            <!-- Пароль -->
+            <Border Grid.Row="3" Style="{StaticResource InputPill}" Margin="0,0,0,10">
+                <Entry
+                    Text="{Binding Password}"
+                    Placeholder="Пароль"
+                    PlaceholderColor="{StaticResource AppTextSecondary}"
+                    TextColor="{StaticResource AppTextPrimary}"
+                    BackgroundColor="Transparent"
+                    VerticalOptions="Center"
+                    IsPassword="True" />
+            </Border>
+
+            <!-- Ошибка -->
+            <Label
+                Grid.Row="4"
+                Text="{Binding ErrorMessage}"
+                TextColor="{StaticResource AppError}"
+                FontSize="13"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                Margin="0,0,0,6" />
+
+            <!-- Кнопка Войти -->
+            <Button
+                Grid.Row="5"
+                Text="Войти"
+                Command="{Binding LoginCommand}"
+                IsEnabled="{Binding IsNotBusy}"
+                Style="{StaticResource PrimaryButton}" />
+
+            <BoxView Grid.Row="6" Color="Transparent" BackgroundColor="Transparent" />
+
+        </Grid>
+
+        <!-- Ссылка на регистрацию -->
+        <Label
+            Text="Зарегистрироваться"
+            TextColor="{StaticResource AppTextPrimary}"
+            FontSize="15"
+            HorizontalOptions="Center"
+            VerticalOptions="End"
+            Margin="0,0,0,32">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding GoToRegisterCommand}" />
+            </Label.GestureRecognizers>
+        </Label>
+
+        <ActivityIndicator
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            Color="{StaticResource AppOlive}"
+            HorizontalOptions="Center"
+            VerticalOptions="Center" />
+
+    </Grid>
+</ContentPage>

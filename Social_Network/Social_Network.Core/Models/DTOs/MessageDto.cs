@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Social_Network.Core.Models.DTOs
+{
+    public class MessageDto
+    {
+        // Properties
+        public int Id { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public string SenderLogin { get; set; } = string.Empty;
+        public DateTime SentAt { get; set; } = DateTime.UtcNow;
+        public bool IsRead { get; set; } = false;
+        // Признак собственного сообщения (выставляется на клиенте для выравнивания)
+        public bool IsMine { get; set; } = false;
+        // Foreign keys and navigation properties for Chat and User (Sender)
+        public int ChatId { get; set; }
+        public Chat? Chat { get; set; }
+        public int SenderId { get; set; }
+        public User? Sender { get; set; }
+    }
+}

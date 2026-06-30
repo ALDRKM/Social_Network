@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Social_Network.ViewModels"
+             x:Class="Social_Network.Views.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*" Padding="0,14,0,0">
+
+        <!-- Шапка: крупная кнопка назад слева от контента -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="{OnIdiom Phone='10,0,10,0', Default='40,0,40,0'}">
+            <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="46" HeightRequest="46"
+                   HorizontalOptions="Start" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Настройки" Style="{StaticResource PageTitle}"
+                   FontSize="22" VerticalOptions="Center" Margin="0,0,46,0" />
+        </Grid>
+
+        <!-- Меню -->
+        <VerticalStackLayout Grid.Row="1" Spacing="2" Padding="0,16,0,0"
+                             WidthRequest="{OnIdiom Phone=-1, Default=560}"
+                             HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}">
+
+            <!-- Приватность -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,16" ColumnSpacing="16">
+                <Path Grid.Column="0" WidthRequest="28" HeightRequest="28" Aspect="Uniform"
+                      Stroke="{StaticResource AppBrown}" StrokeThickness="3" StrokeLineJoin="Round" Fill="Transparent"
+                      Data="M30,48 L70,48 L70,86 L30,86 Z M38,48 L38,34 A12,12 0 0,1 62,34 L62,48" />
+                <Label Grid.Column="1" Text="Настройки приватности" VerticalOptions="Center"
+                       FontSize="16" TextColor="{StaticResource AppAccentText}" FontAttributes="Bold" />
+                <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource AppTextSecondary}" VerticalOptions="Center" />
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenPrivacyCommand}" />
+                </Grid.GestureRecognizers>
+            </Grid>
+            <BoxView HeightRequest="1" Color="{StaticResource AppDivider}" Margin="20,0" />
+
+            <!-- Аккаунт -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,16" ColumnSpacing="16">
+                <Path Grid.Column="0" WidthRequest="28" HeightRequest="28" Aspect="Uniform"
+                      Stroke="{StaticResource AppBrown}" StrokeThickness="3" StrokeLineJoin="Round" Fill="Transparent"
+                      Data="M50,30 A14,14 0 1,0 50,58 A14,14 0 1,0 50,30 Z M24,82 C24,64 38,58 50,58 C62,58 76,64 76,82" />
+                <Label Grid.Column="1" Text="Настройки аккаунта" VerticalOptions="Center"
+                       FontSize="16" TextColor="{StaticResource AppAccentText}" FontAttributes="Bold" />
+                <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource AppTextSecondary}" VerticalOptions="Center" />
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenAccountCommand}" />
+                </Grid.GestureRecognizers>
+            </Grid>
+            <BoxView HeightRequest="1" Color="{StaticResource AppDivider}" Margin="20,0" />
+
+            <!-- Профиль -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,16" ColumnSpacing="16">
+                <Path Grid.Column="0" WidthRequest="28" HeightRequest="28" Aspect="Uniform"
+                      Stroke="{StaticResource AppBrown}" StrokeThickness="3" StrokeLineJoin="Round" Fill="Transparent"
+                      Data="M22,22 L44,22 L44,44 L22,44 Z M56,22 L78,22 L78,44 L56,44 Z M22,56 L44,56 L44,78 L22,78 Z M56,56 L78,56 L78,78 L56,78 Z" />
+                <Label Grid.Column="1" Text="Настройки профиля" VerticalOptions="Center"
+                       FontSize="16" TextColor="{StaticResource AppAccentText}" FontAttributes="Bold" />
+                <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource AppTextSecondary}" VerticalOptions="Center" />
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenProfileCommand}" />
+                </Grid.GestureRecognizers>
+            </Grid>
+            <BoxView HeightRequest="1" Color="{StaticResource AppDivider}" Margin="20,0" />
+
+            <!-- Отчёты -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,16" ColumnSpacing="16">
+                <Path Grid.Column="0" WidthRequest="28" HeightRequest="28" Aspect="Uniform"
+                      Stroke="{StaticResource AppBrown}" StrokeThickness="3" StrokeLineCap="Round" StrokeLineJoin="Round" Fill="Transparent"
+                      Data="M16,82 L88,82 M26,82 L26,52 L42,52 L42,82 M50,82 L50,32 L66,32 L66,82 M74,82 L74,60 L90,60 L90,82" />
+                <Label Grid.Column="1" Text="Отчёты и статистика" VerticalOptions="Center"
+                       FontSize="16" TextColor="{StaticResource AppAccentText}" FontAttributes="Bold" />
+                <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource AppTextSecondary}" VerticalOptions="Center" />
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenReportsCommand}" />
+                </Grid.GestureRecognizers>
+            </Grid>
+            <BoxView HeightRequest="1" Color="{StaticResource AppDivider}" Margin="20,0" />
+
+            <!-- Выход -->
+            <Button Text="Выйти из аккаунта" Command="{Binding LogOutCommand}"
+                    Style="{StaticResource PrimaryButton}" Margin="20,24,20,0"
+                    BackgroundColor="{StaticResource AppBrown}" />
+
+            <!-- Опасная зона: отделена красной полоской с предупреждением -->
+            <BoxView HeightRequest="2" Color="{StaticResource AppError}" BackgroundColor="{StaticResource AppError}" Margin="20,24,20,0" />
+            <Label Text="Внимание" TextColor="{StaticResource AppError}" FontAttributes="Bold" FontSize="14"
+                   Margin="20,8,20,0" />
+            <Label Text="Удаление аккаунта необратимо — все ваши публикации, комментарии и сообщения будут удалены."
+                   TextColor="{StaticResource AppTextSecondary}" FontSize="12" Margin="20,2,20,0" />
+            <Button Text="Удалить аккаунт" Command="{Binding DeleteAccountCommand}"
+                    Style="{StaticResource PrimaryButton}" Margin="20,10,20,0"
+                    BackgroundColor="{StaticResource AppError}" />
+
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

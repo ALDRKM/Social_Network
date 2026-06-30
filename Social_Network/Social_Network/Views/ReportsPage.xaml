@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Social_Network.ViewModels"
+             xmlns:svc="clr-namespace:Social_Network.Service"
+             x:Class="Social_Network.Views.ReportsPage"
+             x:DataType="vm:SettingsViewModel"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*" Padding="0,14,0,0">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="{OnIdiom Phone='10,0,10,0', Default='40,0,40,0'}">
+            <Image Grid.Column="0" Source="icon_to_back.png" WidthRequest="46" HeightRequest="46"
+                   HorizontalOptions="Start" VerticalOptions="Center">
+                <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped" /></Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Отчёты и статистика" Style="{StaticResource PageTitle}" FontSize="20"
+                   VerticalOptions="Center" Margin="0,0,46,0" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="{OnIdiom Phone='16,12', Default='40,18'}" Spacing="14"
+                                 HorizontalOptions="Fill">
+                <Label Text="{Binding StatusMessage}" TextColor="{StaticResource AppOlive}" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding StatusMessage, Converter={StaticResource StringToBoolConverter}}" />
+
+                <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Stretch">
+
+                    <!-- Период -->
+                    <Border FlexLayout.Basis="{OnIdiom Phone=100%, Default=49%}" Margin="0,0,0,14"
+                            BackgroundColor="{StaticResource AppSurface}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="16">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Период отчёта" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource AppAccentText}" />
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="Указать период" VerticalOptions="Center" TextColor="{StaticResource AppTextPrimary}" />
+                                <Switch Grid.Column="1" IsToggled="{Binding UsePeriod}" VerticalOptions="Center" />
+                            </Grid>
+                            <Grid x:Name="PeriodDates" ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding UsePeriod}">
+                                <DatePicker x:Name="FromDatePicker" Grid.Column="0" Date="{Binding FromDate}" TextColor="{StaticResource AppTextPrimary}" />
+                                <DatePicker x:Name="ToDatePicker" Grid.Column="1" Date="{Binding ToDate}" TextColor="{StaticResource AppTextPrimary}" />
+                            </Grid>
+                            <Button Text="Обновить отчёт" Command="{Binding LoadReportsCommand}"
+                                    BackgroundColor="{StaticResource AppOlive}" TextColor="White" HeightRequest="38" CornerRadius="12" FontSize="13" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Статистика аккаунта -->
+                    <Border FlexLayout.Basis="{OnIdiom Phone=100%, Default=49%}" Margin="0,0,0,14"
+                            BackgroundColor="{StaticResource AppSurface}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="16">
+                        <VerticalStackLayout Spacing="5" BindingContext="{Binding UserReport}" x:DataType="svc:UserReportDto">
+                            <Label Text="Статистика аккаунта" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource AppAccentText}" />
+                            <Label Text="{Binding Login, StringFormat='@{0}'}" FontSize="13" TextColor="{StaticResource AppTextSecondary}" />
+                            <Label Text="{Binding Followers, StringFormat='Подписок получено: {0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                            <Label Text="{Binding Following, StringFormat='Подписок оформлено: {0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                            <Label Text="{Binding LikesReceived, StringFormat='Лайков получено: {0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                            <Label Text="{Binding LikesGiven, StringFormat='Лайков поставлено: {0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                            <Label Text="{Binding CommentsReceived, StringFormat='Комментариев получено: {0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                            <Label Text="{Binding CommentsGiven, StringFormat='Комментариев оставлено: {0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                            <Label Text="{Binding MessagesSent, StringFormat='Сообщений в чатах: {0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                            <Label Text="{Binding Posts, StringFormat='Публикаций: {0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Популярные хэштеги -->
+                    <Border FlexLayout.Basis="{OnIdiom Phone=100%, Default=100%}" Margin="0,0,0,14"
+                            BackgroundColor="{StaticResource AppSurface}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="16">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Популярные хэштеги" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource AppAccentText}" />
+                            <CollectionView ItemsSource="{Binding TopTags}" HeightRequest="{OnIdiom Phone=280, Default=320}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="svc:TopTagDto">
+                                        <Grid ColumnDefinitions="*,Auto" Padding="2,7">
+                                            <Label Grid.Column="0" Text="{Binding Tag, StringFormat='#{0}'}" TextColor="{StaticResource AppTextPrimary}" />
+                                            <Label Grid.Column="1" Text="{Binding Count}" TextColor="{StaticResource AppAccentText}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+                </FlexLayout>
+
+                <Button Text="Экспортировать в Excel" Command="{Binding ExportDataCommand}"
+                        Style="{StaticResource PrimaryButton}" HeightRequest="48"
+                        WidthRequest="{OnIdiom Phone=-1, Default=320}"
+                        HorizontalOptions="{OnIdiom Phone=Fill, Default=Center}" Margin="0,4,0,10" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

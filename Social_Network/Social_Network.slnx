@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Social_Network.API/Social_Network.API.csproj" Id="d28bc32f-f78d-4ea6-8265-a1639dc92f2d" />
+  <Project Path="Social_Network.Core/Social_Network.Core.csproj" Id="4b424d3f-30b5-4119-a574-9424f65be516" />
+  <Project Path="Social_Network/Social_Network.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>
