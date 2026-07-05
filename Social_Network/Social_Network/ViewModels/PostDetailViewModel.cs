@@ -81,6 +81,18 @@ namespace Social_Network.ViewModels
         }
 
         [RelayCommand]
+        private async Task OpenAuthor()
+        {
+            if (Post == null) return;
+
+            int userId = Preferences.Default.Get(AppSettings.UserIdKey, 0);
+            if (Post.UserId == userId)
+                await Shell.Current.GoToAsync("//ProfilePage");
+            else
+                await Shell.Current.GoToAsync($"OtherProfilePage?userId={Post.UserId}");
+        }
+
+        [RelayCommand]
         private void Reply(CommentItemViewModel item)
         {
             if (item == null) return;

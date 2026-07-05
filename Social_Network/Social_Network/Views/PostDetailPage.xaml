@@ -35,9 +35,17 @@
                 <VerticalStackLayout Padding="16,4,16,12" Spacing="12">
 
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <controls:AvatarView Grid.Column="0" Source="{Binding Post.User.AvatarUrl}" Size="44" />
+                        <controls:AvatarView Grid.Column="0" Source="{Binding Post.User.AvatarUrl}" Size="44">
+                            <controls:AvatarView.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenAuthorCommand}" />
+                            </controls:AvatarView.GestureRecognizers>
+                        </controls:AvatarView>
                         <Label Grid.Column="1" Text="{Binding Post.User.Login}" VerticalOptions="Center"
-                               FontAttributes="Bold" FontSize="15" TextColor="{StaticResource AppAccentText}" />
+                               FontAttributes="Bold" FontSize="15" TextColor="{StaticResource AppAccentText}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenAuthorCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
                     </Grid>
 
                     <Label Text="{Binding Post.Content}" TextColor="{StaticResource AppTextPrimary}" FontSize="14" />
